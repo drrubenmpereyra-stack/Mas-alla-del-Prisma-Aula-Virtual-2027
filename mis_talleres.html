@@ -1,0 +1,192 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Mis Talleres - Vista Estudiantes</title>
+    <style>
+        :root {
+            --bg-color: #f4f5f7;
+            --neural-pattern: radial-gradient(circle, rgba(200,205,215,0.25) 1px, transparent 1px);
+            --card-bg: #ffffff;
+            --border-color: #000000;
+        }
+
+        * {
+            box-sizing: border-box;
+            margin: 0;
+            padding: 0;
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+        }
+
+        body {
+            background-color: var(--bg-color);
+            background-image: var(--neural-pattern);
+            background-size: 24px 24px;
+            color: #2c3e50;
+            padding: 20px;
+        }
+
+        .container {
+            max-width: 1200px;
+            margin: 0 auto;
+            display: flex;
+            flex-direction: column;
+            gap: 25px;
+        }
+
+        h2 {
+            font-size: 1.4rem;
+            color: #1a252f;
+            border-bottom: 2px solid #bdc3c7;
+            padding-bottom: 10px;
+        }
+
+        .card {
+            background-color: #ffffff;
+            border: 2px solid var(--border-color);
+            border-radius: 8px;
+            padding: 25px;
+            box-shadow: 0 4px 15px rgba(0,0,0,0.05);
+        }
+
+        /* Cuadrícula para los botones de talleres con fondo verde pastel y glow correspondiente al botón 2 */
+        .tests-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+            gap: 20px;
+        }
+
+        .test-btn {
+            background: #d4efdf;
+            border: 2px solid var(--border-color);
+            border-radius: 8px;
+            padding: 12px;
+            cursor: pointer;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            gap: 10px;
+            transition: all 0.2s ease;
+            box-shadow: 0 0 8px rgba(212, 239, 223, 0.8);
+        }
+
+        .test-btn:hover {
+            transform: translateY(-3px);
+            box-shadow: 0 4px 12px rgba(0,0,0,0.15);
+            background-color: #a9dfbf;
+        }
+
+        .test-btn img {
+            width: 100%;
+            height: 160px;
+            object-fit: cover;
+            border: 1.5px solid var(--border-color);
+            border-radius: 6px;
+        }
+
+        .test-btn span {
+            font-size: 0.95rem;
+            font-weight: 700;
+            color: #145a32;
+            text-align: center;
+        }
+
+        /* Contenedor del Iframe para los formularios de talleres */
+        .viewer-container {
+            width: 100%;
+            height: 600px;
+            border: 2px solid var(--border-color);
+            border-radius: 6px;
+            background: #fff;
+            overflow: hidden;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+        }
+
+        .viewer-container iframe {
+            width: 100%;
+            height: 100%;
+            border: none;
+        }
+
+        .placeholder-text {
+            color: #7f8c8d;
+            font-style: italic;
+            text-align: center;
+            padding: 20px;
+        }
+    </style>
+</head>
+<body>
+
+    <div class="container">
+        <h2>Mis Talleres - Evaluaciones Prácticas</h2>
+
+        <!-- Tarjeta con la cuadrícula de botones interactivos de talleres -->
+        <div class="card">
+            <h3 style="margin-bottom: 15px; font-size: 1.1rem; color: #145a32;">Seleccione un Taller para Responder</h3>
+            <div class="tests-grid" id="talleresGrid">
+                <!-- Se generan dinámicamente los botones de talleres -->
+            </div>
+        </div>
+
+        <!-- Visor Iframe para cargar el formulario correspondiente de cada taller -->
+        <div class="card">
+            <h3 style="margin-bottom: 15px; font-size: 1.1rem; color: #145a32;">Formulario de Taller Activo</h3>
+            <div class="viewer-container" id="visorContainer">
+                <div class="placeholder-text">Seleccione un taller superior para desplegar su formulario interactivo.</div>
+            </div>
+        </div>
+    </div>
+
+    <script>
+        // URL base de GitHub Pages del repositorio
+        const GITHUB_BASE_URL = "https://drrubenmpereyra-stack.github.io/Mas-alla-del-Prisma-Aula-Virtual-2027/";
+
+        // Listado exacto de los 13 talleres con sus imágenes correspondientes integradas
+        const listaTalleres = [
+            { id: "preliminar", titulo: "Taller Preliminar", archivoImg: "BTaller_preliminar.jpg" },
+            { id: "1", titulo: "Eval Taller 1", archivoImg: "BTaller1.jpg" },
+            { id: "2", titulo: "Eval Taller 2", archivoImg: "BTaller2.jpg" },
+            { id: "3", titulo: "Eval Taller 3", archivoImg: "BTaller3.jpg" },
+            { id: "4", titulo: "Eval Taller 4", archivoImg: "BTaller4.jpg" },
+            { id: "5", titulo: "Eval Taller 5", archivoImg: "BTaller5.jpg" },
+            { id: "6", titulo: "Eval Taller 6", archivoImg: "BTaller6.jpg" },
+            { id: "7", titulo: "Eval Taller 7", archivoImg: "BTaller7.jpg" },
+            { id: "8", titulo: "Eval Taller 8", archivoImg: "BTaller8.jpg" },
+            { id: "9", titulo: "Eval Taller 9", archivoImg: "Btaller9.jpg" },
+            { id: "10", titulo: "Eval Taller 10", archivoImg: "BTaller10.jpg" },
+            { id: "11", titulo: "Eval Taller 11", archivoImg: "Btaller11.jpg" },
+            { id: "12", titulo: "Eval Taller 12", archivoImg: "BTaller12.jpg" }
+        ];
+
+        window.onload = function() {
+            const grid = document.getElementById("talleresGrid");
+            grid.innerHTML = "";
+
+            listaTalleres.forEach(taller => {
+                const btn = document.createElement("button");
+                btn.className = "test-btn";
+                btn.onclick = () => abrirTaller(taller.titulo);
+
+                const imgUrl = GITHUB_BASE_URL + taller.archivoImg;
+                btn.innerHTML = `
+                    <img src="${imgUrl}" alt="${taller.titulo}" onerror="this.src='https://via.placeholder.com/200x160?text=Taller'">
+                    <span>${taller.titulo}</span>
+                `;
+                grid.appendChild(btn);
+            });
+        };
+
+        // Función que muestra el alert "Próximamente" y prepara el iframe para cuando esté disponible
+        window.abrirTaller = function(nombreTaller) {
+            alert("Próximamente");
+            
+            const container = document.getElementById("visorContainer");
+            container.innerHTML = `<div class="placeholder-text">Módulo de ${nombreTaller} en desarrollo. Próximamente disponible.</div>`;
+        }
+    </script>
+</body>
+</html>
