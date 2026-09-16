@@ -1,0 +1,438 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Gestión de Encuentros - Administrador</title>
+    <style>
+        :root {
+            --bg-color: #f4f5f7;
+            --neural-pattern: radial-gradient(circle, rgba(200,205,215,0.25) 1px, transparent 1px);
+            --card-bg: #ffffff;
+            --border-color: #000000;
+        }
+
+        * {
+            box-sizing: border-box;
+            margin: 0;
+            padding: 0;
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+        }
+
+        body {
+            background-color: var(--bg-color);
+            background-image: var(--neural-pattern);
+            background-size: 24px 24px;
+            color: #2c3e50;
+            padding: 20px;
+        }
+
+        .container {
+            max-width: 1100px;
+            margin: 0 auto;
+        }
+
+        h2 {
+            font-size: 1.4rem;
+            margin-bottom: 20px;
+            color: #1a252f;
+            border-bottom: 2px solid #bdc3c7;
+            padding-bottom: 10px;
+        }
+
+        /* Formulario con el color de fondo del Botón 1 (#d1f2eb) y glow */
+        .form-card {
+            background-color: #d1f2eb;
+            border: 2px solid var(--border-color);
+            border-radius: 8px;
+            padding: 25px;
+            box-shadow: 0 0 12px rgba(209, 242, 235, 0.9);
+            margin-bottom: 30px;
+        }
+
+        .form-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(240px, 1fr));
+            gap: 15px;
+        }
+
+        .form-group {
+            display: flex;
+            flex-direction: column;
+        }
+
+        .form-group label {
+            font-size: 0.85rem;
+            font-weight: 700;
+            margin-bottom: 5px;
+            color: #0e6251;
+        }
+
+        .form-group input, .form-group select {
+            padding: 10px;
+            border: 2px solid var(--border-color);
+            border-radius: 6px;
+            font-size: 0.95rem;
+            background: #fff;
+            outline: none;
+        }
+
+        .form-actions {
+            margin-top: 20px;
+            display: flex;
+            gap: 10px;
+        }
+
+        .btn {
+            padding: 10px 20px;
+            border: 2px solid var(--border-color);
+            border-radius: 6px;
+            font-weight: 700;
+            cursor: pointer;
+            transition: all 0.2s ease;
+        }
+
+        .btn-save {
+            background-color: #d4efdf;
+            color: #145a32;
+            box-shadow: 0 0 8px rgba(212, 239, 223, 0.8);
+        }
+
+        .btn-save:hover {
+            background-color: #a9dfbf;
+        }
+
+        .btn-cancel {
+            background-color: #fadbd8;
+            color: #78281f;
+            display: none;
+        }
+
+        /* Tabla de Vista General */
+        .table-card {
+            background: var(--card-bg);
+            border: 2px solid var(--border-color);
+            border-radius: 8px;
+            padding: 20px;
+            box-shadow: 0 4px 15px rgba(0,0,0,0.05);
+            overflow-x: auto;
+        }
+
+        table {
+            width: 100%;
+            border-collapse: collapse;
+            text-align: left;
+            font-size: 0.9rem;
+        }
+
+        th, td {
+            padding: 12px;
+            border-bottom: 1px solid #ddd;
+            vertical-align: middle;
+        }
+
+        th {
+            background-color: #eaeded;
+            font-weight: 700;
+            color: #2c3e50;
+            border-bottom: 2px solid var(--border-color);
+        }
+
+        .badge-publicado {
+            background-color: #d4efdf;
+            color: #145a32;
+            padding: 4px 8px;
+            border-radius: 4px;
+            font-weight: 600;
+            font-size: 0.8rem;
+            border: 1px solid #145a32;
+        }
+
+        .badge-proximo {
+            background-color: #fdebd0;
+            color: #7e5109;
+            padding: 4px 8px;
+            border-radius: 4px;
+            font-weight: 600;
+            font-size: 0.8rem;
+            border: 1px solid #7e5109;
+        }
+
+        .action-btns {
+            display: flex;
+            gap: 6px;
+        }
+
+        .btn-edit {
+            background-color: #fcf3cf;
+            color: #7d6608;
+            padding: 6px 10px;
+            font-size: 0.8rem;
+            border: 1.5px solid #000;
+            border-radius: 4px;
+            cursor: pointer;
+        }
+
+        .btn-delete {
+            background-color: #f5b7b1;
+            color: #641e16;
+            padding: 6px 10px;
+            font-size: 0.8rem;
+            border: 1.5px solid #000;
+            border-radius: 4px;
+            cursor: pointer;
+        }
+
+        .btn-edit:hover, .btn-delete:hover {
+            filter: brightness(0.9);
+        }
+
+        .link-icon {
+            text-decoration: none;
+            margin-right: 8px;
+            font-size: 1.1rem;
+        }
+
+        .msg-status {
+            margin-top: 10px;
+            font-size: 0.9rem;
+            font-weight: 600;
+        }
+    </style>
+</head>
+<body>
+
+    <div class="container">
+        <h2>Gestión de Encuentros de la Capacitación</h2>
+
+        <!-- Formulario de Registro / Edición -->
+        <div class="form-card">
+            <form id="encuentroForm" onsubmit="guardarEncuentro(event)">
+                <input type="hidden" id="encuentroId">
+                <div class="form-grid">
+                    <div class="form-group">
+                        <label for="encuentroTitulo">Encuentro y Título:</label>
+                        <select id="encuentroTitulo" required>
+                            <option value="">Seleccione el capítulo...</option>
+                            <option value="Capítulo Preliminar: Epistemología de la Complejidad Vincular">Capítulo Preliminar: Epistemología de la Complejidad Vincular</option>
+                            <option value="Capítulo 1: Neuropsicoanálisis de la Sublimación y el Arte">Capítulo 1: Neuropsicoanálisis de la Sublimación y el Arte</option>
+                            <option value="Capítulo 2: Psicofarmacología y Psicoterapia Focalizada">Capítulo 2: Psicofarmacología y Psicoterapia Focalizada</option>
+                            <option value="Capítulo 3: El Trauma Colectivo y el Colapso del Lazo Social">Capítulo 3: El Trauma Colectivo y el Colapso del Lazo Social</option>
+                            <option value="Capítulo 4: La Arquitectura del Vínculo: Apego Adulto y Pareja">Capítulo 4: La Arquitectura del Vínculo: Apego Adulto y Pareja</option>
+                            <option value="Capítulo 5: Celos Patológicos y las Derivas de la Paranoia">Capítulo 5: Celos Patológicos y las Derivas de la Paranoia</option>
+                            <option value="Capítulo 6: Infidelidades Digitales y Nuevos Pactos Amorosos">Capítulo 6: Infidelidades Digitales y Nuevos Pactos Amorosos</option>
+                            <option value="Capítulo 7: Nuevas Configuraciones Familiares y la Ley">Capítulo 7: Nuevas Configuraciones Familiares y la Ley</option>
+                            <option value="Capítulo 8: Psico-oncología y Cuidados Paliativos">Capítulo 8: Psico-oncología y Cuidados Paliativos</option>
+                            <option value="Capítulo 9: Neuropsicología de las Adicciones Conductuales">Capítulo 9: Neuropsicología de las Adicciones Conductuales</option>
+                            <option value="Capítulo 10: Identidades de Género y Disidencias en la Clínica">Capítulo 10: Identidades de Género y Disidencias en la Clínica</option>
+                            <option value="Capítulo 11: Envejecimiento, Demencias y el Declive del Yo">Capítulo 11: Envejecimiento, Demencias y el Declive del Yo</option>
+                            <option value="Capítulo 12: La Posición Ética del Analista frente al Algoritmo">Capítulo 12: La Posición Ética del Analista frente al Algoritmo</option>
+                        </select>
+                    </div>
+                    <div class="form-group">
+                        <label for="fechaEncuentro">Fecha del Encuentro:</label>
+                        <input type="date" id="fechaEncuentro" required>
+                    </div>
+                    <div class="form-group">
+                        <label for="fotoDrive">Link Foto Portada (Google Drive):</label>
+                        <input type="url" id="fotoDrive" placeholder="https://drive.google.com/..." required>
+                    </div>
+                    <div class="form-group">
+                        <label for="linkMeet">Link de Meet (Clase en línea):</label>
+                        <input type="url" id="linkMeet" placeholder="https://meet.google.com/..." required>
+                    </div>
+                    <div class="form-group" style="grid-column: 1 / -1;">
+                        <label for="linkGrabacion">Link Clase Grabada (Repositorio Google Drive):</label>
+                        <input type="url" id="linkGrabacion" placeholder="https://drive.google.com/..." required>
+                    </div>
+                </div>
+
+                <div class="form-actions">
+                    <button type="submit" class="btn btn-save" id="btnGuardar">Guardar Encuentro</button>
+                    <button type="button" class="btn btn-cancel" id="btnCancelar" onclick="limpiarFormulario()">Cancelar Edición</button>
+                </div>
+                <div id="msgStatus" class="msg-status"></div>
+            </form>
+        </div>
+
+        <!-- Vista General (Tabla de Encuentros) -->
+        <div class="table-card">
+            <h3 style="margin-bottom: 15px; font-size: 1.1rem;">Encuentros Registrados</h3>
+            <table>
+                <thead>
+                    <tr>
+                        <th>Encuentro / Capítulo</th>
+                        <th>Fecha</th>
+                        <th>Estado</th>
+                        <th>Accesos y Recursos</th>
+                        <th>Acciones</th>
+                    </tr>
+                </thead>
+                <tbody id="tablaEncuentros">
+                    <tr>
+                        <td colspan="5" style="text-align: center; color: #7f8c8d;">Cargando encuentros desde la base de datos...</td>
+                    </tr>
+                </tbody>
+            </table>
+        </div>
+    </div>
+
+    <!-- Script conectado a Firebase Firestore -->
+    <script type="module">
+        import { initializeApp } from "https://www.gstatic.com/firebasejs/10.8.0/firebase-app.js";
+        import { getFirestore, collection, getDocs, setDoc, doc, deleteDoc } from "https://www.gstatic.com/firebasejs/10.8.0/firebase-firestore.js";
+
+        const firebaseConfig = {
+          apiKey: "AIzaSyDLSIGdkd2y1l7zhMjoVd_bmCj8jjXpX4I",
+          authDomain: "aula-virtual-mas-alla-del-pris.firebaseapp.com",
+          projectId: "aula-virtual-mas-alla-del-pris",
+          storageBucket: "aula-virtual-mas-alla-del-pris.firebasestorage.app",
+          messagingSenderId: "711745866832",
+          appId: "1:711745866832:web:945e046cb0b61ac320d555"
+        };
+
+        const app = initializeApp(firebaseConfig);
+        const db = getFirestore(app);
+
+        window.onload = function() {
+            document.getElementById("fechaEncuentro").valueAsDate = new Date();
+            cargarEncuentros();
+        };
+
+        // Función para extraer un orden numérico correlativo según el título seleccionado
+        function obtenerOrdenCapitulo(titulo) {
+            if (titulo.includes("Preliminar")) return 0;
+            const match = titulo.match(/Capítulo\s+(\d+)/i);
+            return match ? parseInt(match[1]) : 99;
+        }
+
+        // Guardar o actualizar encuentro en Firebase
+        window.guardarEncuentro = async function(event) {
+            event.preventDefault();
+            const idDoc = document.getElementById("encuentroId").value;
+            const titulo = document.getElementById("encuentroTitulo").value;
+            const fecha = document.getElementById("fechaEncuentro").value;
+            const fotoDrive = document.getElementById("fotoDrive").value.trim();
+            const linkMeet = document.getElementById("linkMeet").value.trim();
+            const linkGrabacion = document.getElementById("linkGrabacion").value.trim();
+            const msgStatus = document.getElementById("msgStatus");
+
+            // Calcular estado automático según la fecha actual (YYYY-MM-DD)
+            const hoyStr = new Date().toISOString().split('T')[0];
+            const estado = fecha <= hoyStr ? "Publicado" : "Próximo";
+
+            // ID único basado en el capítulo para mantener orden y consistencia
+            const orden = obtenerOrdenCapitulo(titulo);
+            const docId = idDoc ? idDoc : `ENC_${orden}_${Date.now()}`;
+
+            try {
+                await setDoc(doc(db, "encuentros", docId), {
+                    orden,
+                    titulo,
+                    fecha,
+                    estado,
+                    fotoDrive,
+                    linkMeet,
+                    linkGrabacion
+                });
+
+                msgStatus.style.color = "#145a32";
+                msgStatus.innerText = "¡Encuentro guardado y sincronizado con éxito!";
+                
+                limpiarFormulario();
+                cargarEncuentros();
+
+                setTimeout(() => { msgStatus.innerText = ""; }, 4000);
+            } catch (error) {
+                console.error("Error al guardar encuentro:", error);
+                msgStatus.style.color = "#641e16";
+                msgStatus.innerText = "Error al guardar en la base de datos.";
+            }
+        }
+
+        // Cargar y ordenar encuentros correlativamente (0, 1, 2, 3...)
+        async function cargarEncuentros() {
+            const tbody = document.getElementById("tablaEncuentros");
+            try {
+                const querySnapshot = await getDocs(collection(db, "encuentros"));
+                let encuentrosList = [];
+
+                querySnapshot.forEach((docSnap) => {
+                    encuentrosList.push({ id: docSnap.id, ...docSnap.data() });
+                });
+
+                // Ordenar estrictamente de forma correlativa por el número de capítulo
+                encuentrosList.sort((a, b) => a.orden - b.orden);
+
+                tbody.innerHTML = "";
+
+                if (encuentrosList.length === 0) {
+                    tbody.innerHTML = `<tr><td colspan="5" style="text-align: center; color: #7f8c8d;">No hay encuentros registrados todavía.</td></tr>`;
+                    return;
+                }
+
+                encuentrosList.forEach((e) => {
+                    const badgeClass = e.estado === "Publicado" ? "badge-publicado" : "badge-proximo";
+                    const tr = document.createElement("tr");
+                    tr.innerHTML = `
+                        <td><strong>${e.titulo}</strong></td>
+                        <td>${e.fecha}</td>
+                        <td><span class="${badgeClass}">${e.estado}</span></td>
+                        <td>
+                            <a href="${e.fotoDrive}" target="_blank" class="link-icon" title="Ver Foto / Portada">🖼️</a>
+                            <a href="${e.linkMeet}" target="_blank" class="link-icon" title="Enlace Meet">🎥</a>
+                            <a href="${e.linkGrabacion}" target="_blank" class="link-icon" title="Clase Grabada (Drive)">📁</a>
+                        </td>
+                        <td>
+                            <div class="action-btns">
+                                <button class="btn-edit" onclick="prepararEdicion('${e.id}', '${e.titulo.replace(/'/g, "\\'")}', '${e.fecha}', '${e.fotoDrive}', '${e.linkMeet}', '${e.linkGrabacion}')">Editar</button>
+                                <button class="btn-delete" onclick="eliminarEncuentro('${e.id}')">Eliminar</button>
+                            </div>
+                        </td>
+                    `;
+                    tbody.appendChild(tr);
+                });
+            } catch (error) {
+                console.error("Error al cargar encuentros:", error);
+                tbody.innerHTML = `<tr><td colspan="5" style="text-align: center; color: #641e16;">Error al cargar datos de Firebase.</td></tr>`;
+            }
+        }
+
+        // Preparar formulario para edición
+        window.prepararEdicion = function(id, titulo, fecha, fotoDrive, linkMeet, linkGrabacion) {
+            document.getElementById("encuentroId").value = id;
+            document.getElementById("encuentroTitulo").value = titulo;
+            document.getElementById("fechaEncuentro").value = fecha;
+            document.getElementById("fotoDrive").value = fotoDrive;
+            document.getElementById("linkMeet").value = linkMeet;
+            document.getElementById("linkGrabacion").value = linkGrabacion;
+
+            document.getElementById("btnGuardar").innerText = "Actualizar Encuentro";
+            document.getElementById("btnCancelar").style.display = "inline-block";
+            window.scrollTo({ top: 0, behavior: 'smooth' });
+        }
+
+        // Eliminar encuentro de Firebase
+        window.eliminarEncuentro = async function(docId) {
+            if (confirm("¿Estás seguro de eliminar este encuentro de forma definitiva?")) {
+                try {
+                    await deleteDoc(doc(db, "encuentros", docId));
+                    cargarEncuentros();
+                } catch (error) {
+                    console.error("Error al eliminar:", error);
+                    alert("No se pudo eliminar el encuentro.");
+                }
+            }
+        }
+
+        // Limpiar formulario
+        window.limpiarFormulario = function() {
+            document.getElementById("encuentroForm").reset();
+            document.getElementById("encuentroId").value = "";
+            document.getElementById("fechaEncuentro").valueAsDate = new Date();
+            document.getElementById("btnGuardar").innerText = "Guardar Encuentro";
+            document.getElementById("btnCancelar").style.display = "none";
+        }
+    </script>
+</body>
+</html>
