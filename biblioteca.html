@@ -40,6 +40,51 @@
             padding-bottom: 10px;
         }
 
+        /* Visor Superior de PDF con el color del Botón 3 (#fcf3cf) y glow */
+        .viewer-card {
+            background-color: #fcf3cf;
+            border: 2px solid var(--border-color);
+            border-radius: 8px;
+            padding: 25px;
+            box-shadow: 0 0 12px rgba(252, 243, 207, 0.9);
+            margin-bottom: 30px;
+        }
+
+        .viewer-header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            flex-wrap: wrap;
+            gap: 10px;
+            margin-bottom: 15px;
+        }
+
+        .viewer-header select {
+            padding: 10px;
+            border: 2px solid var(--border-color);
+            border-radius: 6px;
+            font-size: 0.95rem;
+            background: #fff;
+            outline: none;
+            min-width: 320px;
+        }
+
+        .pdf-frame-container {
+            width: 100%;
+            height: 550px;
+            border: 2px solid var(--border-color);
+            border-radius: 6px;
+            background: #fff;
+            overflow: hidden;
+        }
+
+        .pdf-frame-container iframe {
+            width: 100%;
+            height: 100%;
+            border: none;
+        }
+
+        /* Formulario de Registro / Gestión */
         .form-card {
             background-color: #ffffff;
             border: 2px solid var(--border-color);
@@ -101,6 +146,7 @@
             background-color: #a9dfbf;
         }
 
+        /* Tabla de Vista General */
         .table-card {
             background: var(--card-bg);
             border: 2px solid var(--border-color);
@@ -156,6 +202,32 @@
     <div class="container">
         <h2>Biblioteca de Medios - Presentaciones PDF</h2>
 
+        <!-- Visor Interactivo Superior con el color del Botón 3 -->
+        <div class="viewer-card">
+            <div class="viewer-header">
+                <label for="pdfSelector" style="font-weight: 700; color: #7d6608;">Seleccionar Presentación para Visualizar:</label>
+                <select id="pdfSelector" onchange="cargarVisorPDF()">
+                    <option value="Presentacion_Preliminar.pdf">Presentación Preliminar: Epistemología de la Complejidad Vincular</option>
+                    <option value="Presentacion_Encuentro1.pdf" selected>Presentación Encuentro 1: Neuropsicoanálisis de la Sublimación</option>
+                    <option value="Presentacion_Encuentro2.pdf">Presentación Encuentro 2: Psicofarmacología y Psicoterapia</option>
+                    <option value="Presentacion_Encuentro3.pdf">Presentación Encuentro 3: El Trauma Colectivo y el Lazo Social</option>
+                    <option value="Presentacion_Encuentro4.pdf">Presentación Encuentro 4: La Arquitectura del Vínculo</option>
+                    <option value="Presentacion_Encuentro5.pdf">Presentación Encuentro 5: Celos Patológicos y Paranoia</option>
+                    <option value="Presentacion_Encuentro6.pdf">Presentación Encuentro 6: Infidelidades Digitales</option>
+                    <option value="Presentacion_Encuentro7.pdf">Presentación Encuentro 7: Nuevas Configuraciones Familiares</option>
+                    <option value="Presentacion_Encuentro8.pdf">Presentación Encuentro 8: Psico-oncología y Cuidados</option>
+                    <option value="Presentacion_Encuentro9.pdf">Presentación Encuentro 9: Neuropsicología de Adicciones</option>
+                    <option value="Presentacion_Encuentro10.pdf">Presentación Encuentro 10: Identidades de Género</option>
+                    <option value="Presentacion_Encuentro11.pdf">Presentación Encuentro 11: Envejecimiento y Demencias</option>
+                    <option value="Presentacion_Encuentro12.pdf">Presentación Encuentro 12: La Posición Ética del Analista</option>
+                </select>
+            </div>
+            <div class="pdf-frame-container">
+                <iframe id="pdfVisor" src="" title="Visor de PDF"></iframe>
+            </div>
+        </div>
+
+        <!-- Formulario de Registro / Control de Materiales -->
         <div class="form-card">
             <h3 style="margin-bottom: 15px; font-size: 1.1rem; color: #7d6608;">Registrar / Sincronizar Archivo en Base de Datos</h3>
             <form id="bibliotecaForm" onsubmit="guardarMaterial(event)">
@@ -177,6 +249,7 @@
             </form>
         </div>
 
+        <!-- Tabla de Vista General -->
         <div class="table-card">
             <h3 style="margin-bottom: 15px; font-size: 1.1rem;">Materiales Bibliográficos Registrados</h3>
             <table>
@@ -197,6 +270,7 @@
         </div>
     </div>
 
+    <!-- Script conectado a Firebase Firestore -->
     <script type="module">
         import { initializeApp } from "https://www.gstatic.com/firebasejs/10.8.0/firebase-app.js";
         import { getFirestore, collection, getDocs, setDoc, doc, deleteDoc } from "https://www.gstatic.com/firebasejs/10.8.0/firebase-firestore.js";
@@ -214,9 +288,22 @@
         const db = getFirestore(app);
 
         window.onload = function() {
+            cargarVisorPDF();
             cargarMateriales();
         };
 
+        // Función para actualizar el visor de PDF según el select superior
+        window.cargarVisorPDF = function() {
+            const select = document.getElementById("pdfSelector");
+            const archivo = select.value;
+            const visor = document.getElementById("pdfVisor");
+            
+            // Como los archivos están alojados en la misma raíz del repositorio de GitHub Pages, 
+            // la URL relativa apunta directamente al PDF correspondiente.
+            visor.src = archivo;
+        }
+
+        // Guardar material en Firebase
         window.guardarMaterial = async function(event) {
             event.preventDefault();
             const titulo = document.getElementById("tituloMaterial").value.trim();
@@ -245,6 +332,7 @@
             }
         }
 
+        // Cargar tabla de materiales registrados
         async function cargarMateriales() {
             const tbody = document.getElementById("tablaMateriales");
             try {
@@ -258,13 +346,11 @@
 
                 querySnapshot.forEach((docSnap) => {
                     const m = docSnap.data();
-                    const repoBase = "https://drrubenmpereyra-stack.github.io/Mas-alla-del-Prisma-Aula-Virtual-2027/";
-                    const fullUrl = repoBase + m.archivo;
                     const tr = document.createElement("tr");
                     tr.innerHTML = `
                         <td><strong>${m.titulo}</strong></td>
                         <td><code>${m.archivo}</code></td>
-                        <td><a href="${fullUrl}" target="_blank" style="color: #1b4f72; font-weight: 600;">📄 Abrir PDF</a></td>
+                        <td><a href="${m.archivo}" target="_blank" style="color: #1b4f72; font-weight: 600;">📄 Abrir PDF</a></td>
                         <td>
                             <button class="btn-delete" onclick="eliminarMaterial('${docSnap.id}')">Eliminar</button>
                         </td>
@@ -277,6 +363,7 @@
             }
         }
 
+        // Eliminar material de Firebase
         window.eliminarMaterial = async function(docId) {
             if (confirm("¿Estás seguro de eliminar este registro de la biblioteca?")) {
                 try {
