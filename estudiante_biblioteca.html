@@ -1,0 +1,160 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Biblioteca de Medios - Estudiante</title>
+    <style>
+        :root {
+            --bg-color: #f4f5f7;
+            --neural-pattern: radial-gradient(circle, rgba(200,205,215,0.25) 1px, transparent 1px);
+            --card-bg: #ffffff;
+            --border-color: #000000;
+        }
+
+        * {
+            box-sizing: border-box;
+            margin: 0;
+            padding: 0;
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+        }
+
+        body {
+            background-color: var(--bg-color);
+            background-image: var(--neural-pattern);
+            background-size: 24px 24px;
+            color: #2c3e50;
+            padding: 20px;
+        }
+
+        .container {
+            max-width: 1100px;
+            margin: 0 auto;
+        }
+
+        h2 {
+            font-size: 1.4rem;
+            margin-bottom: 20px;
+            color: #1a252f;
+            border-bottom: 2px solid #bdc3c7;
+            padding-bottom: 10px;
+        }
+
+        /* Tarjeta de bienvenida con el color del Botón 3 de estudiante (#fcf3cf) y glow */
+        .info-card {
+            background-color: #fcf3cf;
+            border: 2px solid var(--border-color);
+            border-radius: 8px;
+            padding: 20px;
+            margin-bottom: 25px;
+            box-shadow: 0 0 10px rgba(252, 243, 207, 0.9);
+        }
+
+        .info-card p {
+            font-size: 0.95rem;
+            color: #7d6608;
+            font-weight: 700;
+        }
+
+        /* Visor Superior de PDF */
+        .viewer-card {
+            background-color: #ffffff;
+            border: 2px solid var(--border-color);
+            border-radius: 8px;
+            padding: 25px;
+            box-shadow: 0 4px 15px rgba(0,0,0,0.05);
+            margin-bottom: 30px;
+        }
+
+        .viewer-header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            flex-wrap: wrap;
+            gap: 10px;
+            margin-bottom: 15px;
+        }
+
+        .viewer-header select {
+            padding: 10px;
+            border: 2px solid var(--border-color);
+            border-radius: 6px;
+            font-size: 0.95rem;
+            background: #fff;
+            outline: none;
+            min-width: 320px;
+        }
+
+        .pdf-frame-container {
+            width: 100%;
+            height: 550px;
+            border: 2px solid var(--border-color);
+            border-radius: 6px;
+            background: #fff;
+            overflow: hidden;
+        }
+
+        .pdf-frame-container iframe {
+            width: 100%;
+            height: 100%;
+            border: none;
+        }
+    </style>
+</head>
+<body>
+
+    <div class="container">
+        <h2>Biblioteca de Medios - Presentaciones PDF</h2>
+
+        <div class="info-card">
+            <p id="estudianteNombreLogueado">Bienvenido al aula virtual — Material bibliográfico oficial de la capacitación</p>
+        </div>
+
+        <!-- Visor Interactivo de Presentaciones -->
+        <div class="viewer-card">
+            <div class="viewer-header">
+                <label for="pdfSelector" style="font-weight: 700; color: #2c3e50;">Seleccionar Presentación para Visualizar:</label>
+                <select id="pdfSelector" onchange="cargarVisorPDF()">
+                    <option value="Presentacion_Preliminar.pdf">Presentación Preliminar: Epistemología de la Complejidad Vincular</option>
+                    <option value="Presentacion_Encuentro1.pdf" selected>Presentación Encuentro 1: Neuropsicoanálisis de la Sublimación</option>
+                    <option value="Presentacion_Encuentro2.pdf">Presentación Encuentro 2: Psicofarmacología y Psicoterapia</option>
+                    <option value="Presentacion_Encuentro3.pdf">Presentación Encuentro 3: El Trauma Colectivo y el Lazo Social</option>
+                    <option value="Presentacion_Encuentro4.pdf">Presentación Encuentro 4: La Arquitectura del Vínculo</option>
+                    <option value="Presentacion_Encuentro5.pdf">Presentación Encuentro 5: Celos Patológicos y Paranoia</option>
+                    <option value="Presentacion_Encuentro6.pdf">Presentación Encuentro 6: Infidelidades Digitales</option>
+                    <option value="Presentacion_Encuentro7.pdf">Presentación Encuentro 7: Nuevas Configuraciones Familiares</option>
+                    <option value="Presentacion_Encuentro8.pdf">Presentación Encuentro 8: Psico-oncología y Cuidados</option>
+                    <option value="Presentacion_Encuentro9.pdf">Presentación Encuentro 9: Neuropsicología de Adicciones</option>
+                    <option value="Presentacion_Encuentro10.pdf">Presentación Encuentro 10: Identidades de Género</option>
+                    <option value="Presentacion_Encuentro11.pdf">Presentación Encuentro 11: Envejecimiento y Demencias</option>
+                    <option value="Presentacion_Encuentro12.pdf">Presentación Encuentro 12: La Posición Ética del Analista</option>
+                </select>
+            </div>
+            <div class="pdf-frame-container">
+                <iframe id="pdfVisor" src="" title="Visor de PDF para Estudiantes"></iframe>
+            </div>
+        </div>
+    </div>
+
+    <!-- Script de control del visor -->
+    <script>
+        window.onload = function() {
+            const sessionData = sessionStorage.getItem("current_session");
+            if (sessionData) {
+                const userObj = JSON.parse(sessionData);
+                document.getElementById("estudianteNombreLogueado").innerText = `Estudiante: ${userObj.name} — Material bibliográfico oficial de la capacitación`;
+            }
+            cargarVisorPDF();
+        };
+
+        window.cargarVisorPDF = function() {
+            const select = document.getElementById("pdfSelector");
+            const archivo = select.value;
+            const visor = document.getElementById("pdfVisor");
+            
+            // Carga el PDF directamente desde la raíz del repositorio de GitHub Pages
+            visor.src = archivo;
+        }
+    </script>
+</body>
+</html>
