@@ -1,0 +1,524 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Test Preliminar - Epistemología de la Complejidad Vincular</title>
+    <style>
+        :root {
+            --bg-color: #f4f5f7;
+            --neural-pattern: radial-gradient(circle, rgba(200,205,215,0.25) 1px, transparent 1px);
+            --card-bg: #ffffff;
+            --border-color: #000000;
+        }
+
+        * {
+            box-sizing: border-box;
+            margin: 0;
+            padding: 0;
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+        }
+
+        body {
+            background-color: var(--bg-color);
+            background-image: var(--neural-pattern);
+            background-size: 24px 24px;
+            color: #2c3e50;
+            padding: 20px;
+        }
+
+        .container {
+            max-width: 850px;
+            margin: 0 auto;
+        }
+
+        header {
+            text-align: center;
+            margin-bottom: 30px;
+            position: relative;
+        }
+
+        .btn-volver {
+            position: absolute;
+            top: 0;
+            left: 0;
+            background-color: #fadbd8;
+            color: #78281f;
+            border: 2px solid var(--border-color);
+            border-radius: 6px;
+            padding: 8px 14px;
+            font-size: 0.85rem;
+            font-weight: 700;
+            cursor: pointer;
+            box-shadow: 0 0 8px rgba(250, 219, 216, 0.8);
+            transition: all 0.2s ease;
+        }
+
+        .btn-volver:hover {
+            transform: translateY(-2px);
+            filter: brightness(0.95);
+        }
+
+        header h2 {
+            font-size: 1.5rem;
+            color: #1a252f;
+            border-bottom: 2px solid #bdc3c7;
+            padding-bottom: 10px;
+            margin-bottom: 8px;
+            margin-top: 40px;
+        }
+
+        header p {
+            font-size: 0.95rem;
+            color: #7d6608;
+            font-weight: 600;
+        }
+
+        .quiz-card {
+            background-color: var(--card-bg);
+            border: 2px solid var(--border-color);
+            border-radius: 10px;
+            padding: 30px;
+            box-shadow: 0 4px 20px rgba(0,0,0,0.08);
+            margin-bottom: 25px;
+            display: none;
+        }
+
+        .quiz-card.active {
+            display: block;
+        }
+
+        .question-number {
+            font-size: 0.85rem;
+            font-weight: 700;
+            color: #7d6608;
+            text-transform: uppercase;
+            letter-spacing: 1px;
+            margin-bottom: 8px;
+        }
+
+        .question-title {
+            font-size: 1.15rem;
+            font-weight: 700;
+            color: #2c3e50;
+            margin-bottom: 20px;
+            line-height: 1.4;
+        }
+
+        .options-list {
+            display: flex;
+            flex-direction: column;
+            gap: 12px;
+            margin-bottom: 20px;
+        }
+
+        .option-btn {
+            background: #fff;
+            border: 2px solid var(--border-color);
+            border-radius: 6px;
+            padding: 12px 16px;
+            text-align: left;
+            font-size: 0.95rem;
+            font-weight: 600;
+            color: #2c3e50;
+            cursor: pointer;
+            transition: all 0.2s ease;
+        }
+
+        .option-btn:hover:not(:disabled) {
+            background-color: #fcf3cf;
+            border-color: #7d6608;
+        }
+
+        .option-btn.correct {
+            background-color: #d4efdf !important;
+            color: #145a32 !important;
+            border-color: #145a32 !important;
+            box-shadow: 0 0 10px rgba(212, 239, 223, 0.9);
+        }
+
+        .option-btn.incorrect {
+            background-color: #f5b7b1 !important;
+            color: #641e16 !important;
+            border-color: #641e16 !important;
+            box-shadow: 0 0 10px rgba(245, 183, 177, 0.9);
+        }
+
+        .option-btn:disabled {
+            cursor: default;
+        }
+
+        .feedback-box {
+            margin-top: 15px;
+            padding: 14px;
+            border-radius: 6px;
+            font-size: 0.9rem;
+            font-weight: 600;
+            display: none;
+        }
+
+        .feedback-box.show {
+            display: block;
+        }
+
+        .feedback-box.correct-fb {
+            background-color: #d4efdf;
+            color: #145a32;
+            border: 1.5px solid #145a32;
+        }
+
+        .feedback-box.incorrect-fb {
+            background-color: #f9d5d2;
+            color: #641e16;
+            border: 1.5px solid #641e16;
+        }
+
+        .nav-actions {
+            display: flex;
+            justify-content: flex-end;
+            margin-top: 20px;
+        }
+
+        .btn-next {
+            background-color: #d4efdf;
+            color: #145a32;
+            border: 2px solid var(--border-color);
+            border-radius: 6px;
+            padding: 10px 24px;
+            font-size: 0.95rem;
+            font-weight: 700;
+            cursor: pointer;
+            box-shadow: 0 0 8px rgba(212, 239, 223, 0.8);
+            display: none;
+            transition: all 0.2s ease;
+        }
+
+        .btn-next:hover {
+            background-color: #a9dfbf;
+        }
+
+        .results-card {
+            background-color: var(--card-bg);
+            border: 2px solid var(--border-color);
+            border-radius: 10px;
+            padding: 40px;
+            text-align: center;
+            box-shadow: 0 4px 20px rgba(0,0,0,0.08);
+            display: none;
+        }
+
+        .results-card h3 {
+            font-size: 1.6rem;
+            color: #1a252f;
+            margin-bottom: 15px;
+        }
+
+        .results-card p {
+            font-size: 1.1rem;
+            color: #7d6608;
+            font-weight: 700;
+            margin-bottom: 25px;
+        }
+
+        .msg-status {
+            margin-top: 15px;
+            font-size: 0.95rem;
+            font-weight: 600;
+        }
+    </style>
+</head>
+<body>
+
+    <div class="container">
+        <header>
+            <button class="btn-volver" onclick="volverDashboard()">← Volver</button>
+            <h2>Test Preliminar: Epistemología de la Complejidad Vincular</h2>
+            <p>Programa de Formación para Profesionales de la Salud Mental (2027)</p>
+        </header>
+
+        <!-- Contenedor del Cuestionario -->
+        <div id="questionsContainer"></div>
+
+        <!-- Tarjeta de Resultados Finales -->
+        <div id="resultsCard" class="results-card">
+            <h3>Evaluación Finalizada</h3>
+            <p id="scoreText"></p>
+            <div id="resultStatus" class="msg-status"></div>
+        </div>
+    </div>
+
+    <!-- Script conectado a Firebase Firestore -->
+    <script type="module">
+        import { initializeApp } from "https://www.gstatic.com/firebasejs/10.8.0/firebase-app.js";
+        import { getFirestore, setDoc, doc } from "https://www.gstatic.com/firebasejs/10.8.0/firebase-firestore.js";
+
+        const firebaseConfig = {
+          apiKey: "AIzaSyDLSIGdkd2y1l7zhMjoVd_bmCj8jjXpX4I",
+          authDomain: "aula-virtual-mas-alla-del-pris.firebaseapp.com",
+          projectId: "aula-virtual-mas-alla-del-pris",
+          storageBucket: "aula-virtual-mas-alla-del-pris.firebasestorage.app",
+          messagingSenderId: "711745866832",
+          appId: "1:711745866832:web:945e046cb0b61ac320d555"
+        };
+
+        const app = initializeApp(firebaseConfig);
+        const db = getFirestore(app);
+
+        // Definición de las preguntas basadas estrictamente en el material adjunto
+        const preguntas = [
+            {
+                id: 1,
+                pregunta: "¿Qué posturas dominan el campo del sufrimiento psíquico contemporáneo según el texto preliminar?",
+                opciones: [
+                    "El conductismo radical y la terapia sistémica familiar.",
+                    "El reduccionismo biologicista y el aislamiento hermenéutico.",
+                    "La neuropsicología clínica y el psicoanálisis ortodoxo.",
+                    "La psiquiatría farmacológica y la psicología humanista.",
+                    "El eclecticismo clínico y la psiquiatría social."
+                ],
+                correcta: 1,
+                feedback: "Correcto. El texto señala que el reduccionismo biologicista y el aislamiento hermenéutico son las dos posturas que recortan la complejidad para adaptarla a sus certezas."
+            },
+            {
+                id: 2,
+                pregunta: "¿Cuál es la limitación principal del reduccionismo biologicista señalada en el módulo?",
+                opciones: [
+                    "Ignora por completo la prescripción de psicofármacos.",
+                    "Se enfoca exclusivamente en la trama fantasmática del paciente.",
+                    "Reduce al sujeto a moléculas y al terapeuta a dispensador de protocolos, haciendo desaparecer el sentido.",
+                    "Desatiende la plasticidad cerebral y los sustratos neurofuncionales.",
+                    "Prioriza el lazo social por encima de la individualidad."
+                ],
+                correcta: 2,
+                feedback: "Correcto. El reduccionismo biologicista reduce al sujeto a moléculas y al terapeuta a un dispensador de protocolos, ocultando el sentido."
+            },
+            {
+                id: 3,
+                pregunta: "¿Qué caracteriza al aislamiento hermenéutico frente al sufrimiento psíquico?",
+                opciones: [
+                    "Un purismo teórico sordo ante lo somático y la materialidad cerebral, dejando la carne fuera del consultorio.",
+                    "Una dependencia excesiva de los laboratorios farmacéuticos.",
+                    "Una integración absoluta entre neurociencias y surgimiento social.",
+                    "La patologización sistemática de los déficits cognitivos.",
+                    "La medicalización de todos los síntomas subjetivos."
+                ],
+                correcta: 0,
+                feedback: "Correcto. El aislamiento hermenéutico se define por un purismo teórico sordo ante lo somático, dejando la materialidad corporal fuera del consultorio."
+            },
+            {
+                id: 4,
+                pregunta: "¿De dónde surge propiamente el denominado 'Modelo de la Convergencia'?",
+                opciones: [
+                    "De un acuerdo institucional entre laboratorios y asociaciones psicoanalíticas.",
+                    "De la práctica cotidiana y de la urgencia ética ante la demanda del paciente.",
+                    "De una imposición teórica de la psiquiatría biológica moderna.",
+                    "De la investigación experimental en neurociencias cognitivas exclusivamente.",
+                    "De la sociología de las instituciones de salud mental."
+                ],
+                correcta: 1,
+                feedback: "Correcto. El modelo de la convergencia no nace de una nueva ortodoxia, sino de la práctica cotidiana y la urgencia ética de la escucha clínica."
+            },
+            {
+                id: 5,
+                pregunta: "En relación a la división cartesiana (Res cogitans / Res extensa), el texto sostiene que:",
+                opciones: [
+                    "Ha sido completamente superada por la medicina contemporánea.",
+                    "Sustenta tanto las psiquiatrías más duras como los psicoanálisis más descorporizados.",
+                    "Es la única base epistemológica válida para la clínica vincular.",
+                    "Permite explicar de forma exacta la plasticidad cerebral.",
+                    "Elimina la necesidad de conceptualizar el inconsciente."
+                ],
+                correcta: 1,
+                feedback: "Correcto. La herencia cartesiana de la separación mente-cuerpo aún pesa sobre la clínica, sustentando posturas extremas en ambas disciplinas."
+            },
+            {
+                id: 6,
+                pregunta: "¿Cómo impactan las experiencias vinculares tempranas según la perspectiva vincular y encarnada?",
+                opciones: [
+                    "Modulan la arquitectura cerebral, la expresión génica y los umbrales de estrés para toda la vida.",
+                    "Tienen un efecto puramente temporal que se disuelve en la adultez.",
+                    "Afectan exclusivamente el plano psicológico sin correlato biológico.",
+                    "Determinan únicamente el nivel de sociabilidad del individuo.",
+                    "No poseen inscripción alguna en el sustrato neurofuncional."
+                ],
+                correcta: 0,
+                feedback: "Correcto. Las vivencias vinculares tempranas dejan una huella profunda que modula la arquitectura cerebral, los genes y los umbrales de estrés vitales."
+            },
+            {
+                id: 7,
+                pregunta: "¿Qué rol cumple el campo del Otro en la constitución del psiquismo?",
+                opciones: [
+                    "Es un elemento decorativo externo a la neurosis individual.",
+                    "Es una condición de posibilidad del sujeto mismo, ya que no hay yo sin un tú que lo constituya.",
+                    "Funciona como un obstáculo para el desarrollo de la plasticidad cerebral.",
+                    "Representa únicamente la autoridad familiar en la infancia.",
+                    "Es un concepto exclusivo de la sociología sin valor clínico."
+                ],
+                correcta: 1,
+                feedback: "Correcto. Lo vincular es estructural; el sujeto está atravesado por el campo del Otro desde su origen, no hay yo sin un tú."
+            },
+            {
+                id: 8,
+                pregunta: "¿Por qué se afirma que el reduccionismo biologicista confunde sustrato con sentido?",
+                opciones: [
+                    "Porque el fármaco modula el afecto pero jamás descifra la trama fantasmática; la molécula no habla.",
+                    "Porque el análisis del inconsciente puede curar cualquier lesión orgánica cerebral.",
+                    "Porque la estructura biológica es idéntica al discurso del paciente.",
+                    "Porque el sentido subjetivo depende enteramente de los niveles de neurotransmisores.",
+                    "Porque rechaza el uso de medicamentos en la práctica clínica."
+                ],
+                correcta: 0,
+                feedback: "Correcto. El fármaco puede modular el afecto, pero la molécula no habla ni descifra la trama fantasmática del sujeto."
+            },
+            {
+                id: 9,
+                pregunta: "Respecto a la transdisciplinariedad efectiva propuesta en el módulo, se plantea que:",
+                opciones: [
+                    "Busca fusionar el psicoanálisis y las neurociencias en una sola teoría homogénea.",
+                    "Es una mera suma de saberes teóricos sin aplicación práctica.",
+                    "Es una tensión productiva entre marcos que se necesitan mutuamente sin fusionarse, conservando su especificidad.",
+                    "Elimina las diferencias conceptuales entre el sujeto del inconsciente y el cuerpo viviente.",
+                    "Subordina el psicoanálisis a los descubrimientos de la neurobiología."
+                ],
+                correcta: 2,
+                feedback: "Correcto. La transdisciplinariedad efectiva es una tensión productiva entre marcos que se interpelan sin fusionarse, manteniendo cada uno su especificidad."
+            },
+            {
+                id: 10,
+                pregunta: "Según el capítulo preliminar, al articular ambas orillas el consultorio se transforma en:",
+                opciones: [
+                    "Un espacio de repetición dogmática y teórica estricta.",
+                    "Un laboratorio vivo, herramienta conceptual situada y éticamente comprometida para tramitar lo que se condena a repetir.",
+                    "Un centro experimental de pruebas farmacológicas masivas.",
+                    "Un consultorio tradicional centrado exclusivamente en la cura tipo.",
+                    "Un ámbito de asistencia social enfocado en el lazo comunitario."
+                ],
+                correcta: 1,
+                feedback: "Correcto. Articular ambas orillas transforma el espacio clínico en un laboratorio vivo, una herramienta ética que permite tramitar lo que de otro modo se repite."
+            }
+        ];
+
+        let currentQuestion = 0;
+        let score = 0;
+        const totalQuestions = preguntas.length;
+
+        function renderQuiz() {
+            const container = document.getElementById("questionsContainer");
+            container.innerHTML = "";
+
+            preguntas.forEach((p, index) => {
+                const card = document.createElement("div");
+                card.className = `quiz-card ${index === 0 ? 'active' : ''}`;
+                card.id = `question-card-${index}`;
+
+                let opcionesHtml = "";
+                p.opciones.forEach((opcion, optIndex) => {
+                    opcionesHtml += `<button class="option-btn" onclick="verificarRespuesta(${index}, ${optIndex})">${opcion}</button>`;
+                });
+
+                card.innerHTML = `
+                    <div class="question-number">Pregunta ${index + 1} de ${totalQuestions}</div>
+                    <div class="question-title">${p.pregunta}</div>
+                    <div class="options-list" id="options-${index}">
+                        ${opcionesHtml}
+                    </div>
+                    <div class="feedback-box" id="feedback-${index}">${p.feedback}</div>
+                    <div class="nav-actions">
+                        <button class="btn-next" id="btn-next-${index}" onclick="siguientePregunta(${index})">
+                            ${index === totalQuestions - 1 ? 'Finalizar Protocolo' : 'Siguiente Pregunta'}
+                        </button>
+                    </div>
+                `;
+                container.appendChild(card);
+            });
+        }
+
+        window.verificarRespuesta = function(qIndex, selectedOpt) {
+            const p = preguntas[qIndex];
+            const optionsContainer = document.getElementById(`options-${qIndex}`);
+            const buttons = optionsContainer.getElementsByClassName("option-btn");
+            const feedbackBox = document.getElementById(`feedback-${qIndex}`);
+            const nextBtn = document.getElementById(`btn-next-${qIndex}`);
+
+            for (let i = 0; i < buttons.length; i++) {
+                buttons[i].disabled = true;
+                if (i === p.correcta) {
+                    buttons[i].classList.add("correct");
+                } else if (i === selectedOpt) {
+                    buttons[i].classList.add("incorrect");
+                }
+            }
+
+            if (selectedOpt === p.correcta) {
+                score += 1;
+                feedbackBox.className = "feedback-box show correct-fb";
+            } else {
+                feedbackBox.className = "feedback-box show incorrect-fb";
+            }
+
+            nextBtn.style.display = "block";
+        }
+
+        window.siguientePregunta = function(qIndex) {
+            document.getElementById(`question-card-${qIndex}`).classList.remove("active");
+
+            if (qIndex + 1 < totalQuestions) {
+                document.getElementById(`question-card-${qIndex + 1}`).classList.add("active");
+            } else {
+                guardarYMostrarResultados();
+            }
+        }
+
+        async function guardarYMostrarResultados() {
+            document.getElementById("questionsContainer").style.display = "none";
+            const resultsCard = document.getElementById("resultsCard");
+            const scoreText = document.getElementById("scoreText");
+            const resultStatus = document.getElementById("resultStatus");
+
+            resultsCard.style.display = "block";
+            scoreText.innerText = `Protocolo finalizado, Ud. ha obtenido ${score}puntos/10, se enviará a corrección definitiva`;
+
+            const sessionData = sessionStorage.getItem("current_session");
+            let userId = "Estudiante_Anonimo";
+            
+            if (sessionData) {
+                try {
+                    const userObj = JSON.parse(sessionData);
+                    userId = userObj.user || userObj.name || "Estudiante";
+                } catch (e) {
+                    console.error("Error al parsear sesión:", e);
+                }
+            }
+
+            const docId = `NOTA_TEST_PRELIMINAR_${userId.replace(/[\.\s]/g, "_")}`;
+
+            try {
+                await setDoc(doc(db, "calificaciones_tests", docId), {
+                    usuario: userId,
+                    notaTest_preliminar: score,
+                    fecha: new Date().toISOString()
+                });
+
+                resultStatus.style.color = "#145a32";
+                resultStatus.innerText = "¡Resultado guardado con éxito en la base de datos!";
+            } catch (error) {
+                console.error("Error al guardar en base de datos:", error);
+                resultStatus.style.color = "#641e16";
+                resultStatus.innerText = "Error al sincronizar el resultado con la base de datos.";
+            }
+        }
+
+        window.volverDashboard = function() {
+            if (window.parent && window.parent !== window) {
+                window.parent.location.reload();
+            } else {
+                window.location.href = "index.html";
+            }
+        }
+
+        window.onload = function() {
+            renderQuiz();
+        };
+    </script>
+</body>
+</html>
