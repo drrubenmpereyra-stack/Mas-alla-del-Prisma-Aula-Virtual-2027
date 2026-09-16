@@ -40,7 +40,6 @@
             padding-bottom: 10px;
         }
 
-        /* Visor Superior de PDF con el color del Botón 3 (#fcf3cf) y glow */
         .viewer-card {
             background-color: #fcf3cf;
             border: 2px solid var(--border-color);
@@ -84,7 +83,6 @@
             border: none;
         }
 
-        /* Formulario de Registro / Gestión */
         .form-card {
             background-color: #ffffff;
             border: 2px solid var(--border-color);
@@ -146,7 +144,6 @@
             background-color: #a9dfbf;
         }
 
-        /* Tabla de Vista General */
         .table-card {
             background: var(--card-bg);
             border: 2px solid var(--border-color);
@@ -202,7 +199,6 @@
     <div class="container">
         <h2>Biblioteca de Medios - Presentaciones PDF</h2>
 
-        <!-- Visor Interactivo Superior con el color del Botón 3 -->
         <div class="viewer-card">
             <div class="viewer-header">
                 <label for="pdfSelector" style="font-weight: 700; color: #7d6608;">Seleccionar Presentación para Visualizar:</label>
@@ -227,7 +223,6 @@
             </div>
         </div>
 
-        <!-- Formulario de Registro / Control de Materiales -->
         <div class="form-card">
             <h3 style="margin-bottom: 15px; font-size: 1.1rem; color: #7d6608;">Registrar / Sincronizar Archivo en Base de Datos</h3>
             <form id="bibliotecaForm" onsubmit="guardarMaterial(event)">
@@ -237,7 +232,7 @@
                         <input type="text" id="tituloMaterial" required placeholder="Ej: Presentación Encuentro 1">
                     </div>
                     <div class="form-group">
-                        <label for="nombreArchivo">Nombre exacto del archivo en GitHub:</label>
+                        <label for="nombreArchivo">Nombre exacto o URL del archivo:</label>
                         <input type="text" id="nombreArchivo" required placeholder="Ej: Presentacion_Encuentro1.pdf">
                     </div>
                 </div>
@@ -249,7 +244,6 @@
             </form>
         </div>
 
-        <!-- Tabla de Vista General -->
         <div class="table-card">
             <h3 style="margin-bottom: 15px; font-size: 1.1rem;">Materiales Bibliográficos Registrados</h3>
             <table>
@@ -270,7 +264,6 @@
         </div>
     </div>
 
-    <!-- Script conectado a Firebase Firestore -->
     <script type="module">
         import { initializeApp } from "https://www.gstatic.com/firebasejs/10.8.0/firebase-app.js";
         import { getFirestore, collection, getDocs, setDoc, doc, deleteDoc } from "https://www.gstatic.com/firebasejs/10.8.0/firebase-firestore.js";
@@ -292,27 +285,25 @@
             cargarMateriales();
         };
 
-        // Función corregida para construir la ruta absoluta y evitar el error 404 dentro del iframe
+        // Función con visor integrado para evitar bloqueos de iframe
         window.cargarVisorPDF = function() {
             const select = document.getElementById("pdfSelector");
             const archivo = select.value;
             const visor = document.getElementById("pdfVisor");
             
-            // Construye la URL absoluta basada en el origen y la ruta actual del sitio en GitHub Pages
-            const baseUrl = window.location.origin + window.location.pathname.substring(0, window.location.pathname.lastIndexOf('/') + 1);
-            const urlFinal = baseUrl + archivo;
+            const repoBase = "https://drrubenmpereyra-stack.github.io/Mas-alla-del-Prisma-Aula-Virtual-2027/";
+            const urlPdfDirecta = repoBase + archivo;
             
-            visor.src = urlFinal;
+            visor.src = "https://docs.google.com/gview?url=" + encodeURIComponent(urlPdfDirecta) + "&embedded=true";
         }
 
-        // Guardar material en Firebase
         window.guardarMaterial = async function(event) {
             event.preventDefault();
             const titulo = document.getElementById("tituloMaterial").value.trim();
             const archivo = document.getElementById("nombreArchivo").value.trim();
             const msgStatus = document.getElementById("msgStatus");
 
-            const docId = "LIB_" + archivo.replace(/[\.\s]/g, "_");
+            const docId = "LIB_" + archivo.replace(/[\.\s\/:]/g, "_");
 
             try {
                 await setDoc(doc(db, "biblioteca", docId), {
@@ -334,7 +325,6 @@
             }
         }
 
-        // Cargar tabla de materiales registrados
         async function cargarMateriales() {
             const tbody = document.getElementById("tablaMateriales");
             try {
@@ -348,11 +338,12 @@
 
                 querySnapshot.forEach((docSnap) => {
                     const m = docSnap.data();
+                    const linkArchivo = m.archivo.startsWith("http") ? m.archivo : "https://drrubenmpereyra-stack.github.io/Mas-alla-del-Prisma-Aula-Virtual-2027/" + m.archivo;
                     const tr = document.createElement("tr");
                     tr.innerHTML = `
                         <td><strong>${m.titulo}</strong></td>
                         <td><code>${m.archivo}</code></td>
-                        <td><a href="${m.archivo}" target="_blank" style="color: #1b4f72; font-weight: 600;">📄 Abrir PDF</a></td>
+                        <td><a href="${linkArchivo}" target="_blank" style="color: #1b4f72; font-weight: 600;">📄 Abrir PDF</a></td>
                         <td>
                             <button class="btn-delete" onclick="eliminarMaterial('${docSnap.id}')">Eliminar</button>
                         </td>
@@ -365,7 +356,6 @@
             }
         }
 
-        // Eliminar material de Firebase
         window.eliminarMaterial = async function(docId) {
             if (confirm("¿Estás seguro de eliminar este registro de la biblioteca?")) {
                 try {
@@ -380,3 +370,5 @@
     </script>
 </body>
 </html>
+```[cite: 1]
+
