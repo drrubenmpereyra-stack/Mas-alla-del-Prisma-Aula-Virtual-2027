@@ -1,0 +1,204 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Mis Pagos - Estudiante</title>
+    <style>
+        :root {
+            --bg-color: #f4f5f7;
+            --neural-pattern: radial-gradient(circle, rgba(200,205,215,0.25) 1px, transparent 1px);
+            --card-bg: #ffffff;
+            --border-color: #000000;
+        }
+
+        * {
+            box-sizing: border-box;
+            margin: 0;
+            padding: 0;
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+        }
+
+        body {
+            background-color: var(--bg-color);
+            background-image: var(--neural-pattern);
+            background-size: 24px 24px;
+            color: #2c3e50;
+            padding: 20px;
+        }
+
+        .container {
+            max-width: 900px;
+            margin: 0 auto;
+        }
+
+        h2 {
+            font-size: 1.4rem;
+            margin-bottom: 20px;
+            color: #1a252f;
+            border-bottom: 2px solid #bdc3c7;
+            padding-bottom: 10px;
+        }
+
+        .info-card {
+            background-color: #ebdef0;
+            border: 2px solid var(--border-color);
+            border-radius: 8px;
+            padding: 20px;
+            margin-bottom: 25px;
+            box-shadow: 0 0 10px rgba(235, 222, 240, 0.8);
+        }
+
+        .info-card p {
+            font-size: 0.95rem;
+            color: #512e5f;
+            font-weight: 600;
+        }
+
+        /* Tabla de Pagos del Estudiante */
+        .table-card {
+            background: var(--card-bg);
+            border: 2px solid var(--border-color);
+            border-radius: 8px;
+            padding: 20px;
+            box-shadow: 0 4px 15px rgba(0,0,0,0.05);
+            overflow-x: auto;
+        }
+
+        table {
+            width: 100%;
+            border-collapse: collapse;
+            text-align: left;
+            font-size: 0.9rem;
+        }
+
+        th, td {
+            padding: 12px;
+            border-bottom: 1px solid #ddd;
+        }
+
+        th {
+            background-color: #eaeded;
+            font-weight: 700;
+            color: #2c3e50;
+            border-bottom: 2px solid var(--border-color);
+        }
+
+        .badge-pagado {
+            background-color: #d4efdf;
+            color: #145a32;
+            padding: 4px 8px;
+            border-radius: 4px;
+            font-weight: 600;
+            font-size: 0.8rem;
+            border: 1px solid #145a32;
+        }
+
+        .badge-pendiente {
+            background-color: #fdebd0;
+            color: #7e5109;
+            padding: 4px 8px;
+            border-radius: 4px;
+            font-weight: 600;
+            font-size: 0.8rem;
+            border: 1px solid #7e5109;
+        }
+    </style>
+</head>
+<body>
+
+    <div class="container">
+        <h2>Historial de Mis Pagos</h2>
+
+        <div class="info-card">
+            <p id="estudianteNombreLogueado">Estudiante: Cargando datos de sesión...</p>
+        </div>
+
+        <div class="table-card">
+            <table>
+                <thead>
+                    <tr>
+                        <th>Encuentro / Capítulo</th>
+                        <th>Monto Abonado</th>
+                        <th>Modalidad</th>
+                        <th>Fecha</th>
+                        <th>Estado</th>
+                    </tr>
+                </thead>
+                <tbody id="tablaMisPagos">
+                    <tr>
+                        <td colspan="5" style="text-align: center; color: #7f8c8d;">Consultando registros de pagos...</td>
+                    </tr>
+                </tbody>
+            </table>
+        </div>
+    </div>
+
+    <!-- Script conectado a Firebase Firestore -->
+    <script type="module">
+        import { initializeApp } from "https://www.gstatic.com/firebasejs/10.8.0/firebase-app.js";
+        import { getFirestore, collection, getDocs, query, where } from "https://www.gstatic.com/firebasejs/10.8.0/firebase-firestore.js";
+
+        const firebaseConfig = {
+          apiKey: "AIzaSyDLSIGdkd2y1l7zhMjoVd_bmCj8jjXpX4I",
+          authDomain: "aula-virtual-mas-alla-del-pris.firebaseapp.com",
+          projectId: "aula-virtual-mas-alla-del-pris",
+          storageBucket: "aula-virtual-mas-alla-del-pris.firebasestorage.app",
+          messagingSenderId: "711745866832",
+          appId: "1:711745866832:web:945e046cb0b61ac320d555"
+        };
+
+        const app = initializeApp(firebaseConfig);
+        const db = getFirestore(app);
+
+        window.onload = function() {
+            // Recuperar la sesión actual del estudiante desde sessionStorage
+            const sessionData = sessionStorage.getItem("current_session");
+            
+            if (sessionData) {
+                const userObj = JSON.parse(sessionData);
+                document.getElementById("estudianteNombreLogueado").innerText = `Estudiante: ${userObj.name}`;
+                
+                // Cargar solo los pagos correspondientes a este estudiante
+                cargarMisPagos(userObj.name);
+            } else {
+                document.getElementById("estudianteNombreLogueado").innerText = "No se detectó una sesión activa.";
+                document.getElementById("tablaMisPagos").innerHTML = `<tr><td colspan="5" style="text-align: center; color: #c0392b;">Por favor, inicie sesión nuevamente.</td></tr>`;
+            }
+        };
+
+        async function cargarMisPagos(nombreEstudiante) {
+            const tbody = document.getElementById("tablaMisPagos");
+            try {
+                // Consultar en la colección de pagos filtrando por el nombre del estudiante
+                const q = query(collection(db, "pagos"), where("estudiante", "==", nombreEstudiante));
+                const querySnapshot = await getDocs(q);
+                
+                tbody.innerHTML = "";
+
+                if (querySnapshot.empty) {
+                    tbody.innerHTML = `<tr><td colspan="5" style="text-align: center; color: #7f8c8d;">No registra pagos cargados en el sistema.</td></tr>`;
+                    return;
+                }
+
+                querySnapshot.forEach((docSnap) => {
+                    const p = docSnap.data();
+                    const badgeClass = p.estado === "Pagado" ? "badge-pagado" : "badge-pendiente";
+                    const tr = document.createElement("tr");
+                    tr.innerHTML = `
+                        <td><strong>${p.encuentro}</strong></td>
+                        <td>$${Number(p.monto).toFixed(2)}</td>
+                        <td>${p.modalidad}</td>
+                        <td>${p.fechaPago}</td>
+                        <td><span class="${badgeClass}">${p.estado}</span></td>
+                    `;
+                    tbody.appendChild(tr);
+                });
+            } catch (error) {
+                console.error("Error al cargar los pagos del estudiante:", error);
+                tbody.innerHTML = `<tr><td colspan="5" style="text-align: center; color: #641e16;">Error al conectar con la base de datos.</td></tr>`;
+            }
+        }
+    </script>
+</body>
+</html>
