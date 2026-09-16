@@ -145,21 +145,21 @@
         // URL base de GitHub Pages del repositorio
         const GITHUB_BASE_URL = "https://drrubenmpereyra-stack.github.io/Mas-alla-del-Prisma-Aula-Virtual-2027/";
 
-        // Listado exacto de los 13 talleres con sus imágenes correspondientes integradas
+        // Listado exacto de los 13 talleres con sus imágenes correspondientes y archivo HTML asociado
         const listaTalleres = [
-            { id: "preliminar", titulo: "Taller Preliminar", archivoImg: "BTaller_preliminar.jpg" },
-            { id: "1", titulo: "Eval Taller 1", archivoImg: "BTaller1.jpg" },
-            { id: "2", titulo: "Eval Taller 2", archivoImg: "BTaller2.jpg" },
-            { id: "3", titulo: "Eval Taller 3", archivoImg: "BTaller3.jpg" },
-            { id: "4", titulo: "Eval Taller 4", archivoImg: "BTaller4.jpg" },
-            { id: "5", titulo: "Eval Taller 5", archivoImg: "BTaller5.jpg" },
-            { id: "6", titulo: "Eval Taller 6", archivoImg: "BTaller6.jpg" },
-            { id: "7", titulo: "Eval Taller 7", archivoImg: "BTaller7.jpg" },
-            { id: "8", titulo: "Eval Taller 8", archivoImg: "BTaller8.jpg" },
-            { id: "9", titulo: "Eval Taller 9", archivoImg: "Btaller9.jpg" },
-            { id: "10", titulo: "Eval Taller 10", archivoImg: "BTaller10.jpg" },
-            { id: "11", titulo: "Eval Taller 11", archivoImg: "Btaller11.jpg" },
-            { id: "12", titulo: "Eval Taller 12", archivoImg: "BTaller12.jpg" }
+            { id: "preliminar", titulo: "Taller Preliminar", archivoImg: "BTaller_preliminar.jpg", archivoHtml: "taller_preliminar.html" },
+            { id: "1", titulo: "Eval Taller 1", archivoImg: "BTaller1.jpg", archivoHtml: "evalTaller1.html" },
+            { id: "2", titulo: "Eval Taller 2", archivoImg: "BTaller2.jpg", archivoHtml: "evalTaller2.html" },
+            { id: "3", titulo: "Eval Taller 3", archivoImg: "BTaller3.jpg", archivoHtml: "evalTaller3.html" },
+            { id: "4", titulo: "Eval Taller 4", archivoImg: "BTaller4.jpg", archivoHtml: "evalTaller4.html" },
+            { id: "5", titulo: "Eval Taller 5", archivoImg: "BTaller5.jpg", archivoHtml: "evalTaller5.html" },
+            { id: "6", titulo: "Eval Taller 6", archivoImg: "BTaller6.jpg", archivoHtml: "evalTaller6.html" },
+            { id: "7", titulo: "Eval Taller 7", archivoImg: "BTaller7.jpg", archivoHtml: "evalTaller7.html" },
+            { id: "8", titulo: "Eval Taller 8", archivoImg: "BTaller8.jpg", archivoHtml: "evalTaller8.html" },
+            { id: "9", titulo: "Eval Taller 9", archivoImg: "Btaller9.jpg", archivoHtml: "evalTaller9.html" },
+            { id: "10", titulo: "Eval Taller 10", archivoImg: "BTaller10.jpg", archivoHtml: "evalTaller10.html" },
+            { id: "11", titulo: "Eval Taller 11", archivoImg: "Btaller11.jpg", archivoHtml: "evalTaller11.html" },
+            { id: "12", titulo: "Eval Taller 12", archivoImg: "BTaller12.jpg", archivoHtml: "evalTaller12.html" }
         ];
 
         window.onload = function() {
@@ -169,7 +169,7 @@
             listaTalleres.forEach(taller => {
                 const btn = document.createElement("button");
                 btn.className = "test-btn";
-                btn.onclick = () => abrirTaller(taller.titulo);
+                btn.onclick = () => abrirTaller(taller);
 
                 const imgUrl = GITHUB_BASE_URL + taller.archivoImg;
                 btn.innerHTML = `
@@ -180,12 +180,17 @@
             });
         };
 
-        // Función que muestra el alert "Próximamente" y prepara el iframe para cuando esté disponible
-        window.abrirTaller = function(nombreTaller) {
-            alert("Próximamente");
-            
+        // Función que abre directamente el archivo HTML correspondiente en el iframe usando la URL absoluta
+        window.abrirTaller = function(tallerObj) {
             const container = document.getElementById("visorContainer");
-            container.innerHTML = `<div class="placeholder-text">Módulo de ${nombreTaller} en desarrollo. Próximamente disponible.</div>`;
+
+            if (tallerObj.archivoHtml && tallerObj.archivoHtml.trim() !== "") {
+                const targetUrl = GITHUB_BASE_URL + tallerObj.archivoHtml;
+                container.innerHTML = `<iframe src="${targetUrl}" title="${tallerObj.titulo}"></iframe>`;
+            } else {
+                alert(`El formulario para "${tallerObj.titulo}" se encuentra actualmente en desarrollo.`);
+                container.innerHTML = `<div class="placeholder-text">Módulo de ${tallerObj.titulo} en desarrollo. Próximamente disponible.</div>`;
+            }
         }
     </script>
 </body>
