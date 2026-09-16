@@ -290,8 +290,9 @@
             const archivo = select.value;
             const visor = document.getElementById("pdfVisor");
             
-            const repoBase = "https://drrubenmpereyra-stack.github.io/Mas-alla-del-Prisma-Aula-Virtual-2027/";
-            visor.src = repoBase + archivo;
+            // Corrige la ruta absoluta eliminando cualquier posible duplicación y apuntando de forma limpia a la raíz del repositorio de GitHub Pages
+            const repoRoot = window.location.origin + window.location.pathname.substring(0, window.location.pathname.lastIndexOf('/') + 1);
+            visor.src = repoRoot + archivo;
         }
 
         window.guardarMaterial = async function(event) {
@@ -335,7 +336,8 @@
 
                 querySnapshot.forEach((docSnap) => {
                     const m = docSnap.data();
-                    const fullUrl = "https://drrubenmpereyra-stack.github.io/Mas-alla-del-Prisma-Aula-Virtual-2027/" + m.archivo;
+                    const repoRoot = window.location.origin + window.location.pathname.substring(0, window.location.pathname.lastIndexOf('/') + 1);
+                    const fullUrl = repoRoot + m.archivo;
                     const tr = document.createElement("tr");
                     tr.innerHTML = `
                         <td><strong>${m.titulo}</strong></td>
@@ -367,4 +369,3 @@
     </script>
 </body>
 </html>
-```[cite: 1]
