@@ -1,0 +1,237 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Encuentros - Estudiante</title>
+    <style>
+        :root {
+            --bg-color: #f4f5f7;
+            --neural-pattern: radial-gradient(circle, rgba(200,205,215,0.25) 1px, transparent 1px);
+            --card-bg: #ffffff;
+            --border-color: #000000;
+        }
+
+        * {
+            box-sizing: border-box;
+            margin: 0;
+            padding: 0;
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+        }
+
+        body {
+            background-color: var(--bg-color);
+            background-image: var(--neural-pattern);
+            background-size: 24px 24px;
+            color: #2c3e50;
+            padding: 20px;
+        }
+
+        .container {
+            max-width: 1000px;
+            margin: 0 auto;
+        }
+
+        h2 {
+            font-size: 1.4rem;
+            margin-bottom: 20px;
+            color: #1a252f;
+            border-bottom: 2px solid #bdc3c7;
+            padding-bottom: 10px;
+        }
+
+        /* Tarjeta de cabecera con el color del Botón 1 de estudiante (#d1f2eb) y glow */
+        .info-card {
+            background-color: #d1f2eb;
+            border: 2px solid var(--border-color);
+            border-radius: 8px;
+            padding: 20px;
+            margin-bottom: 25px;
+            box-shadow: 0 0 10px rgba(209, 242, 235, 0.9);
+        }
+
+        .info-card p {
+            font-size: 0.95rem;
+            color: #0e6251;
+            font-weight: 700;
+        }
+
+        /* Tabla de Encuentros Públicos */
+        .table-card {
+            background: var(--card-bg);
+            border: 2px solid var(--border-color);
+            border-radius: 8px;
+            padding: 20px;
+            box-shadow: 0 4px 15px rgba(0,0,0,0.05);
+            overflow-x: auto;
+        }
+
+        table {
+            width: 100%;
+            border-collapse: collapse;
+            text-align: left;
+            font-size: 0.9rem;
+        }
+
+        th, td {
+            padding: 14px;
+            border-bottom: 1px solid #ddd;
+            vertical-align: middle;
+        }
+
+        th {
+            background-color: #eaeded;
+            font-weight: 700;
+            color: #2c3e50;
+            border-bottom: 2px solid var(--border-color);
+        }
+
+        .badge-publicado {
+            background-color: #d4efdf;
+            color: #145a32;
+            padding: 4px 8px;
+            border-radius: 4px;
+            font-weight: 600;
+            font-size: 0.8rem;
+            border: 1px solid #145a32;
+        }
+
+        .link-btn {
+            display: inline-block;
+            padding: 6px 12px;
+            border-radius: 6px;
+            border: 1.5px solid #000;
+            font-size: 0.85rem;
+            font-weight: 600;
+            text-decoration: none;
+            margin-right: 5px;
+            transition: all 0.2s ease;
+        }
+
+        .btn-meet {
+            background-color: #d4efdf;
+            color: #145a32;
+        }
+
+        .btn-meet:hover {
+            background-color: #a9dfbf;
+        }
+
+        .btn-drive {
+            background-color: #fcf3cf;
+            color: #7d6608;
+        }
+
+        .btn-drive:hover {
+            background-color: #f9e79f;
+        }
+
+        .btn-foto {
+            background-color: #d6eaf8;
+            color: #1b4f72;
+        }
+
+        .btn-foto:hover {
+            background-color: #a9cce3;
+        }
+    </style>
+</head>
+<body>
+
+    <div class="container">
+        <h2>Encuentros de la Capacitación</h2>
+
+        <div class="info-card">
+            <p id="estudianteNombreLogueado">Bienvenido al aula virtual - Encuentros Disponibles</p>
+        </div>
+
+        <div class="table-card">
+            <table>
+                <thead>
+                    <tr>
+                        <th>Encuentro / Capítulo</th>
+                        <th>Fecha</th>
+                        <th>Estado</th>
+                        <th>Recursos y Accesos</th>
+                    </tr>
+                </thead>
+                <tbody id="tablaEncuentrosEstudiante">
+                    <tr>
+                        <td colspan="4" style="text-align: center; color: #7f8c8d;">Cargando encuentros publicados...</td>
+                    </tr>
+                </tbody>
+            </table>
+        </div>
+    </div>
+
+    <!-- Script conectado a Firebase Firestore -->
+    <script type="module">
+        import { initializeApp } from "https://www.gstatic.com/firebasejs/10.8.0/firebase-app.js";
+        import { getFirestore, collection, getDocs } from "https://www.gstatic.com/firebasejs/10.8.0/firebase-firestore.js";
+
+        const firebaseConfig = {
+          apiKey: "AIzaSyDLSIGdkd2y1l7zhMjoVd_bmCj8jjXpX4I",
+          authDomain: "aula-virtual-mas-alla-del-pris.firebaseapp.com",
+          projectId: "aula-virtual-mas-alla-del-pris",
+          storageBucket: "aula-virtual-mas-alla-del-pris.firebasestorage.app",
+          messagingSenderId: "711745866832",
+          appId: "1:711745866832:web:945e046cb0b61ac320d555"
+        };
+
+        const app = initializeApp(firebaseConfig);
+        const db = getFirestore(app);
+
+        window.onload = function() {
+            const sessionData = sessionStorage.getItem("current_session");
+            if (sessionData) {
+                const userObj = JSON.parse(sessionData);
+                document.getElementById("estudianteNombreLogueado").innerText = `Estudiante: ${userObj.name} — Encuentros habilitados para cursada`;
+            }
+            cargarEncuentrosPublicados();
+        };
+
+        async function cargarEncuentrosPublicados() {
+            const tbody = document.getElementById("tablaEncuentrosEstudiante");
+            try {
+                const querySnapshot = await getDocs(collection(db, "encuentros"));
+                let encuentrosList = [];
+
+                querySnapshot.forEach((docSnap) => {
+                    encuentrosList.push({ id: docSnap.id, ...docSnap.data() });
+                });
+
+                // Ordenar estrictamente de forma correlativa (0, 1, 2, 3...)
+                encuentrosList.sort((a, b) => a.orden - b.orden);
+
+                tbody.innerHTML = "";
+
+                // Filtrar únicamente los encuentros que estén con estado "Publicado"
+                const encuentrosPublicados = encuentrosList.filter(e => e.estado === "Publicado");
+
+                if (encuentrosPublicados.length === 0) {
+                    tbody.innerHTML = `<tr><td colspan="4" style="text-align: center; color: #7f8c8d;">No hay encuentros publicados habilitados por el momento.</td></tr>`;
+                    return;
+                }
+
+                encuentrosPublicados.forEach((e) => {
+                    const tr = document.createElement("tr");
+                    tr.innerHTML = `
+                        <td><strong>${e.titulo}</strong></td>
+                        <td>${e.fecha}</td>
+                        <td><span class="badge-publicado">${e.estado}</span></td>
+                        <td>
+                            <a href="${e.fotoDrive}" target="_blank" class="link-btn btn-foto" title="Ver Portada">🖼️ Portada</a>
+                            <a href="${e.linkMeet}" target="_blank" class="link-btn btn-meet" title="Unirse a Google Meet">🎥 Meet</a>
+                            <a href="${e.linkGrabacion}" target="_blank" class="link-btn btn-drive" title="Ver Clase Grabada">📁 Grabación</a>
+                        </td>
+                    `;
+                    tbody.appendChild(tr);
+                });
+            } catch (error) {
+                console.error("Error al cargar los encuentros:", error);
+                tbody.innerHTML = `<tr><td colspan="4" style="text-align: center; color: #641e16;">Error al conectar con la base de datos.</td></tr>`;
+            }
+        }
+    </script>
+</body>
+</html>
