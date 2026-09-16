@@ -145,7 +145,7 @@
         // URL base de GitHub Pages del repositorio
         const GITHUB_BASE_URL = "https://drrubenmpereyra-stack.github.io/Mas-alla-del-Prisma-Aula-Virtual-2027/";
 
-        // Listado exacto de los 13 test con sus nombres de archivo de imagen y su archivo HTML asociado codificado hasta el 12
+        // Listado exacto de los 13 test con sus nombres de archivo de imagen y su archivo HTML asociado
         const listaTests = [
             { id: "preliminar", titulo: "Test Preliminar", archivoImg: "BTest_preliminar.jpg", archivoHtml: "test_preliminar.html" },
             { id: "1", titulo: "Test 1", archivoImg: "BTest1.jpg", archivoHtml: "test1.html" },
@@ -180,12 +180,13 @@
             });
         };
 
-        // Función para abrir el archivo HTML correspondiente en el iframe o avisar si aún no fue subido
+        // Función para abrir el archivo HTML utilizando la ruta absoluta del repositorio en el iframe
         window.abrirTest = function(testObj) {
             const container = document.getElementById("visorContainer");
 
             if (testObj.archivoHtml && testObj.archivoHtml.trim() !== "") {
-                container.innerHTML = `<iframe src="${testObj.archivoHtml}" title="${testObj.titulo}"></iframe>`;
+                const targetUrl = GITHUB_BASE_URL + testObj.archivoHtml;
+                container.innerHTML = `<iframe src="${targetUrl}" title="${testObj.titulo}"></iframe>`;
             } else {
                 alert(`El formulario para "${testObj.titulo}" se encuentra actualmente en desarrollo.`);
                 container.innerHTML = `<div class="placeholder-text">Módulo de ${testObj.titulo} en desarrollo. Próximamente disponible.</div>`;
