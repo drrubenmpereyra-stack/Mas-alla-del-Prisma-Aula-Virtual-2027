@@ -40,7 +40,6 @@
             padding-bottom: 10px;
         }
 
-        /* Visor Superior con el color del Botón 3 (#fcf3cf) y glow */
         .viewer-card {
             background-color: #fcf3cf;
             border: 2px solid var(--border-color);
@@ -84,7 +83,6 @@
             border: none;
         }
 
-        /* Formulario de Registro / Gestión */
         .form-card {
             background-color: #ffffff;
             border: 2px solid var(--border-color);
@@ -146,7 +144,6 @@
             background-color: #a9dfbf;
         }
 
-        /* Tabla de Vista General */
         .table-card {
             background: var(--card-bg);
             border: 2px solid var(--border-color);
@@ -202,7 +199,6 @@
     <div class="container">
         <h2>Biblioteca de Medios - Presentaciones PDF</h2>
 
-        <!-- Visor Interactivo Superior con el color del Botón 3 -->
         <div class="viewer-card">
             <div class="viewer-header">
                 <label for="pdfSelector" style="font-weight: 700; color: #7d6608;">Seleccionar Presentación para Visualizar:</label>
@@ -227,7 +223,6 @@
             </div>
         </div>
 
-        <!-- Formulario de Registro / Control de Materiales -->
         <div class="form-card">
             <h3 style="margin-bottom: 15px; font-size: 1.1rem; color: #7d6608;">Registrar / Sincronizar Archivo en Base de Datos</h3>
             <form id="bibliotecaForm" onsubmit="guardarMaterial(event)">
@@ -249,7 +244,6 @@
             </form>
         </div>
 
-        <!-- Tabla de Vista General -->
         <div class="table-card">
             <h3 style="margin-bottom: 15px; font-size: 1.1rem;">Materiales Bibliográficos Registrados</h3>
             <table>
@@ -270,7 +264,6 @@
         </div>
     </div>
 
-    <!-- Script conectado a Firebase Firestore -->
     <script type="module">
         import { initializeApp } from "https://www.gstatic.com/firebasejs/10.8.0/firebase-app.js";
         import { getFirestore, collection, getDocs, setDoc, doc, deleteDoc } from "https://www.gstatic.com/firebasejs/10.8.0/firebase-firestore.js";
@@ -292,17 +285,15 @@
             cargarMateriales();
         };
 
-        // Función para actualizar el visor de PDF usando la ruta absoluta correcta basada en el repositorio
         window.cargarVisorPDF = function() {
             const select = document.getElementById("pdfSelector");
             const archivo = select.value;
             const visor = document.getElementById("pdfVisor");
             
-            const basePath = window.location.pathname.substring(0, window.location.pathname.lastIndexOf('/') + 1);
-            visor.src = window.location.origin + basePath + archivo;
+            const repoBase = "https://drrubenmpereyra-stack.github.io/Mas-alla-del-Prisma-Aula-Virtual-2027/";
+            visor.src = repoBase + archivo;
         }
 
-        // Guardar material en Firebase
         window.guardarMaterial = async function(event) {
             event.preventDefault();
             const titulo = document.getElementById("tituloMaterial").value.trim();
@@ -331,7 +322,6 @@
             }
         }
 
-        // Cargar tabla de materiales registrados
         async function cargarMateriales() {
             const tbody = document.getElementById("tablaMateriales");
             try {
@@ -345,8 +335,7 @@
 
                 querySnapshot.forEach((docSnap) => {
                     const m = docSnap.data();
-                    const basePath = window.location.pathname.substring(0, window.location.pathname.lastIndexOf('/') + 1);
-                    const fullUrl = window.location.origin + basePath + m.archivo;
+                    const fullUrl = "https://drrubenmpereyra-stack.github.io/Mas-alla-del-Prisma-Aula-Virtual-2027/" + m.archivo;
                     const tr = document.createElement("tr");
                     tr.innerHTML = `
                         <td><strong>${m.titulo}</strong></td>
@@ -364,7 +353,6 @@
             }
         }
 
-        // Eliminar material de Firebase
         window.eliminarMaterial = async function(docId) {
             if (confirm("¿Estás seguro de eliminar este registro de la biblioteca?")) {
                 try {
@@ -379,4 +367,4 @@
     </script>
 </body>
 </html>
-
+```[cite: 1]
