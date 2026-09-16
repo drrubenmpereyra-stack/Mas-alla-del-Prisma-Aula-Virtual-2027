@@ -4,12 +4,12 @@ import { getFirestore, collection, getDocs, setDoc, doc, getDoc } from "https://
 
 // Tu configuración de Firebase proporcionada
 const firebaseConfig = {
-  apiKey: "AIzaSyDLSIGdkd2y1l7zhMjoVd_bmCj8jjXpX4I",
-  authDomain: "aula-virtual-mas-alla-del-pris.firebaseapp.com",
-  projectId: "aula-virtual-mas-alla-del-pris",
-  storageBucket: "aula-virtual-mas-alla-del-pris.firebasestorage.app",
-  messagingSenderId: "711745866832",
-  appId: "1:711745866832:web:945e046cb0b61ac320d555"
+    apiKey: "AIzaSyDLSIGdkd2y1l7zhMjoVd_bmCj8jjXpX4I",
+    authDomain: "aula-virtual-mas-alla-del-pris.firebaseapp.com",
+    projectId: "aula-virtual-mas-alla-del-pris",
+    storageBucket: "aula-virtual-mas-alla-del-pris.firebasestorage.app",
+    messagingSenderId: "711745866832",
+    appId: "1:711745866832:web:945e046cb0b61ac320d555"
 };
 
 // Inicializar Firebase y Firestore
@@ -191,18 +191,35 @@ function createButtonElement(data, parentContainer) {
         const mainBtn = document.createElement("button");
         mainBtn.className = `nav-btn ${data.class}`;
         mainBtn.innerText = data.text + " ▼";
-        container.appendChild(mainBtn);
-
+        
         const dropdown = document.createElement("div");
         dropdown.className = "dropdown-content";
+
+        // Control por clic directo (toggle persistente) para evitar que desaparezca
+        mainBtn.onclick = (e) => {
+            e.stopPropagation();
+            document.querySelectorAll(".dropdown-content.show").forEach(el => {
+                if (el !== dropdown) el.classList.remove("show");
+            });
+            dropdown.classList.toggle("show");
+        };
 
         data.subItems.forEach(sub => {
             const subBtn = document.createElement("button");
             subBtn.innerText = sub.text;
-            subBtn.onclick = sub.action;
+            subBtn.onclick = (e) => {
+                e.stopPropagation();
+                sub.action();
+                dropdown.classList.remove("show");
+            };
             dropdown.appendChild(subBtn);
         });
 
+        window.addEventListener("click", () => {
+            dropdown.classList.remove("show");
+        });
+
+        container.appendChild(mainBtn);
         container.appendChild(dropdown);
         parentContainer.appendChild(container);
     } else {
