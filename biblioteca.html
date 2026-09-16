@@ -292,15 +292,17 @@
             cargarMateriales();
         };
 
-        // Función para actualizar el visor de PDF según el select superior
+        // Función corregida para construir la ruta absoluta y evitar el error 404 dentro del iframe
         window.cargarVisorPDF = function() {
             const select = document.getElementById("pdfSelector");
             const archivo = select.value;
             const visor = document.getElementById("pdfVisor");
             
-            // Como los archivos están alojados en la misma raíz del repositorio de GitHub Pages, 
-            // la URL relativa apunta directamente al PDF correspondiente.
-            visor.src = archivo;
+            // Construye la URL absoluta basada en el origen y la ruta actual del sitio en GitHub Pages
+            const baseUrl = window.location.origin + window.location.pathname.substring(0, window.location.pathname.lastIndexOf('/') + 1);
+            const urlFinal = baseUrl + archivo;
+            
+            visor.src = urlFinal;
         }
 
         // Guardar material en Firebase
