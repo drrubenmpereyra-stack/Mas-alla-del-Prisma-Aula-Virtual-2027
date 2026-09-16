@@ -1,0 +1,380 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Biblioteca de Medios - Administrador</title>
+    <style>
+        :root {
+            --bg-color: #f4f5f7;
+            --neural-pattern: radial-gradient(circle, rgba(200,205,215,0.25) 1px, transparent 1px);
+            --card-bg: #ffffff;
+            --border-color: #000000;
+        }
+
+        * {
+            box-sizing: border-box;
+            margin: 0;
+            padding: 0;
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+        }
+
+        body {
+            background-color: var(--bg-color);
+            background-image: var(--neural-pattern);
+            background-size: 24px 24px;
+            color: #2c3e50;
+            padding: 20px;
+        }
+
+        .container {
+            max-width: 1100px;
+            margin: 0 auto;
+        }
+
+        h2 {
+            font-size: 1.4rem;
+            margin-bottom: 20px;
+            color: #1a252f;
+            border-bottom: 2px solid #bdc3c7;
+            padding-bottom: 10px;
+        }
+
+        /* Visor Superior de PDF con el color del Botón 3 (#fcf3cf) y glow */
+        .viewer-card {
+            background-color: #fcf3cf;
+            border: 2px solid var(--border-color);
+            border-radius: 8px;
+            padding: 25px;
+            box-shadow: 0 0 12px rgba(252, 243, 207, 0.9);
+            margin-bottom: 30px;
+        }
+
+        .viewer-header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            flex-wrap: wrap;
+            gap: 10px;
+            margin-bottom: 15px;
+        }
+
+        .viewer-header select {
+            padding: 10px;
+            border: 2px solid var(--border-color);
+            border-radius: 6px;
+            font-size: 0.95rem;
+            background: #fff;
+            outline: none;
+            min-width: 320px;
+        }
+
+        .pdf-frame-container {
+            width: 100%;
+            height: 550px;
+            border: 2px solid var(--border-color);
+            border-radius: 6px;
+            background: #fff;
+            overflow: hidden;
+        }
+
+        .pdf-frame-container iframe {
+            width: 100%;
+            height: 100%;
+            border: none;
+        }
+
+        /* Formulario de Registro / Gestión */
+        .form-card {
+            background-color: #ffffff;
+            border: 2px solid var(--border-color);
+            border-radius: 8px;
+            padding: 25px;
+            box-shadow: 0 4px 15px rgba(0,0,0,0.05);
+            margin-bottom: 30px;
+        }
+
+        .form-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(240px, 1fr));
+            gap: 15px;
+        }
+
+        .form-group {
+            display: flex;
+            flex-direction: column;
+        }
+
+        .form-group label {
+            font-size: 0.85rem;
+            font-weight: 700;
+            margin-bottom: 5px;
+            color: #7d6608;
+        }
+
+        .form-group input, .form-group select {
+            padding: 10px;
+            border: 2px solid var(--border-color);
+            border-radius: 6px;
+            font-size: 0.95rem;
+            background: #fff;
+            outline: none;
+        }
+
+        .form-actions {
+            margin-top: 20px;
+            display: flex;
+            gap: 10px;
+        }
+
+        .btn {
+            padding: 10px 20px;
+            border: 2px solid var(--border-color);
+            border-radius: 6px;
+            font-weight: 700;
+            cursor: pointer;
+            transition: all 0.2s ease;
+        }
+
+        .btn-save {
+            background-color: #d4efdf;
+            color: #145a32;
+            box-shadow: 0 0 8px rgba(212, 239, 223, 0.8);
+        }
+
+        .btn-save:hover {
+            background-color: #a9dfbf;
+        }
+
+        /* Tabla de Vista General */
+        .table-card {
+            background: var(--card-bg);
+            border: 2px solid var(--border-color);
+            border-radius: 8px;
+            padding: 20px;
+            box-shadow: 0 4px 15px rgba(0,0,0,0.05);
+            overflow-x: auto;
+        }
+
+        table {
+            width: 100%;
+            border-collapse: collapse;
+            text-align: left;
+            font-size: 0.9rem;
+        }
+
+        th, td {
+            padding: 12px;
+            border-bottom: 1px solid #ddd;
+            vertical-align: middle;
+        }
+
+        th {
+            background-color: #eaeded;
+            font-weight: 700;
+            color: #2c3e50;
+            border-bottom: 2px solid var(--border-color);
+        }
+
+        .btn-delete {
+            background-color: #f5b7b1;
+            color: #641e16;
+            padding: 6px 10px;
+            font-size: 0.8rem;
+            border: 1.5px solid #000;
+            border-radius: 4px;
+            cursor: pointer;
+        }
+
+        .btn-delete:hover {
+            filter: brightness(0.9);
+        }
+
+        .msg-status {
+            margin-top: 10px;
+            font-size: 0.9rem;
+            font-weight: 600;
+        }
+    </style>
+</head>
+<body>
+
+    <div class="container">
+        <h2>Biblioteca de Medios - Presentaciones PDF</h2>
+
+        <!-- Visor Interactivo Superior con el color del Botón 3 -->
+        <div class="viewer-card">
+            <div class="viewer-header">
+                <label for="pdfSelector" style="font-weight: 700; color: #7d6608;">Seleccionar Presentación para Visualizar:</label>
+                <select id="pdfSelector" onchange="cargarVisorPDF()">
+                    <option value="Presentacion_Preliminar.pdf">Presentación Preliminar: Epistemología de la Complejidad Vincular</option>
+                    <option value="Presentacion_Encuentro1.pdf" selected>Presentación Encuentro 1: Neuropsicoanálisis de la Sublimación</option>
+                    <option value="Presentacion_Encuentro2.pdf">Presentación Encuentro 2: Psicofarmacología y Psicoterapia</option>
+                    <option value="Presentacion_Encuentro3.pdf">Presentación Encuentro 3: El Trauma Colectivo y el Lazo Social</option>
+                    <option value="Presentacion_Encuentro4.pdf">Presentación Encuentro 4: La Arquitectura del Vínculo</option>
+                    <option value="Presentacion_Encuentro5.pdf">Presentación Encuentro 5: Celos Patológicos y Paranoia</option>
+                    <option value="Presentacion_Encuentro6.pdf">Presentación Encuentro 6: Infidelidades Digitales</option>
+                    <option value="Presentacion_Encuentro7.pdf">Presentación Encuentro 7: Nuevas Configuraciones Familiares</option>
+                    <option value="Presentacion_Encuentro8.pdf">Presentación Encuentro 8: Psico-oncología y Cuidados</option>
+                    <option value="Presentacion_Encuentro9.pdf">Presentación Encuentro 9: Neuropsicología de Adicciones</option>
+                    <option value="Presentacion_Encuentro10.pdf">Presentación Encuentro 10: Identidades de Género</option>
+                    <option value="Presentacion_Encuentro11.pdf">Presentación Encuentro 11: Envejecimiento y Demencias</option>
+                    <option value="Presentacion_Encuentro12.pdf">Presentación Encuentro 12: La Posición Ética del Analista</option>
+                </select>
+            </div>
+            <div class="pdf-frame-container">
+                <iframe id="pdfVisor" src="" title="Visor de PDF"></iframe>
+            </div>
+        </div>
+
+        <!-- Formulario de Registro / Control de Materiales -->
+        <div class="form-card">
+            <h3 style="margin-bottom: 15px; font-size: 1.1rem; color: #7d6608;">Registrar / Sincronizar Archivo en Base de Datos</h3>
+            <form id="bibliotecaForm" onsubmit="guardarMaterial(event)">
+                <div class="form-grid">
+                    <div class="form-group">
+                        <label for="tituloMaterial">Título del Material:</label>
+                        <input type="text" id="tituloMaterial" required placeholder="Ej: Presentación Encuentro 1">
+                    </div>
+                    <div class="form-group">
+                        <label for="nombreArchivo">Nombre exacto del archivo en GitHub:</label>
+                        <input type="text" id="nombreArchivo" required placeholder="Ej: Presentacion_Encuentro1.pdf">
+                    </div>
+                </div>
+
+                <div class="form-actions">
+                    <button type="submit" class="btn btn-save">Guardar Registro</button>
+                </div>
+                <div id="msgStatus" class="msg-status"></div>
+            </form>
+        </div>
+
+        <!-- Tabla de Vista General -->
+        <div class="table-card">
+            <h3 style="margin-bottom: 15px; font-size: 1.1rem;">Materiales Bibliográficos Registrados</h3>
+            <table>
+                <thead>
+                    <tr>
+                        <th>Título</th>
+                        <th>Archivo en Repositorio</th>
+                        <th>Acceso Directo</th>
+                        <th>Acción</th>
+                    </tr>
+                </thead>
+                <tbody id="tablaMateriales">
+                    <tr>
+                        <td colspan="4" style="text-align: center; color: #7f8c8d;">Cargando materiales desde la base de datos...</td>
+                    </tr>
+                </tbody>
+            </table>
+        </div>
+    </div>
+
+    <!-- Script conectado a Firebase Firestore -->
+    <script type="module">
+        import { initializeApp } from "https://www.gstatic.com/firebasejs/10.8.0/firebase-app.js";
+        import { getFirestore, collection, getDocs, setDoc, doc, deleteDoc } from "https://www.gstatic.com/firebasejs/10.8.0/firebase-firestore.js";
+
+        const firebaseConfig = {
+          apiKey: "AIzaSyDLSIGdkd2y1l7zhMjoVd_bmCj8jjXpX4I",
+          authDomain: "aula-virtual-mas-alla-del-pris.firebaseapp.com",
+          projectId: "aula-virtual-mas-alla-del-pris",
+          storageBucket: "aula-virtual-mas-alla-del-pris.firebasestorage.app",
+          messagingSenderId: "711745866832",
+          appId: "1:711745866832:web:945e046cb0b61ac320d555"
+        };
+
+        const app = initializeApp(firebaseConfig);
+        const db = getFirestore(app);
+
+        window.onload = function() {
+            cargarVisorPDF();
+            cargarMateriales();
+        };
+
+        // Función para actualizar el visor de PDF según el select superior
+        window.cargarVisorPDF = function() {
+            const select = document.getElementById("pdfSelector");
+            const archivo = select.value;
+            const visor = document.getElementById("pdfVisor");
+            
+            // Como los archivos están alojados en la misma raíz del repositorio de GitHub Pages, 
+            // la URL relativa apunta directamente al PDF correspondiente.
+            visor.src = archivo;
+        }
+
+        // Guardar material en Firebase
+        window.guardarMaterial = async function(event) {
+            event.preventDefault();
+            const titulo = document.getElementById("tituloMaterial").value.trim();
+            const archivo = document.getElementById("nombreArchivo").value.trim();
+            const msgStatus = document.getElementById("msgStatus");
+
+            const docId = "LIB_" + archivo.replace(/[\.\s]/g, "_");
+
+            try {
+                await setDoc(doc(db, "biblioteca", docId), {
+                    titulo,
+                    archivo
+                });
+
+                msgStatus.style.color = "#145a32";
+                msgStatus.innerText = "¡Material guardado con éxito!";
+                
+                document.getElementById("bibliotecaForm").reset();
+                cargarMateriales();
+
+                setTimeout(() => { msgStatus.innerText = ""; }, 4000);
+            } catch (error) {
+                console.error("Error al guardar material:", error);
+                msgStatus.style.color = "#641e16";
+                msgStatus.innerText = "Error al guardar en la base de datos.";
+            }
+        }
+
+        // Cargar tabla de materiales registrados
+        async function cargarMateriales() {
+            const tbody = document.getElementById("tablaMateriales");
+            try {
+                const querySnapshot = await getDocs(collection(db, "biblioteca"));
+                tbody.innerHTML = "";
+
+                if (querySnapshot.empty) {
+                    tbody.innerHTML = `<tr><td colspan="4" style="text-align: center; color: #7f8c8d;">No hay materiales registrados todavía.</td></tr>`;
+                    return;
+                }
+
+                querySnapshot.forEach((docSnap) => {
+                    const m = docSnap.data();
+                    const tr = document.createElement("tr");
+                    tr.innerHTML = `
+                        <td><strong>${m.titulo}</strong></td>
+                        <td><code>${m.archivo}</code></td>
+                        <td><a href="${m.archivo}" target="_blank" style="color: #1b4f72; font-weight: 600;">📄 Abrir PDF</a></td>
+                        <td>
+                            <button class="btn-delete" onclick="eliminarMaterial('${docSnap.id}')">Eliminar</button>
+                        </td>
+                    `;
+                    tbody.appendChild(tr);
+                });
+            } catch (error) {
+                console.error("Error al cargar materiales:", error);
+                tbody.innerHTML = `<tr><td colspan="4" style="text-align: center; color: #641e16;">Error al cargar datos de Firebase.</td></tr>`;
+            }
+        }
+
+        // Eliminar material de Firebase
+        window.eliminarMaterial = async function(docId) {
+            if (confirm("¿Estás seguro de eliminar este registro de la biblioteca?")) {
+                try {
+                    await deleteDoc(doc(db, "biblioteca", docId));
+                    cargarMateriales();
+                } catch (error) {
+                    console.error("Error al eliminar:", error);
+                    alert("No se pudo eliminar el registro.");
+                }
+            }
+        }
+    </script>
+</body>
+</html>
