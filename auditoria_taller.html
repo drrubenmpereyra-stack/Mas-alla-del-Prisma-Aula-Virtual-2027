@@ -1,0 +1,352 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Panel de Autoría y Validación de Talleres</title>
+    <style>
+        :root {
+            --bg-color: #d4efdf; /* Color de fondo idéntico al botón de Mis Talleres (verde pastel) */
+            --neural-pattern: radial-gradient(circle, rgba(200,205,215,0.25) 1px, transparent 1px);
+            --card-bg: #ffffff;
+            --border-color: #000000;
+        }
+
+        * {
+            box-sizing: border-box;
+            margin: 0;
+            padding: 0;
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+        }
+
+        body {
+            background-color: var(--bg-color);
+            background-image: var(--neural-pattern);
+            background-size: 24px 24px;
+            color: #2c3e50;
+            padding: 20px;
+        }
+
+        .container {
+            max-width: 1300px;
+            margin: 0 auto;
+        }
+
+        header {
+            text-align: center;
+            margin-bottom: 30px;
+            position: relative;
+        }
+
+        .btn-volver {
+            position: absolute;
+            top: 0;
+            left: 0;
+            background-color: #fadbd8;
+            color: #78281f;
+            border: 2px solid var(--border-color);
+            border-radius: 6px;
+            padding: 8px 14px;
+            font-size: 0.85rem;
+            font-weight: 700;
+            cursor: pointer;
+            box-shadow: 0 0 8px rgba(250, 219, 216, 0.8);
+            transition: all 0.2s ease;
+        }
+
+        .btn-volver:hover {
+            transform: translateY(-2px);
+            filter: brightness(0.95);
+        }
+
+        header h2 {
+            font-size: 1.5rem;
+            color: #1a252f;
+            border-bottom: 2px solid #bdc3c7;
+            padding-bottom: 10px;
+            margin-bottom: 8px;
+            margin-top: 40px;
+        }
+
+        header p {
+            font-size: 0.95rem;
+            color: #145a32;
+            font-weight: 600;
+        }
+
+        .card {
+            background-color: var(--card-bg);
+            border: 2px solid var(--border-color);
+            border-radius: 10px;
+            padding: 25px;
+            box-shadow: 0 4px 20px rgba(0,0,0,0.08);
+            margin-bottom: 25px;
+        }
+
+        .table-responsive {
+            width: 100%;
+            overflow-x: auto;
+        }
+
+        table {
+            width: 100%;
+            border-collapse: collapse;
+            text-align: left;
+            font-size: 0.9rem;
+        }
+
+        th, td {
+            border: 1.5px solid var(--border-color);
+            padding: 10px 12px;
+        }
+
+        th {
+            background-color: #d4efdf;
+            color: #145a32;
+            font-weight: 700;
+        }
+
+        tr:nth-child(even) {
+            background-color: #fcfcfc;
+        }
+
+        .validation-cell {
+            display: flex;
+            flex-direction: column;
+            gap: 6px;
+            align-items: flex-start;
+        }
+
+        .validation-cell label {
+            font-size: 0.8rem;
+            font-weight: 600;
+            display: flex;
+            align-items: center;
+            gap: 5px;
+            cursor: pointer;
+        }
+
+        .validation-cell input[type="checkbox"] {
+            transform: scale(1.1);
+            cursor: pointer;
+        }
+
+        .validation-cell input[type="date"] {
+            padding: 4px;
+            border: 1.5px solid var(--border-color);
+            border-radius: 4px;
+            font-size: 0.85rem;
+            background: #fff;
+        }
+
+        .btn-guardar {
+            background-color: #d4efdf;
+            color: #145a32;
+            border: 1.5px solid var(--border-color);
+            border-radius: 4px;
+            padding: 5px 10px;
+            font-size: 0.8rem;
+            font-weight: 700;
+            cursor: pointer;
+            transition: all 0.2s ease;
+        }
+
+        .btn-guardar:hover {
+            background-color: #a9dfbf;
+        }
+
+        .status-msg {
+            margin-top: 10px;
+            font-size: 0.85rem;
+            font-weight: 600;
+            text-align: center;
+        }
+
+        .placeholder-loading {
+            text-align: center;
+            padding: 20px;
+            font-style: italic;
+            color: #7f8c8d;
+        }
+    </style>
+</head>
+<body>
+
+    <div class="container">
+        <header>
+            <button class="btn-volver" onclick="volverDashboard()">← Volver</button>
+            <h2>Autoría y Validación: Calificaciones de Talleres (Preliminar a Taller 12)</h2>
+            <p>Panel de Administración y Control Académico (2027)</p>
+        </header>
+
+        <div class="card">
+            <h3 style="margin-bottom: 15px; font-size: 1.1rem; color: #145a32;">Listado General de Estudiantes y Evaluaciones Prácticas</h3>
+            <div class="table-responsive">
+                <table id="tablaValidacionTalleres">
+                    <thead>
+                        <tr>
+                            <th>Estudiante</th>
+                            <th>Taller Preliminar</th>
+                            <th>Eval Taller 1</th>
+                            <th>Eval Taller 2</th>
+                            <th>Eval Taller 3</th>
+                            <th>Eval Taller 4</th>
+                            <th>Eval Taller 5</th>
+                            <th>Eval Taller 6</th>
+                            <th>Eval Taller 7</th>
+                            <th>Eval Taller 8</th>
+                            <th>Eval Taller 9</th>
+                            <th>Eval Taller 10</th>
+                            <th>Eval Taller 11</th>
+                            <th>Eval Taller 12</th>
+                        </tr>
+                    </thead>
+                    <tbody id="cuerpoTablaTalleres">
+                        <tr>
+                            <td colspan="14" class="placeholder-loading">Cargando registros desde la base de datos...</td>
+                        </tr>
+                    </tbody>
+                </table>
+            </div>
+            <div id="statusMsg" class="status-msg"></div>
+        </div>
+    </div>
+
+    <!-- Script conectado a Firebase Firestore -->
+    <script type="module">
+        import { initializeApp } from "https://www.gstatic.com/firebasejs/10.8.0/firebase-app.js";
+        import { getFirestore, collection, getDocs, setDoc, doc } from "https://www.gstatic.com/firebasejs/10.8.0/firebase-firestore.js";
+
+        const firebaseConfig = {
+          apiKey: "AIzaSyDLSIGdkd2y1l7zhMjoVd_bmCj8jjXpX4I",
+          authDomain: "aula-virtual-mas-alla-del-pris.firebaseapp.com",
+          projectId: "aula-virtual-mas-alla-del-pris",
+          storageBucket: "aula-virtual-mas-alla-del-pris.firebasestorage.app",
+          messagingSenderId: "711745866832",
+          appId: "1:711745866832:web:945e046cb0b61ac320d555"
+        };
+
+        const app = initializeApp(firebaseConfig);
+        const db = getFirestore(app);
+
+        // Mapeo de campos de talleres en la base de datos
+        const tallerKeys = [
+            "preliminar",
+            "1", "2", "3", "4", "5", "6", "7", "8", "9", "10", "11", "12"
+        ];
+
+        async function cargarDatosTalleresEstudiantes() {
+            const cuerpoTabla = document.getElementById("cuerpoTablaTalleres");
+            cuerpoTabla.innerHTML = `<tr><td colspan="14" class="placeholder-loading">Cargando registros desde la base de datos...</td></tr>`;
+
+            try {
+                const querySnapshot = await getDocs(collection(db, "calificaciones_talleres"));
+                const estudiantesMap = {};
+
+                querySnapshot.forEach((documento) => {
+                    const data = documento.data();
+                    const usuario = data.usuario || "Estudiante_Anonimo";
+
+                    if (!estudiantesMap[usuario]) {
+                        estudiantesMap[usuario] = {};
+                    }
+
+                    tallerKeys.forEach(k => {
+                        const fieldName = k === "preliminar" ? "notaTaller_preliminar" : `notaTaller_${k}`;
+                        const validFieldName = k === "preliminar" ? "validadoTaller_preliminar" : `validadoTaller_${k}`;
+                        const fechaFieldName = k === "preliminar" ? "fechaValidacionTaller_preliminar" : `fechaValidacionTaller_${k}`;
+
+                        if (data[fieldName] !== undefined) {
+                            estudiantesMap[usuario][k] = {
+                                nota: data[fieldName],
+                                validado: data[validFieldName] || false,
+                                fecha: data[fechaFieldName] || ""
+                            };
+                        }
+                    });
+                });
+
+                cuerpoTabla.innerHTML = "";
+
+                const usuariosArray = Object.keys(estudiantesMap);
+                if (usuariosArray.length === 0) {
+                    cuerpoTabla.innerHTML = `<tr><td colspan="14" class="placeholder-loading">No se encontraron calificaciones de talleres registradas.</td></tr>`;
+                    return;
+                }
+
+                usuariosArray.forEach(usuario => {
+                    const tr = document.createElement("tr");
+                    let html = `<td style="font-weight: 700; background: #fff;">${usuario}</td>`;
+
+                    tallerKeys.forEach(k => {
+                        const info = estudiantesMap[usuario][k];
+                        if (info) {
+                            const checkedAttr = info.validado ? "checked" : "";
+                            const fechaVal = info.fecha || "";
+                            html += `
+                                <td>
+                                    <div style="margin-bottom: 5px; font-weight: 600;">Nota: ${info.nota}/10</div>
+                                    <div class="validation-cell">
+                                        <label>
+                                            <input type="checkbox" id="chk_taller_${usuario}_${k}" ${checkedAttr}> Visado
+                                        </label>
+                                        <input type="date" id="date_taller_${usuario}_${k}" value="${fechaVal}">
+                                        <button class="btn-guardar" onclick="guardarValidacionTaller('${usuario}', '${k}')">Guardar</button>
+                                    </div>
+                                </td>
+                            `;
+                        } else {
+                            html += `<td style="color: #95a5a6; text-align: center; font-style: italic;">Sin rendir</td>`;
+                        }
+                    });
+
+                    tr.innerHTML = html;
+                    cuerpoTabla.appendChild(tr);
+                });
+
+            } catch (error) {
+                console.error("Error al cargar calificaciones de talleres:", error);
+                cuerpoTabla.innerHTML = `<tr><td colspan="14" class="placeholder-loading" style="color: #641e16;">Error al conectar con la base de datos.</td></tr>`;
+            }
+        }
+
+        window.guardarValidacionTaller = async function(usuario, tallerId) {
+            const chk = document.getElementById(`chk_taller_${usuario}_${tallerId}`).checked;
+            const fechaInput = document.getElementById(`date_taller_${usuario}_${tallerId}`).value;
+            const statusMsg = document.getElementById("statusMsg");
+
+            const docId = `NOTA_TALLER_${tallerId.toUpperCase()}_${usuario.replace(/[\.\s]/g, "_")}`;
+            const fieldValidado = tallerId === "preliminar" ? "validadoTaller_preliminar" : `validadoTaller_${tallerId}`;
+            const fieldFecha = tallerId === "preliminar" ? "fechaValidacionTaller_preliminar" : `fechaValidacionTaller_${tallerId}`;
+
+            try {
+                await setDoc(doc(db, "calificaciones_talleres", docId), {
+                    [fieldValidado]: chk,
+                    [fieldFecha]: fechaInput
+                }, { merge: true });
+
+                statusMsg.style.color = "#145a32";
+                statusMsg.innerText = `¡Validación guardada con éxito para ${usuario} (Taller ${tallerId})! Datos prioritarios actualizados.`;
+                
+                cargarDatosTalleresEstudiantes();
+            } catch (error) {
+                console.error("Error al guardar validación de taller:", error);
+                statusMsg.style.color = "#641e16";
+                statusMsg.innerText = "Error al guardar la validación en la base de datos.";
+            }
+        }
+
+        window.volverDashboard = function() {
+            if (window.parent && window.parent !== window) {
+                window.parent.location.reload();
+            } else {
+                window.location.href = "index.html";
+            }
+        }
+
+        window.onload = function() {
+            cargarDatosTalleresEstudiantes();
+        };
+    </script>
+</body>
+</html>
