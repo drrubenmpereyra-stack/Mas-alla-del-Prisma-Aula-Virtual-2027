@@ -1,0 +1,387 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Gestión de Asistencia - Administrador</title>
+    <style>
+        :root {
+            --bg-color: #f4f5f7;
+            --neural-pattern: radial-gradient(circle, rgba(200,205,215,0.25) 1px, transparent 1px);
+            --card-bg: #ffffff;
+            --border-color: #000000;
+        }
+
+        * {
+            box-sizing: border-box;
+            margin: 0;
+            padding: 0;
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+        }
+
+        body {
+            background-color: var(--bg-color);
+            background-image: var(--neural-pattern);
+            background-size: 24px 24px;
+            color: #2c3e50;
+            padding: 20px;
+        }
+
+        .container {
+            max-width: 1000px;
+            margin: 0 auto;
+        }
+
+        h2 {
+            font-size: 1.4rem;
+            margin-bottom: 20px;
+            color: #1a252f;
+            border-bottom: 2px solid #bdc3c7;
+            padding-bottom: 10px;
+        }
+
+        /* Formulario con el color de fondo del Botón 6 de admin (#ebdef0) y glow */
+        .form-card {
+            background-color: #ebdef0;
+            border: 2px solid var(--border-color);
+            border-radius: 8px;
+            padding: 25px;
+            box-shadow: 0 0 12px rgba(235, 222, 240, 0.9);
+            margin-bottom: 30px;
+        }
+
+        .form-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(220px, 1fr));
+            gap: 15px;
+        }
+
+        .form-group {
+            display: flex;
+            flex-direction: column;
+        }
+
+        .form-group label {
+            font-size: 0.85rem;
+            font-weight: 700;
+            margin-bottom: 5px;
+            color: #512e5f;
+        }
+
+        .form-group input, .form-group select {
+            padding: 10px;
+            border: 2px solid var(--border-color);
+            border-radius: 6px;
+            font-size: 0.95rem;
+            background: #fff;
+            outline: none;
+        }
+
+        .form-actions {
+            margin-top: 20px;
+            display: flex;
+            gap: 10px;
+        }
+
+        .btn {
+            padding: 10px 20px;
+            border: 2px solid var(--border-color);
+            border-radius: 6px;
+            font-weight: 700;
+            cursor: pointer;
+            transition: all 0.2s ease;
+        }
+
+        .btn-save {
+            background-color: #d4efdf;
+            color: #145a32;
+            box-shadow: 0 0 8px rgba(212, 239, 223, 0.8);
+        }
+
+        .btn-save:hover {
+            background-color: #a9dfbf;
+        }
+
+        /* Tabla de Vista General */
+        .table-card {
+            background: var(--card-bg);
+            border: 2px solid var(--border-color);
+            border-radius: 8px;
+            padding: 20px;
+            box-shadow: 0 4px 15px rgba(0,0,0,0.05);
+            overflow-x: auto;
+        }
+
+        table {
+            width: 100%;
+            border-collapse: collapse;
+            text-align: left;
+            font-size: 0.9rem;
+        }
+
+        th, td {
+            padding: 12px;
+            border-bottom: 1px solid #ddd;
+        }
+
+        th {
+            background-color: #eaeded;
+            font-weight: 700;
+            color: #2c3e50;
+            border-bottom: 2px solid var(--border-color);
+        }
+
+        .badge-presente {
+            background-color: #d4efdf;
+            color: #145a32;
+            padding: 4px 8px;
+            border-radius: 4px;
+            font-weight: 600;
+            font-size: 0.8rem;
+            border: 1px solid #145a32;
+        }
+
+        .badge-ausente {
+            background-color: #fadbd8;
+            color: #78281f;
+            padding: 4px 8px;
+            border-radius: 4px;
+            font-weight: 600;
+            font-size: 0.8rem;
+            border: 1px solid #78281f;
+        }
+
+        .badge-justificado {
+            background-color: #fcf3cf;
+            color: #7d6608;
+            padding: 4px 8px;
+            border-radius: 4px;
+            font-weight: 600;
+            font-size: 0.8rem;
+            border: 1px solid #7d6608;
+        }
+
+        .btn-delete {
+            background-color: #f5b7b1;
+            color: #641e16;
+            padding: 6px 10px;
+            font-size: 0.8rem;
+            border: 1.5px solid #000;
+            border-radius: 4px;
+            cursor: pointer;
+        }
+
+        .btn-delete:hover {
+            filter: brightness(0.9);
+        }
+
+        .msg-status {
+            margin-top: 10px;
+            font-size: 0.9rem;
+            font-weight: 600;
+        }
+    </style>
+</head>
+<body>
+
+    <div class="container">
+        <h2>Control y Registro de Asistencia</h2>
+
+        <!-- Formulario de Registro de Asistencia -->
+        <div class="form-card">
+            <form id="asistenciaForm" onsubmit="registrarAsistencia(event)">
+                <div class="form-grid">
+                    <div class="form-group">
+                        <label for="estudianteSelect">Estudiante:</label>
+                        <select id="estudianteSelect" required>
+                            <option value="">Seleccione un estudiante...</option>
+                        </select>
+                    </div>
+                    <div class="form-group">
+                        <label for="encuentroSelect">Encuentro / Capítulo:</label>
+                        <select id="encuentroSelect" required>
+                            <option value="">Seleccione el encuentro...</option>
+                            <option value="Capítulo Preliminar">Capítulo Preliminar: Epistemología de la Complejidad Vincular</option>
+                            <option value="Capítulo 1">Capítulo 1: Neuropsicoanálisis de la Sublimación y el Arte</option>
+                            <option value="Capítulo 2">Capítulo 2: Psicofarmacología y Psicoterapia Focalizada</option>
+                            <option value="Capítulo 3">Capítulo 3: El Trauma Colectivo y el Colapso del Lazo Social</option>
+                            <option value="Capítulo 4">Capítulo 4: La Arquitectura del Vínculo: Apego Adulto y Pareja</option>
+                            <option value="Capítulo 5">Capítulo 5: Celos Patológicos y las Derivas de la Paranoia</option>
+                            <option value="Capítulo 6">Capítulo 6: Infidelidades Digitales y Nuevos Pactos Amorosos</option>
+                            <option value="Capítulo 7">Capítulo 7: Nuevas Configuraciones Familiares y la Ley</option>
+                            <option value="Capítulo 8">Capítulo 8: Psico-oncología y Cuidados Paliativos</option>
+                            <option value="Capítulo 9">Capítulo 9: Neuropsicología de las Adicciones Conductuales</option>
+                            <option value="Capítulo 10">Capítulo 10: Identidades de Género y Disidencias en la Clínica</option>
+                            <option value="Capítulo 11">Capítulo 11: Envejecimiento, Demencias y el Declive del Yo</option>
+                            <option value="Capítulo 12">Capítulo 12: La Posición Ética del Analista frente al Algoritmo</option>
+                        </select>
+                    </div>
+                    <div class="form-group">
+                        <label for="fechaAsistencia">Fecha del Encuentro:</label>
+                        <input type="date" id="fechaAsistencia" required>
+                    </div>
+                    <div class="form-group">
+                        <label for="estadoAsistencia">Estado:</label>
+                        <select id="estadoAsistencia" required>
+                            <option value="Presente">Presente</option>
+                            <option value="Ausente">Ausente</option>
+                            <option value="Justificado">Justificado</option>
+                        </select>
+                    </div>
+                </div>
+
+                <div class="form-actions">
+                    <button type="submit" class="btn btn-save">Registrar Asistencia</button>
+                </div>
+                <div id="msgStatus" class="msg-status"></div>
+            </form>
+        </div>
+
+        <!-- Vista General (Tabla de Asistencias) -->
+        <div class="table-card">
+            <h3 style="margin-bottom: 15px; font-size: 1.1rem;">Historial de Asistencias Registradas</h3>
+            <table>
+                <thead>
+                    <tr>
+                        <th>Estudiante</th>
+                        <th>Encuentro</th>
+                        <th>Fecha</th>
+                        <th>Estado</th>
+                        <th>Acción</th>
+                    </tr>
+                </thead>
+                <tbody id="tablaAsistencias">
+                    <tr>
+                        <td colspan="5" style="text-align: center; color: #7f8c8d;">Cargando asistencias desde la base de datos...</td>
+                    </tr>
+                </tbody>
+            </table>
+        </div>
+    </div>
+
+    <!-- Script conectado a Firebase Firestore -->
+    <script type="module">
+        import { initializeApp } from "https://www.gstatic.com/firebasejs/10.8.0/firebase-app.js";
+        import { getFirestore, collection, getDocs, addDoc, deleteDoc, doc } from "https://www.gstatic.com/firebasejs/10.8.0/firebase-firestore.js";
+
+        const firebaseConfig = {
+          apiKey: "AIzaSyDLSIGdkd2y1l7zhMjoVd_bmCj8jjXpX4I",
+          authDomain: "aula-virtual-mas-alla-del-pris.firebaseapp.com",
+          projectId: "aula-virtual-mas-alla-del-pris",
+          storageBucket: "aula-virtual-mas-alla-del-pris.firebasestorage.app",
+          messagingSenderId: "711745866832",
+          appId: "1:711745866832:web:945e046cb0b61ac320d555"
+        };
+
+        const app = initializeApp(firebaseConfig);
+        const db = getFirestore(app);
+
+        window.onload = function() {
+            document.getElementById("fechaAsistencia").valueAsDate = new Date();
+            cargarEstudiantesSelect();
+            cargarTablaAsistencias();
+        };
+
+        // Cargar participantes en el selector del formulario
+        async function cargarEstudiantesSelect() {
+            const select = document.getElementById("estudianteSelect");
+            try {
+                const querySnapshot = await getDocs(collection(db, "participantes"));
+                select.innerHTML = '<option value="">Seleccione un estudiante...</option>';
+                
+                querySnapshot.forEach((docSnap) => {
+                    const p = docSnap.data();
+                    const opt = document.createElement("option");
+                    opt.value = `${p.apellido}, ${p.nombres}`;
+                    opt.innerText = `${p.apellido}, ${p.nombres} (DNI: ${p.dni})`;
+                    select.appendChild(opt);
+                });
+            } catch (error) {
+                console.error("Error al cargar estudiantes:", error);
+            }
+        }
+
+        // Registrar asistencia en Firebase
+        window.registrarAsistencia = async function(event) {
+            event.preventDefault();
+            const estudiante = document.getElementById("estudianteSelect").value;
+            const encuentro = document.getElementById("encuentroSelect").value;
+            const fechaAsistencia = document.getElementById("fechaAsistencia").value;
+            const estado = document.getElementById("estadoAsistencia").value;
+            const msgStatus = document.getElementById("msgStatus");
+
+            try {
+                await addDoc(collection(db, "asistencias"), {
+                    estudiante,
+                    encuentro,
+                    fechaAsistencia,
+                    estado,
+                    timestamp: new Date()
+                });
+
+                msgStatus.style.color = "#145a32";
+                msgStatus.innerText = "¡Asistencia registrada con éxito en la base de datos!";
+                
+                document.getElementById("asistenciaForm").reset();
+                document.getElementById("fechaAsistencia").valueAsDate = new Date();
+                cargarTablaAsistencias();
+
+                setTimeout(() => { msgStatus.innerText = ""; }, 4000);
+            } catch (error) {
+                console.error("Error al registrar asistencia:", error);
+                msgStatus.style.color = "#641e16";
+                msgStatus.innerText = "Error al registrar la asistencia en la base de datos.";
+            }
+        }
+
+        // Cargar tabla de asistencias registradas
+        async function cargarTablaAsistencias() {
+            const tbody = document.getElementById("tablaAsistencias");
+            try {
+                const querySnapshot = await getDocs(collection(db, "asistencias"));
+                tbody.innerHTML = "";
+
+                if (querySnapshot.empty) {
+                    tbody.innerHTML = `<tr><td colspan="5" style="text-align: center; color: #7f8c8d;">No hay registros de asistencia todavía.</td></tr>`;
+                    return;
+                }
+
+                querySnapshot.forEach((docSnap) => {
+                    const p = docSnap.data();
+                    let badgeClass = "badge-presente";
+                    if (p.estado === "Ausente") badgeClass = "badge-ausente";
+                    if (p.estado === "Justificado") badgeClass = "badge-justificado";
+
+                    const tr = document.createElement("tr");
+                    tr.innerHTML = `
+                        <td><strong>${p.estudiante}</strong></td>
+                        <td>${p.encuentro}</td>
+                        <td>${p.fechaAsistencia}</td>
+                        <td><span class="${badgeClass}">${p.estado}</span></td>
+                        <td>
+                            <button class="btn-delete" onclick="eliminarAsistencia('${docSnap.id}')">Eliminar</button>
+                        </td>
+                    `;
+                    tbody.appendChild(tr);
+                });
+            } catch (error) {
+                console.error("Error al cargar asistencias:", error);
+                tbody.innerHTML = `<tr><td colspan="5" style="text-align: center; color: #641e16;">Error al cargar datos de Firebase.</td></tr>`;
+            }
+        }
+
+        // Eliminar asistencia de Firebase
+        window.eliminarAsistencia = async function(docId) {
+            if (confirm("¿Estás seguro de eliminar este registro de asistencia de forma definitiva?")) {
+                try {
+                    await deleteDoc(doc(db, "asistencias", docId));
+                    cargarTablaAsistencias();
+                } catch (error) {
+                    console.error("Error al eliminar:", error);
+                    alert("No se pudo eliminar el registro de asistencia.");
+                }
+            }
+        }
+    </script>
+</body>
+</html>
