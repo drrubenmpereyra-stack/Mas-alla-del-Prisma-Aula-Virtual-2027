@@ -40,7 +40,6 @@
             padding-bottom: 10px;
         }
 
-        /* Formulario de Registro / Gestión */
         .form-card {
             background-color: #ffffff;
             border: 2px solid var(--border-color);
@@ -102,7 +101,6 @@
             background-color: #a9dfbf;
         }
 
-        /* Tabla de Vista General */
         .table-card {
             background: var(--card-bg);
             border: 2px solid var(--border-color);
@@ -158,7 +156,6 @@
     <div class="container">
         <h2>Biblioteca de Medios - Presentaciones PDF</h2>
 
-        <!-- Formulario de Registro / Control de Materiales -->
         <div class="form-card">
             <h3 style="margin-bottom: 15px; font-size: 1.1rem; color: #7d6608;">Registrar / Sincronizar Archivo en Base de Datos</h3>
             <form id="bibliotecaForm" onsubmit="guardarMaterial(event)">
@@ -180,7 +177,6 @@
             </form>
         </div>
 
-        <!-- Tabla de Vista General -->
         <div class="table-card">
             <h3 style="margin-bottom: 15px; font-size: 1.1rem;">Materiales Bibliográficos Registrados</h3>
             <table>
@@ -201,7 +197,6 @@
         </div>
     </div>
 
-    <!-- Script conectado a Firebase Firestore -->
     <script type="module">
         import { initializeApp } from "https://www.gstatic.com/firebasejs/10.8.0/firebase-app.js";
         import { getFirestore, collection, getDocs, setDoc, doc, deleteDoc } from "https://www.gstatic.com/firebasejs/10.8.0/firebase-firestore.js";
@@ -222,7 +217,6 @@
             cargarMateriales();
         };
 
-        // Guardar material en Firebase
         window.guardarMaterial = async function(event) {
             event.preventDefault();
             const titulo = document.getElementById("tituloMaterial").value.trim();
@@ -251,7 +245,6 @@
             }
         }
 
-        // Cargar tabla de materiales registrados
         async function cargarMateriales() {
             const tbody = document.getElementById("tablaMateriales");
             try {
@@ -265,11 +258,13 @@
 
                 querySnapshot.forEach((docSnap) => {
                     const m = docSnap.data();
+                    const repoBase = "https://drrubenmpereyra-stack.github.io/Mas-alla-del-Prisma-Aula-Virtual-2027/";
+                    const fullUrl = repoBase + m.archivo;
                     const tr = document.createElement("tr");
                     tr.innerHTML = `
                         <td><strong>${m.titulo}</strong></td>
                         <td><code>${m.archivo}</code></td>
-                        <td><a href="${m.archivo}" target="_blank" style="color: #1b4f72; font-weight: 600;">📄 Abrir PDF</a></td>
+                        <td><a href="${fullUrl}" target="_blank" style="color: #1b4f72; font-weight: 600;">📄 Abrir PDF</a></td>
                         <td>
                             <button class="btn-delete" onclick="eliminarMaterial('${docSnap.id}')">Eliminar</button>
                         </td>
@@ -282,7 +277,6 @@
             }
         }
 
-        // Eliminar material de Firebase
         window.eliminarMaterial = async function(docId) {
             if (confirm("¿Estás seguro de eliminar este registro de la biblioteca?")) {
                 try {
