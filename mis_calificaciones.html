@@ -1,0 +1,297 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Mis Calificaciones - Vista Estudiantes</title>
+    <style>
+        :root {
+            --bg-color: #f4f5f7;
+            --neural-pattern: radial-gradient(circle, rgba(200,205,215,0.25) 1px, transparent 1px);
+            --card-bg: #ffffff;
+            --border-color: #000000;
+        }
+
+        * {
+            box-sizing: border-box;
+            margin: 0;
+            padding: 0;
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+        }
+
+        body {
+            background-color: var(--bg-color);
+            background-image: var(--neural-pattern);
+            background-size: 24px 24px;
+            color: #2c3e50;
+            padding: 20px;
+        }
+
+        .container {
+            max-width: 1000px;
+            margin: 0 auto;
+        }
+
+        header {
+            text-align: center;
+            margin-bottom: 30px;
+            position: relative;
+        }
+
+        .btn-volver {
+            position: absolute;
+            top: 0;
+            left: 0;
+            background-color: #fadbd8;
+            color: #78281f;
+            border: 2px solid var(--border-color);
+            border-radius: 6px;
+            padding: 8px 14px;
+            font-size: 0.85rem;
+            font-weight: 700;
+            cursor: pointer;
+            box-shadow: 0 0 8px rgba(250, 219, 216, 0.8);
+            transition: all 0.2s ease;
+        }
+
+        .btn-volver:hover {
+            transform: translateY(-2px);
+            filter: brightness(0.95);
+        }
+
+        header h2 {
+            font-size: 1.5rem;
+            color: #1a252f;
+            border-bottom: 2px solid #bdc3c7;
+            padding-bottom: 10px;
+            margin-bottom: 8px;
+            margin-top: 40px;
+        }
+
+        header p {
+            font-size: 0.95rem;
+            color: #2c3e50;
+            font-weight: 600;
+        }
+
+        .card {
+            background-color: var(--card-bg);
+            border: 2px solid var(--border-color);
+            border-radius: 10px;
+            padding: 25px;
+            box-shadow: 0 4px 20px rgba(0,0,0,0.08);
+            margin-bottom: 25px;
+        }
+
+        .table-responsive {
+            width: 100%;
+            overflow-x: auto;
+        }
+
+        table {
+            width: 100%;
+            border-collapse: collapse;
+            text-align: left;
+            font-size: 0.95rem;
+        }
+
+        th, td {
+            border: 1.5px solid var(--border-color);
+            padding: 12px 15px;
+        }
+
+        th {
+            background-color: #f4f6f6;
+            color: #2c3e50;
+            font-weight: 700;
+        }
+
+        tr:nth-child(even) {
+            background-color: #fcfcfc;
+        }
+
+        .val-badge {
+            display: inline-block;
+            background-color: #d4efdf;
+            color: #145a32;
+            border: 1px solid #145a32;
+            border-radius: 4px;
+            padding: 3px 8px;
+            font-size: 0.8rem;
+            font-weight: 700;
+        }
+
+        .student-info {
+            font-size: 1.05rem;
+            font-weight: 700;
+            color: #1a252f;
+            margin-bottom: 15px;
+            background: #eaeded;
+            padding: 10px 15px;
+            border: 1.5px solid var(--border-color);
+            border-radius: 6px;
+        }
+
+        .placeholder-loading {
+            text-align: center;
+            padding: 25px;
+            font-style: italic;
+            color: #7f8c8d;
+        }
+    </style>
+</head>
+<body>
+
+    <div class="container">
+        <header>
+            <button class="btn-volver" onclick="volverDashboard()">← Volver</button>
+            <h2>Mis Calificaciones Oficiales</h2>
+            <p>Historial de evaluaciones de Tests y Talleres validadas institucionalmente</p>
+        </header>
+
+        <div class="card">
+            <div id="studentInfoBox" class="student-info">Estudiante Activo: Cargando...</div>
+            
+            <div class="table-responsive">
+                <table>
+                    <thead>
+                        <tr>
+                            <th>Módulo / Evaluación</th>
+                            <th>Calificación Oficial</th>
+                            <th>Fecha de Validación Institucional</th>
+                        </tr>
+                    </thead>
+                    <tbody id="cuerpoMisCalificaciones">
+                        <tr>
+                            <td colspan="3" class="placeholder-loading">Consultando calificaciones validadas en la base de datos...</td>
+                        </tr>
+                    </tbody>
+                </table>
+            </div>
+        </div>
+    </div>
+
+    <!-- Script conectado a Firebase Firestore -->
+    <script type="module">
+        import { initializeApp } from "https://www.gstatic.com/firebasejs/10.8.0/firebase-app.js";
+        import { getFirestore, collection, getDocs } from "https://www.gstatic.com/firebasejs/10.8.0/firebase-firestore.js";
+
+        const firebaseConfig = {
+          apiKey: "AIzaSyDLSIGdkd2y1l7zhMjoVd_bmCj8jjXpX4I",
+          authDomain: "aula-virtual-mas-alla-del-pris.firebaseapp.com",
+          projectId: "aula-virtual-mas-alla-del-pris",
+          storageBucket: "aula-virtual-mas-alla-del-pris.firebasestorage.app",
+          messagingSenderId: "711745866832",
+          appId: "1:711745866832:web:945e046cb0b61ac320d555"
+        };
+
+        const app = initializeApp(firebaseConfig);
+        const db = getFirestore(app);
+
+        // Obtener el usuario activo de la sesión actual
+        function obtenerUsuarioActivo() {
+            const sessionData = sessionStorage.getItem("current_session");
+            if (sessionData) {
+                try {
+                    const userObj = JSON.parse(sessionData);
+                    return userObj.user || userObj.name || "Estudiante";
+                } catch (e) {
+                    console.error("Error al parsear sesión:", e);
+                }
+            }
+            return "Estudiante"; // Valor predeterminado si no hay sesión activa simulada
+        }
+
+        async function cargarCalificacionesEstudianteActivo() {
+            const usuarioActivo = obtenerUsuarioActivo();
+            document.getElementById("studentInfoBox").innerText = `Estudiante Activo: ${usuarioActivo}`;
+            
+            const cuerpoTabla = document.getElementById("cuerpoMisCalificaciones");
+            cuerpoTabla.innerHTML = `<tr><td colspan="3" class="placeholder-loading">Consultando calificaciones validadas en la base de datos...</td></tr>`;
+
+            try {
+                let misRegistros = [];
+
+                // 1. Buscar en calificaciones_tests validados para este usuario
+                const testsSnapshot = await getDocs(collection(db, "calificaciones_tests"));
+                testsSnapshot.forEach(documento => {
+                    const data = documento.data();
+                    if (data.usuario === usuarioActivo) {
+                        Object.keys(data).forEach(key => {
+                            if (key.startsWith("validadoTest_") && data[key] === true) {
+                                const testId = key.replace("validadoTest_", "");
+                                const notaKey = testId === "preliminar" ? "notaTest_preliminar" : `notaTest_${testId}`;
+                                const fechaKey = testId === "preliminar" ? "fechaValidacion_preliminar" : `fechaValidacion_${testId}`;
+
+                                if (data[notaKey] !== undefined) {
+                                    misRegistros.push({
+                                        modulo: `Test ${testId === "preliminar" ? "Preliminar" : testId}`,
+                                        nota: data[notaKey],
+                                        fecha: data[fechaKey] || "Fecha no especificada"
+                                    });
+                                }
+                            }
+                        });
+                    }
+                });
+
+                // 2. Buscar en calificaciones_talleres validados para este usuario
+                const talleresSnapshot = await getDocs(collection(db, "calificaciones_talleres"));
+                talleresSnapshot.forEach(documento => {
+                    const data = documento.data();
+                    if (data.usuario === usuarioActivo) {
+                        Object.keys(data).forEach(key => {
+                            if (key.startsWith("validadoTaller_") && data[key] === true) {
+                                const tallerId = key.replace("validadoTaller_", "");
+                                const notaKey = tallerId === "preliminar" ? "notaTaller_preliminar" : `notaTaller_${tallerId}`;
+                                const fechaKey = tallerId === "preliminar" ? "fechaValidacionTaller_preliminar" : `fechaValidacionTaller_${tallerId}`;
+
+                                if (data[notaKey] !== undefined) {
+                                    misRegistros.push({
+                                        modulo: `Taller ${tallerId === "preliminar" ? "Preliminar" : tallerId}`,
+                                        nota: data[notaKey],
+                                        fecha: data[fechaKey] || "Fecha no especificada"
+                                    });
+                                }
+                            }
+                        });
+                    }
+                });
+
+                cuerpoTabla.innerHTML = "";
+
+                if (misRegistros.length === 0) {
+                    cuerpoTabla.innerHTML = `<tr><td colspan="3" class="placeholder-loading">Aún no registra calificaciones validadas oficialmente en la base de datos.</td></tr>`;
+                    return;
+                }
+
+                misRegistros.forEach(reg => {
+                    const tr = document.createElement("tr");
+                    tr.innerHTML = `
+                        <td style="font-weight: 700;">${reg.modulo}</td>
+                        <td><strong>${reg.nota}/10</strong> <span class="val-badge">Validado Oficial</span></td>
+                        <td>${reg.fecha}</td>
+                    `;
+                    cuerpoTabla.appendChild(tr);
+                });
+
+            } catch (error) {
+                console.error("Error al cargar calificaciones del estudiante:", error);
+                cuerpoTabla.innerHTML = `<tr><td colspan="3" class="placeholder-loading" style="color: #641e16;">Error al conectar con la base de datos.</td></tr>`;
+            }
+        }
+
+        window.volverDashboard = function() {
+            if (window.parent && window.parent !== window) {
+                window.parent.location.reload();
+            } else {
+                window.location.href = "index.html";
+            }
+        }
+
+        window.onload = function() {
+            cargarCalificacionesEstudianteActivo();
+        };
+    </script>
+</body>
+</html>
