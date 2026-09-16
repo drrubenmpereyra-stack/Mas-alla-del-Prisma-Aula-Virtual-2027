@@ -1,0 +1,323 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Panel de Calificaciones Oficiales y Validadas</title>
+    <style>
+        :root {
+            --bg-color: #f4f5f7;
+            --neural-pattern: radial-gradient(circle, rgba(200,205,215,0.25) 1px, transparent 1px);
+            --card-bg: #ffffff;
+            --border-color: #000000;
+        }
+
+        * {
+            box-sizing: border-box;
+            margin: 0;
+            padding: 0;
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+        }
+
+        body {
+            background-color: var(--bg-color);
+            background-image: var(--neural-pattern);
+            background-size: 24px 24px;
+            color: #2c3e50;
+            padding: 20px;
+        }
+
+        .container {
+            max-width: 1300px;
+            margin: 0 auto;
+        }
+
+        header {
+            text-align: center;
+            margin-bottom: 30px;
+            position: relative;
+        }
+
+        .btn-volver {
+            position: absolute;
+            top: 0;
+            left: 0;
+            background-color: #fadbd8;
+            color: #78281f;
+            border: 2px solid var(--border-color);
+            border-radius: 6px;
+            padding: 8px 14px;
+            font-size: 0.85rem;
+            font-weight: 700;
+            cursor: pointer;
+            box-shadow: 0 0 8px rgba(250, 219, 216, 0.8);
+            transition: all 0.2s ease;
+        }
+
+        .btn-volver:hover {
+            transform: translateY(-2px);
+            filter: brightness(0.95);
+        }
+
+        header h2 {
+            font-size: 1.5rem;
+            color: #1a252f;
+            border-bottom: 2px solid #bdc3c7;
+            padding-bottom: 10px;
+            margin-bottom: 8px;
+            margin-top: 40px;
+        }
+
+        header p {
+            font-size: 0.95rem;
+            color: #2c3e50;
+            font-weight: 600;
+        }
+
+        .card {
+            background-color: var(--card-bg);
+            border: 2px solid var(--border-color);
+            border-radius: 10px;
+            padding: 25px;
+            box-shadow: 0 4px 20px rgba(0,0,0,0.08);
+            margin-bottom: 25px;
+        }
+
+        .table-responsive {
+            width: 100%;
+            overflow-x: auto;
+        }
+
+        table {
+            width: 100%;
+            border-collapse: collapse;
+            text-align: left;
+            font-size: 0.9rem;
+        }
+
+        th, td {
+            border: 1.5px solid var(--border-color);
+            padding: 10px 12px;
+        }
+
+        th {
+            background-color: #e5e8e8;
+            color: #2c3e50;
+            font-weight: 700;
+        }
+
+        tr:nth-child(even) {
+            background-color: #fcfcfc;
+        }
+
+        .val-badge {
+            display: inline-block;
+            background-color: #d4efdf;
+            color: #145a32;
+            border: 1px solid #145a32;
+            border-radius: 4px;
+            padding: 2px 6px;
+            font-size: 0.75rem;
+            font-weight: 700;
+            margin-top: 4px;
+        }
+
+        .btn-eliminar {
+            background-color: #f5b7b1;
+            color: #641e16;
+            border: 1.5px solid var(--border-color);
+            border-radius: 4px;
+            padding: 4px 8px;
+            font-size: 0.75rem;
+            font-weight: 700;
+            cursor: pointer;
+            transition: all 0.2s ease;
+            margin-top: 5px;
+        }
+
+        .btn-eliminar:hover {
+            background-color: #ec7063;
+        }
+
+        .status-msg {
+            margin-top: 10px;
+            font-size: 0.85rem;
+            font-weight: 600;
+            text-align: center;
+        }
+
+        .placeholder-loading {
+            text-align: center;
+            padding: 20px;
+            font-style: italic;
+            color: #7f8c8d;
+        }
+    </style>
+</head>
+<body>
+
+    <div class="container">
+        <header>
+            <button class="btn-volver" onclick="volverDashboard()">← Volver</button>
+            <h2>Calificaciones Oficiales (Datos Validados Prioritarios)</h2>
+            <p>Listado general de calificaciones de Tests y Talleres visados institucionalmente</p>
+        </header>
+
+        <div class="card">
+            <h3 style="margin-bottom: 15px; font-size: 1.1rem; color: #2c3e50;">Registros Oficiales de Estudiantes</h3>
+            <div class="table-responsive">
+                <table id="tablaCalificacionesOficiales">
+                    <thead>
+                        <tr>
+                            <th>Estudiante (Nombre y Apellido)</th>
+                            <th>Módulo / Evaluación</th>
+                            <th>Calificación Oficial</th>
+                            <th>Fecha de Validación</th>
+                            <th>Acción Administrativa</th>
+                        </tr>
+                    </thead>
+                    <tbody id="cuerpoTablaCalificaciones">
+                        <tr>
+                            <td colspan="5" class="placeholder-loading">Cargando registros validados desde la base de datos...</td>
+                        </tr>
+                    </tbody>
+                </table>
+            </div>
+            <div id="statusMsg" class="status-msg"></div>
+        </div>
+    </div>
+
+    <!-- Script conectado a Firebase Firestore -->
+    <script type="module">
+        import { initializeApp } from "https://www.gstatic.com/firebasejs/10.8.0/firebase-app.js";
+        import { getFirestore, collection, getDocs, deleteDoc, doc } from "https://www.gstatic.com/firebasejs/10.8.0/firebase-firestore.js";
+
+        const firebaseConfig = {
+          apiKey: "AIzaSyDLSIGdkd2y1l7zhMjoVd_bmCj8jjXpX4I",
+          authDomain: "aula-virtual-mas-alla-del-pris.firebaseapp.com",
+          projectId: "aula-virtual-mas-alla-del-pris",
+          storageBucket: "aula-virtual-mas-alla-del-pris.firebasestorage.app",
+          messagingSenderId: "711745866832",
+          appId: "1:711745866832:web:945e046cb0b61ac320d555"
+        };
+
+        const app = initializeApp(firebaseConfig);
+        const db = getFirestore(app);
+
+        async function cargarCalificacionesValidadas() {
+            const cuerpoTabla = document.getElementById("cuerpoTablaCalificaciones");
+            cuerpoTabla.innerHTML = `<tr><td colspan="5" class="placeholder-loading">Cargando registros validados desde la base de datos...</td></tr>`;
+
+            try {
+                let registrosOficiales = [];
+
+                // 1. Consultar colecciones de tests validados
+                const testsSnapshot = await getDocs(collection(db, "calificaciones_tests"));
+                testsSnapshot.forEach(documento => {
+                    const data = documento.data();
+                    const usuario = data.usuario || "Estudiante_Anonimo";
+
+                    // Iterar sobre las claves posibles de tests
+                    Object.keys(data).forEach(key => {
+                        if (key.startsWith("validadoTest_") && data[key] === true) {
+                            const testId = key.replace("validadoTest_", "");
+                            const notaKey = testId === "preliminar" ? "notaTest_preliminar" : `notaTest_${testId}`;
+                            const fechaKey = testId === "preliminar" ? "fechaValidacion_preliminar" : `fechaValidacion_${testId}`;
+
+                            if (data[notaKey] !== undefined) {
+                                registrosOficiales.push({
+                                    idDoc: documento.id,
+                                    coleccion: "calificaciones_tests",
+                                    usuario: usuario,
+                                    modulo: `Test ${testId === "preliminar" ? "Preliminar" : testId}`,
+                                    nota: data[notaKey],
+                                    fecha: data[fechaKey] || "No especificada"
+                                });
+                            }
+                        }
+                    });
+                });
+
+                // 2. Consultar colecciones de talleres validados
+                const talleresSnapshot = await getDocs(collection(db, "calificaciones_talleres"));
+                talleresSnapshot.forEach(documento => {
+                    const data = documento.data();
+                    const usuario = data.usuario || "Estudiante_Anonimo";
+
+                    Object.keys(data).forEach(key => {
+                        if (key.startsWith("validadoTaller_") && data[key] === true) {
+                            const tallerId = key.replace("validadoTaller_", "");
+                            const notaKey = tallerId === "preliminar" ? "notaTaller_preliminar" : `notaTaller_${tallerId}`;
+                            const fechaKey = tallerId === "preliminar" ? "fechaValidacionTaller_preliminar" : `fechaValidacionTaller_${tallerId}`;
+
+                            if (data[notaKey] !== undefined) {
+                                registrosOficiales.push({
+                                    idDoc: documento.id,
+                                    coleccion: "calificaciones_talleres",
+                                    usuario: usuario,
+                                    modulo: `Taller ${tallerId === "preliminar" ? "Preliminar" : tallerId}`,
+                                    nota: data[notaKey],
+                                    fecha: data[fechaKey] || "No especificada"
+                                });
+                            }
+                        }
+                    });
+                });
+
+                cuerpoTabla.innerHTML = "";
+
+                if (registrosOficiales.length === 0) {
+                    cuerpoTabla.innerHTML = `<tr><td colspan="5" class="placeholder-loading">No se encontraron registros validados prioritarios en la base de datos.</td></tr>`;
+                    return;
+                }
+
+                registrosOficiales.forEach(reg => {
+                    const tr = document.createElement("tr");
+                    tr.innerHTML = `
+                        <td style="font-weight: 700;">${reg.usuario}</td>
+                        <td>${reg.modulo}</td>
+                        <td><strong>${reg.nota}/10</strong> <span class="val-badge">Validado Oficial</span></td>
+                        <td>${reg.fecha}</td>
+                        <td>
+                            <button class="btn-eliminar" onclick="eliminarRegistro('${reg.coleccion}', '${reg.idDoc}')">Eliminar Registro</button>
+                        </td>
+                    `;
+                    cuerpoTabla.appendChild(tr);
+                });
+
+            } catch (error) {
+                console.error("Error al cargar calificaciones oficiales:", error);
+                cuerpoTabla.innerHTML = `<tr><td colspan="5" class="placeholder-loading" style="color: #641e16;">Error al conectar con la base de datos.</td></tr>`;
+            }
+        }
+
+        window.eliminarRegistro = async function(nombreColeccion, idDocumento) {
+            if (confirm("¿Está seguro de que desea eliminar permanentemente este registro validado de la base de datos?")) {
+                const statusMsg = document.getElementById("statusMsg");
+                try {
+                    await deleteDoc(doc(db, nombreColeccion, idDocumento));
+                    statusMsg.style.color = "#145a32";
+                    statusMsg.innerText = "¡Registro eliminado con éxito de la base de datos!";
+                    cargarCalificacionesValidadas();
+                } catch (error) {
+                    console.error("Error al eliminar el documento:", error);
+                    statusMsg.style.color = "#641e16";
+                    statusMsg.innerText = "Error al intentar eliminar el registro.";
+                }
+            }
+        }
+
+        window.volverDashboard = function() {
+            if (window.parent && window.parent !== window) {
+                window.parent.location.reload();
+            } else {
+                window.location.href = "index.html";
+            }
+        }
+
+        window.onload = function() {
+            cargarCalificacionesValidadas();
+        };
+    </script>
+</body>
+</html>
