@@ -229,12 +229,12 @@
                         <th>Matrícula</th>
                         <th>Acciones</th>
                     </tr>
-                 dulces
-                    <tbody id="tablaParticipantes">
-                        <tr>
-                            <td colspan="5" style="text-align: center; color: #7f8c8d;">Cargando participantes desde la base de datos...</td>
-                        </tr>
-                    </tbody>
+                </thead>
+                <tbody id="tablaParticipantes">
+                    <tr>
+                        <td colspan="5" style="text-align: center; color: #7f8c8d;">Cargando participantes desde la base de datos...</td>
+                    </tr>
+                </tbody>
             </table>
         </div>
     </div>
@@ -242,7 +242,7 @@
     <!-- Script conectado a Firebase Firestore -->
     <script type="module">
         import { initializeApp } from "https://www.gstatic.com/firebasejs/10.8.0/firebase-app.js";
-        import { getFirestore, collection, getDocs, setDoc, doc, deleteDoc, getDoc } from "https://www.gstatic.com/firebasejs/10.8.0/firebase-firestore.js";
+        import { getFirestore, collection, getDocs, setDoc, doc, deleteDoc } from "https://www.gstatic.com/firebasejs/10.8.0/firebase-firestore.js";
 
         const firebaseConfig = {
           apiKey: "AIzaSyDLSIGdkd2y1l7zhMjoVd_bmCj8jjXpX4I",
@@ -256,12 +256,11 @@
         const app = initializeApp(firebaseConfig);
         const db = getFirestore(app);
 
-        // Cargar tabla al iniciar
         window.onload = function() {
             cargarParticipantes();
         };
 
-        // Función para guardar o actualizar participante
+        // Guardar o actualizar participante
         window.guardarParticipante = async function(event) {
             event.preventDefault();
             const idDoc = document.getElementById("participanteId").value;
@@ -273,7 +272,6 @@
             const fotoDrive = document.getElementById("fotoDrive").value.trim();
             const msgStatus = document.getElementById("msgStatus");
 
-            // Usamos el DNI o el Código de Matrícula como ID único del documento en Firestore
             const docId = idDoc ? idDoc : "PART_" + dni;
 
             try {
@@ -287,17 +285,8 @@
                     fotoDrive
                 });
 
-                // También aseguramos el alta automática en la colección "usuarios" del sistema para que pueda loguearse si corresponde
-                // (Usuario = DNI o Matrícula, Contraseña inicial por defecto = DNI)
-                await setDoc(doc(db, "usuarios", codigoMatricula), {
-                    user: codigoMatricula,
-                    pass: dni, // Contraseña provisoria inicial basada en el DNI
-                    role: "student",
-                    name: `${apellido}, ${nombres}`
-                }, { merge: true });
-
                 msgStatus.style.color = "#145a32";
-                msgStatus.innerText = "¡Participante guardado y sincronizado con éxito en la base de datos!";
+                msgStatus.innerText = "¡Participante guardado con éxito en la base de datos!";
                 
                 limpiarFormulario();
                 cargarParticipantes();
@@ -333,7 +322,7 @@
                         <td>
                             <div class="action-btns">
                                 <button class="btn-edit" onclick="prepararEdicion('${docSnap.id}', '${p.apellido}', '${p.nombres}', '${p.dni}', '${p.telefono}', '${p.codigoMatricula}', '${p.fotoDrive || ''}')">Editar</button>
-                                <button class="btn-delete" onclick="eliminarParticipante('${docSnap.id}', '${p.codigoMatricula}')">Eliminar</button>
+                                <button class="btn-delete" onclick="eliminarParticipante('${docSnap.id}')">Eliminar</button>
                             </div>
                         </td>
                     `;
@@ -361,13 +350,10 @@
         }
 
         // Eliminar participante de Firestore
-        window.eliminarParticipante = async function(docId, codigoMatricula) {
+        window.eliminarParticipante = async function(docId) {
             if (confirm("¿Estás seguro de eliminar este participante de forma definitiva?")) {
                 try {
                     await deleteDoc(doc(db, "participantes", docId));
-                    // Opcional: También se puede remover de usuarios si se desea revocar acceso completo
-                    // await deleteDoc(doc(db, "usuarios", codigoMatricula));
-                    
                     cargarParticipantes();
                 } catch (error) {
                     console.error("Error al eliminar:", error);
