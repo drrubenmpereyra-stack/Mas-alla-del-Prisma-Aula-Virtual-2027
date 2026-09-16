@@ -265,13 +265,11 @@
 
                 querySnapshot.forEach((docSnap) => {
                     const m = docSnap.data();
-                    const repoRoot = window.location.origin + window.location.pathname.substring(0, window.location.pathname.lastIndexOf('/') + 1);
-                    const fullUrl = repoRoot + m.archivo;
                     const tr = document.createElement("tr");
                     tr.innerHTML = `
                         <td><strong>${m.titulo}</strong></td>
                         <td><code>${m.archivo}</code></td>
-                        <td><a href="${fullUrl}" target="_blank" style="color: #1b4f72; font-weight: 600;">📄 Abrir PDF</a></td>
+                        <td><a href="${m.archivo}" target="_blank" style="color: #1b4f72; font-weight: 600;">📄 Abrir PDF</a></td>
                         <td>
                             <button class="btn-delete" onclick="eliminarMaterial('${docSnap.id}')">Eliminar</button>
                         </td>
@@ -299,3 +297,4 @@
     </script>
 </body>
 </html>
+
