@@ -95,7 +95,7 @@
         /* Contenedor del Iframe para los formularios de test */
         .viewer-container {
             width: 100%;
-            height: 600px;
+            height: 650px;
             border: 2px solid var(--border-color);
             border-radius: 6px;
             background: #fff;
@@ -145,21 +145,21 @@
         // URL base de GitHub Pages del repositorio
         const GITHUB_BASE_URL = "https://drrubenmpereyra-stack.github.io/Mas-alla-del-Prisma-Aula-Virtual-2027/";
 
-        // Listado exacto de los 13 test con sus nombres de archivo de imagen correspondientes en GitHub
+        // Listado exacto de los 13 test con sus nombres de archivo de imagen y su archivo HTML asociado codificado hasta el 12
         const listaTests = [
-            { id: "preliminar", titulo: "Test Preliminar", archivoImg: "BTest_preliminar.jpg" },
-            { id: "1", titulo: "Test 1", archivoImg: "BTest1.jpg" },
-            { id: "2", titulo: "Test 2", archivoImg: "Test2.jpg" },
-            { id: "3", titulo: "Test 3", archivoImg: "Test3.jpg" },
-            { id: "4", titulo: "Test 4", archivoImg: "Test4.jpg" },
-            { id: "5", titulo: "Test 5", archivoImg: "Test5.jpg" },
-            { id: "6", titulo: "Test 6", archivoImg: "Test6.jpg" },
-            { id: "7", titulo: "Test 7", archivoImg: "Test7.jpg" },
-            { id: "8", titulo: "Test 8", archivoImg: "Test8.jpg" },
-            { id: "9", titulo: "Test 9", archivoImg: "Test9.jpg" },
-            { id: "10", titulo: "Test 10", archivoImg: "Test10.jpg" },
-            { id: "11", titulo: "Test 11", archivoImg: "Test11.jpg" },
-            { id: "12", titulo: "Test 12", archivoImg: "Test12.jpg" }
+            { id: "preliminar", titulo: "Test Preliminar", archivoImg: "BTest_preliminar.jpg", archivoHtml: "test_preliminar.html" },
+            { id: "1", titulo: "Test 1", archivoImg: "BTest1.jpg", archivoHtml: "test1.html" },
+            { id: "2", titulo: "Test 2", archivoImg: "Test2.jpg", archivoHtml: "test2.html" },
+            { id: "3", titulo: "Test 3", archivoImg: "Test3.jpg", archivoHtml: "test3.html" },
+            { id: "4", titulo: "Test 4", archivoImg: "Test4.jpg", archivoHtml: "test4.html" },
+            { id: "5", titulo: "Test 5", archivoImg: "Test5.jpg", archivoHtml: "test5.html" },
+            { id: "6", titulo: "Test 6", archivoImg: "Test6.jpg", archivoHtml: "test6.html" },
+            { id: "7", titulo: "Test 7", archivoImg: "Test7.jpg", archivoHtml: "test7.html" },
+            { id: "8", titulo: "Test 8", archivoImg: "Test8.jpg", archivoHtml: "test8.html" },
+            { id: "9", titulo: "Test 9", archivoImg: "Test9.jpg", archivoHtml: "test9.html" },
+            { id: "10", titulo: "Test 10", archivoImg: "Test10.jpg", archivoHtml: "test10.html" },
+            { id: "11", titulo: "Test 11", archivoImg: "Test11.jpg", archivoHtml: "test11.html" },
+            { id: "12", titulo: "Test 12", archivoImg: "Test12.jpg", archivoHtml: "test12.html" }
         ];
 
         window.onload = function() {
@@ -169,7 +169,7 @@
             listaTests.forEach(test => {
                 const btn = document.createElement("button");
                 btn.className = "test-btn";
-                btn.onclick = () => abrirTest(test.titulo);
+                btn.onclick = () => abrirTest(test);
 
                 const imgUrl = GITHUB_BASE_URL + test.archivoImg;
                 btn.innerHTML = `
@@ -180,12 +180,16 @@
             });
         };
 
-        // Función que maneja la alerta y prepara el iframe para futuros formularios
-        window.abrirTest = function(nombreTest) {
-            alert(`El formulario para "${nombreTest}" se encuentra actualmente en desarrollo.`);
-            
+        // Función para abrir el archivo HTML correspondiente en el iframe o avisar si aún no fue subido
+        window.abrirTest = function(testObj) {
             const container = document.getElementById("visorContainer");
-            container.innerHTML = `<div class="placeholder-text">Módulo de ${nombreTest} en desarrollo. Próximamente disponible.</div>`;
+
+            if (testObj.archivoHtml && testObj.archivoHtml.trim() !== "") {
+                container.innerHTML = `<iframe src="${testObj.archivoHtml}" title="${testObj.titulo}"></iframe>`;
+            } else {
+                alert(`El formulario para "${testObj.titulo}" se encuentra actualmente en desarrollo.`);
+                container.innerHTML = `<div class="placeholder-text">Módulo de ${testObj.titulo} en desarrollo. Próximamente disponible.</div>`;
+            }
         }
     </script>
 </body>
