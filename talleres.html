@@ -40,13 +40,12 @@
             padding-bottom: 10px;
         }
 
-        /* Formulario con el color de fondo del Botón 2 (#d4efdf) y glow */
         .form-card {
-            background-color: #d4efdf;
+            background-color: #ffffff;
             border: 2px solid var(--border-color);
             border-radius: 8px;
             padding: 25px;
-            box-shadow: 0 0 12px rgba(212, 239, 223, 0.9);
+            box-shadow: 0 4px 15px rgba(0,0,0,0.05);
             margin-bottom: 30px;
         }
 
@@ -65,7 +64,7 @@
             font-size: 0.85rem;
             font-weight: 700;
             margin-bottom: 5px;
-            color: #145a32;
+            color: #7d6608;
         }
 
         .form-group input, .form-group select {
@@ -102,13 +101,6 @@
             background-color: #a9dfbf;
         }
 
-        .btn-cancel {
-            background-color: #fadbd8;
-            color: #78281f;
-            display: none;
-        }
-
-        /* Tabla de Vista General */
         .table-card {
             background: var(--card-bg);
             border: 2px solid var(--border-color);
@@ -138,41 +130,6 @@
             border-bottom: 2px solid var(--border-color);
         }
 
-        .badge-publicado {
-            background-color: #d4efdf;
-            color: #145a32;
-            padding: 4px 8px;
-            border-radius: 4px;
-            font-weight: 600;
-            font-size: 0.8rem;
-            border: 1px solid #145a32;
-        }
-
-        .badge-proximo {
-            background-color: #fdebd0;
-            color: #7e5109;
-            padding: 4px 8px;
-            border-radius: 4px;
-            font-weight: 600;
-            font-size: 0.8rem;
-            border: 1px solid #7e5109;
-        }
-
-        .action-btns {
-            display: flex;
-            gap: 6px;
-        }
-
-        .btn-edit {
-            background-color: #fcf3cf;
-            color: #7d6608;
-            padding: 6px 10px;
-            font-size: 0.8rem;
-            border: 1.5px solid #000;
-            border-radius: 4px;
-            cursor: pointer;
-        }
-
         .btn-delete {
             background-color: #f5b7b1;
             color: #641e16;
@@ -183,14 +140,8 @@
             cursor: pointer;
         }
 
-        .btn-edit:hover, .btn-delete:hover {
+        .btn-delete:hover {
             filter: brightness(0.9);
-        }
-
-        .link-icon {
-            text-decoration: none;
-            margin-right: 8px;
-            font-size: 1.1rem;
         }
 
         .msg-status {
@@ -203,81 +154,49 @@
 <body>
 
     <div class="container">
-        <h2>Gestión de Talleres de la Capacitación</h2>
+        <h2>Gestión de Talleres - Instructivos PDF</h2>
 
-        <!-- Formulario de Registro / Edición -->
         <div class="form-card">
-            <form id="tallerForm" onsubmit="guardarTaller(event)">
-                <input type="hidden" id="tallerId">
+            <h3 style="margin-bottom: 15px; font-size: 1.1rem; color: #7d6608;">Registrar / Sincronizar Instructivo de Taller</h3>
+            <form id="tallerForm" onsubmit="guardarMaterial(event)">
                 <div class="form-grid">
                     <div class="form-group">
-                        <label for="tallerTitulo">Taller y Título:</label>
-                        <select id="tallerTitulo" required>
-                            <option value="">Seleccione el taller...</option>
-                            <option value="Taller Preliminar: Epistemología de la Complejidad Vincular">Taller Preliminar: Epistemología de la Complejidad Vincular</option>
-                            <option value="Taller 1: Neuropsicoanálisis de la Sublimación y el Arte">Taller 1: Neuropsicoanálisis de la Sublimación y el Arte</option>
-                            <option value="Taller 2: Psicofarmacología y Psicoterapia Focalizada">Taller 2: Psicofarmacología y Psicoterapia Focalizada</option>
-                            <option value="Taller 3: El Trauma Colectivo y el Colapso del Lazo Social">Taller 3: El Trauma Colectivo y el Colapso del Lazo Social</option>
-                            <option value="Taller 4: La Arquitectura del Vínculo: Apego Adulto y Pareja">Taller 4: La Arquitectura del Vínculo: Apego Adulto y Pareja</option>
-                            <option value="Taller 5: Celos Patológicos y las Derivas de la Paranoia">Taller 5: Celos Patológicos y las Derivas de la Paranoia</option>
-                            <option value="Taller 6: Infidelidades Digitales y Nuevos Pactos Amorosos">Taller 6: Infidelidades Digitales y Nuevos Pactos Amorosos</option>
-                            <option value="Taller 7: Nuevas Configuraciones Familiares y la Ley">Taller 7: Nuevas Configuraciones Familiares y la Ley</option>
-                            <option value="Taller 8: Psico-oncología y Cuidados Paliativos">Taller 8: Psico-oncología y Cuidados Paliativos</option>
-                            <option value="Taller 9: Neuropsicología de las Adicciones Conductuales">Taller 9: Neuropsicología de las Adicciones Conductuales</option>
-                            <option value="Taller 10: Identidades de Género y Disidencias en la Clínica">Taller 10: Identidades de Género y Disidencias en la Clínica</option>
-                            <option value="Taller 11: Envejecimiento, Demencias y el Declive del Yo">Taller 11: Envejecimiento, Demencias y el Declive del Yo</option>
-                            <option value="Taller 12: La Posición Ética del Analista frente al Algoritmo">Taller 12: La Posición Ética del Analista frente al Algoritmo</option>
-                        </select>
+                        <label for="tituloMaterial">Título del Taller:</label>
+                        <input type="text" id="tituloMaterial" required placeholder="Ej: Taller 1 o Taller Preliminar">
                     </div>
                     <div class="form-group">
-                        <label for="fechaTaller">Fecha del Taller:</label>
-                        <input type="date" id="fechaTaller" required>
-                    </div>
-                    <div class="form-group">
-                        <label for="fotoDrive">Link Foto Portada (Google Drive):</label>
-                        <input type="url" id="fotoDrive" placeholder="https://drive.google.com/..." required>
-                    </div>
-                    <div class="form-group">
-                        <label for="linkMeet">Link de Meet (Clase en línea):</label>
-                        <input type="url" id="linkMeet" placeholder="https://meet.google.com/..." required>
-                    </div>
-                    <div class="form-group" style="grid-column: 1 / -1;">
-                        <label for="linkGrabacion">Link Clase Grabada (Repositorio Google Drive):</label>
-                        <input type="url" id="linkGrabacion" placeholder="https://drive.google.com/..." required>
+                        <label for="nombreArchivo">Nombre exacto del archivo en GitHub:</label>
+                        <input type="text" id="nombreArchivo" required placeholder="Ej: Taller 1.pdf o Taller_preliminar.pdf">
                     </div>
                 </div>
 
                 <div class="form-actions">
-                    <button type="submit" class="btn btn-save" id="btnGuardar">Guardar Taller</button>
-                    <button type="button" class="btn btn-cancel" id="btnCancelar" onclick="limpiarFormulario()">Cancelar Edición</button>
+                    <button type="submit" class="btn btn-save">Guardar Registro</button>
                 </div>
                 <div id="msgStatus" class="msg-status"></div>
             </form>
         </div>
 
-        <!-- Vista General (Tabla de Talleres) -->
         <div class="table-card">
-            <h3 style="margin-bottom: 15px; font-size: 1.1rem;">Talleres Registrados</h3>
+            <h3 style="margin-bottom: 15px; font-size: 1.1rem;">Instructivos de Talleres Registrados</h3>
             <table>
                 <thead>
                     <tr>
-                        <th>Taller / Capítulo</th>
-                        <th>Fecha</th>
-                        <th>Estado</th>
-                        <th>Accesos y Recursos</th>
-                        <th>Acciones</th>
+                        <th>Título</th>
+                        <th>Archivo en Repositorio</th>
+                        <th>Acceso Directo</th>
+                        <th>Acción</th>
                     </tr>
                 </thead>
-                <tbody id="tablaTalleres">
+                <tbody id="tablaMateriales">
                     <tr>
-                        <td colspan="5" style="text-align: center; color: #7f8c8d;">Cargando talleres desde la base de datos...</td>
+                        <td colspan="4" style="text-align: center; color: #7f8c8d;">Cargando instructivos desde la base de datos...</td>
                     </tr>
                 </tbody>
             </table>
         </div>
     </div>
 
-    <!-- Script conectado a Firebase Firestore -->
     <script type="module">
         import { initializeApp } from "https://www.gstatic.com/firebasejs/10.8.0/firebase-app.js";
         import { getFirestore, collection, getDocs, setDoc, doc, deleteDoc } from "https://www.gstatic.com/firebasejs/10.8.0/firebase-firestore.js";
@@ -294,52 +213,33 @@
         const app = initializeApp(firebaseConfig);
         const db = getFirestore(app);
 
+        // URL base de tu GitHub Pages para los instructivos de talleres
+        const GITHUB_BASE_URL = "https://drrubenmpereyra-stack.github.io/Mas-alla-del-Prisma-Aula-Virtual-2027/";
+
         window.onload = function() {
-            document.getElementById("fechaTaller").valueAsDate = new Date();
-            cargarTalleres();
+            cargarMateriales();
         };
 
-        // Función para extraer un orden numérico correlativo según el título seleccionado
-        function obtenerOrdenTaller(titulo) {
-            if (titulo.includes("Preliminar")) return 0;
-            const match = titulo.match(/Taller\s+(\d+)/i);
-            return match ? parseInt(match[1]) : 99;
-        }
-
-        // Guardar o actualizar taller en Firebase
-        window.guardarTaller = async function(event) {
+        window.guardarMaterial = async function(event) {
             event.preventDefault();
-            const idDoc = document.getElementById("tallerId").value;
-            const titulo = document.getElementById("tallerTitulo").value;
-            const fecha = document.getElementById("fechaTaller").value;
-            const fotoDrive = document.getElementById("fotoDrive").value.trim();
-            const linkMeet = document.getElementById("linkMeet").value.trim();
-            const linkGrabacion = document.getElementById("linkGrabacion").value.trim();
+            const titulo = document.getElementById("tituloMaterial").value.trim();
+            const archivo = document.getElementById("nombreArchivo").value.trim();
             const msgStatus = document.getElementById("msgStatus");
 
-            // Calcular estado automático según la fecha actual (YYYY-MM-DD)
-            const hoyStr = new Date().toISOString().split('T')[0];
-            const estado = fecha <= hoyStr ? "Publicado" : "Próximo";
-
-            const orden = obtenerOrdenTaller(titulo);
-            const docId = idDoc ? idDoc : `TALLER_${orden}_${Date.now()}`;
+            // Cambiamos la colección de Firestore a "talleres" para mantenerlo separado de la biblioteca
+            const docId = "TALLER_" + archivo.replace(/[\.\s]/g, "_");
 
             try {
                 await setDoc(doc(db, "talleres", docId), {
-                    orden,
                     titulo,
-                    fecha,
-                    estado,
-                    fotoDrive,
-                    linkMeet,
-                    linkGrabacion
+                    archivo
                 });
 
                 msgStatus.style.color = "#145a32";
-                msgStatus.innerText = "¡Taller guardado y sincronizado con éxito!";
+                msgStatus.innerText = "¡Instructivo de taller guardado con éxito!";
                 
-                limpiarFormulario();
-                cargarTalleres();
+                document.getElementById("tallerForm").reset();
+                cargarMateriales();
 
                 setTimeout(() => { msgStatus.innerText = ""; }, 4000);
             } catch (error) {
@@ -349,87 +249,47 @@
             }
         }
 
-        // Cargar y ordenar talleres correlativamente (0, 1, 2, 3...)
-        async function cargarTalleres() {
-            const tbody = document.getElementById("tablaTalleres");
+        async function cargarMateriales() {
+            const tbody = document.getElementById("tablaMateriales");
             try {
                 const querySnapshot = await getDocs(collection(db, "talleres"));
-                let talleresList = [];
-
-                querySnapshot.forEach((docSnap) => {
-                    talleresList.push({ id: docSnap.id, ...docSnap.data() });
-                });
-
-                talleresList.sort((a, b) => a.orden - b.orden);
-
                 tbody.innerHTML = "";
 
-                if (talleresList.length === 0) {
-                    tbody.innerHTML = `<tr><td colspan="5" style="text-align: center; color: #7f8c8d;">No hay talleres registrados todavía.</td></tr>`;
+                if (querySnapshot.empty) {
+                    tbody.innerHTML = `<tr><td colspan="4" style="text-align: center; color: #7f8c8d;">No hay instructivos de talleres registrados todavía.</td></tr>`;
                     return;
                 }
 
-                talleresList.forEach((t) => {
-                    const badgeClass = t.estado === "Publicado" ? "badge-publicado" : "badge-proximo";
+                querySnapshot.forEach((docSnap) => {
+                    const m = docSnap.data();
+                    const fullUrl = GITHUB_BASE_URL + m.archivo;
                     const tr = document.createElement("tr");
                     tr.innerHTML = `
-                        <td><strong>${t.titulo}</strong></td>
-                        <td>${t.fecha}</td>
-                        <td><span class="${badgeClass}">${t.estado}</span></td>
+                        <td><strong>${m.titulo}</strong></td>
+                        <td><code>${m.archivo}</code></td>
+                        <td><a href="${fullUrl}" target="_blank" style="color: #1b4f72; font-weight: 600;">📄 Abrir PDF</a></td>
                         <td>
-                            <a href="${t.fotoDrive}" target="_blank" class="link-icon" title="Ver Foto / Portada">🖼️</a>
-                            <a href="${t.linkMeet}" target="_blank" class="link-icon" title="Enlace Meet">🎥</a>
-                            <a href="${t.linkGrabacion}" target="_blank" class="link-icon" title="Clase Grabada (Drive)">📁</a>
-                        </td>
-                        <td>
-                            <div class="action-btns">
-                                <button class="btn-edit" onclick="prepararEdicion('${t.id}', '${t.titulo.replace(/'/g, "\\'")}', '${t.fecha}', '${t.fotoDrive}', '${t.linkMeet}', '${t.linkGrabacion}')">Editar</button>
-                                <button class="btn-delete" onclick="eliminarTaller('${t.id}')">Eliminar</button>
-                            </div>
+                            <button class="btn-delete" onclick="eliminarMaterial('${docSnap.id}')">Eliminar</button>
                         </td>
                     `;
                     tbody.appendChild(tr);
                 });
             } catch (error) {
                 console.error("Error al cargar talleres:", error);
-                tbody.innerHTML = `<tr><td colspan="5" style="text-align: center; color: #641e16;">Error al cargar datos de Firebase.</td></tr>`;
+                tbody.innerHTML = `<tr><td colspan="4" style="text-align: center; color: #641e16;">Error al cargar datos de Firebase.</td></tr>`;
             }
         }
 
-        // Preparar formulario para edición
-        window.prepararEdicion = function(id, titulo, fecha, fotoDrive, linkMeet, linkGrabacion) {
-            document.getElementById("tallerId").value = id;
-            document.getElementById("tallerTitulo").value = titulo;
-            document.getElementById("fechaTaller").value = fecha;
-            document.getElementById("fotoDrive").value = fotoDrive;
-            document.getElementById("linkMeet").value = linkMeet;
-            document.getElementById("linkGrabacion").value = linkGrabacion;
-
-            document.getElementById("btnGuardar").innerText = "Actualizar Taller";
-            document.getElementById("btnCancelar").style.display = "inline-block";
-            window.scrollTo({ top: 0, behavior: 'smooth' });
-        }
-
-        // Eliminar taller de Firebase
-        window.eliminarTaller = async function(docId) {
-            if (confirm("¿Estás seguro de eliminar este taller de forma definitiva?")) {
+        window.eliminarMaterial = async function(docId) {
+            if (confirm("¿Estás seguro de eliminar este registro del taller?")) {
                 try {
                     await deleteDoc(doc(db, "talleres", docId));
-                    cargarTalleres();
+                    cargarMateriales();
                 } catch (error) {
                     console.error("Error al eliminar:", error);
-                    alert("No se pudo eliminar el taller.");
+                    alert("No se pudo eliminar el registro.");
                 }
             }
-        }
-
-        // Limpiar formulario
-        window.limpiarFormulario = function() {
-            document.getElementById("tallerForm").reset();
-            document.getElementById("tallerId").value = "";
-            document.getElementById("fechaTaller").valueAsDate = new Date();
-            document.getElementById("btnGuardar").innerText = "Guardar Taller";
-            document.getElementById("btnCancelar").style.display = "none";
         }
     </script>
 </body>
