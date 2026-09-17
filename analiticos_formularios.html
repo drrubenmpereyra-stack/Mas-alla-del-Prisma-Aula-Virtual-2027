@@ -99,7 +99,7 @@
             border-radius: 6px;
             font-size: 0.95rem;
             background: #fff;
-            min-width: 250px;
+            min-width: 300px;
         }
 
         .btn-generar {
@@ -304,7 +304,7 @@
                     </div>
                 </div>
 
-                <!-- Datos del Estudiante (Apellido y Nombres reales + DNI) -->
+                <!-- Datos del Estudiante (Apellido y Nombres reales + DNI desde participantes) -->
                 <div class="section-title">Datos del Estudiante</div>
                 <div class="student-data-grid" id="studentDataGrid">
                     <!-- Dinámico -->
@@ -394,34 +394,41 @@
             const statusMsg = document.getElementById("statusMsg");
 
             try {
-                // 1. Obtener información real de los perfiles de usuario si existe la colección "usuarios" o "perfiles"
-                const perfilesMap = {};
+                // 1. Cargar datos maestros de la colección "participantes" (Apellidos, Nombres, DNI, Usuario)
+                const participantesMap = {};
                 try {
-                    const usuariosSnapshot = await getDocs(collection(db, "usuarios"));
-                    usuariosSnapshot.forEach(doc => {
-                        const uData = doc.data();
-                        const username = uData.usuario || uData.username || uData.email;
+                    const partSnapshot = await getDocs(collection(db, "participantes"));
+                    partSnapshot.forEach(doc => {
+                        const pData = doc.data();
+                        // Identificar campos posibles de nombre, apellido y DNI en participantes
+                        const apellido = pData.apellido || pData.apellidos || "";
+                        const nombre = pData.nombre || pData.nombres || "";
+                        const apellidoNombreCompleto = apellido && nombre ? `${apellido}, ${nombre}` : (pData.nombreCompleto || pData.apellidoNombre || "");
+                        const dniVal = pData.dni || pData.documento || p.dniEstudiante || "No registrado";
+                        const username = pData.usuario || pData.username || pData.email || pData.codigo || doc.id;
+
                         if (username) {
-                            perfilesMap[username] = {
-                                apellidoNombre: uData.apellidoNombre || uData.nombreCompleto || uData.nombre || username,
-                                dni: uData.dni || uData.documento || "No registrado"
+                            participantesMap[username.toString().trim()] = {
+                                apellidoNombre: apellidoNombreCompleto || username,
+                                dni: dniVal
                             };
                         }
                     });
                 } catch (e) {
-                    console.log("No se requirió colección de usuarios directa o no accesible.");
+                    console.log("No se pudo leer la colección participantes directamente o está vacía.", e);
                 }
 
                 // 2. Recopilar tests validados
                 const testsSnapshot = await getDocs(collection(db, "calificaciones_tests"));
                 testsSnapshot.forEach(doc => {
                     const data = doc.data();
-                    const usuario = data.usuario || "Estudiante_Anonimo";
+                    const usuario = (data.usuario || "Estudiante_Anonimo").toString().trim();
                     
                     if (!globalDataEstudiantes[usuario]) {
+                        const infoParticipante = participantesMap[usuario] || {};
                         globalDataEstudiantes[usuario] = {
-                            apellidoNombre: perfilesMap[usuario]?.apellidoNombre || usuario,
-                            dni: perfilesMap[usuario]?.dni || "No registrado",
+                            apellidoNombre: infoParticipante.apellidoNombre || usuario,
+                            dni: infoParticipante.dni || "No registrado",
                             tests: [],
                             talleres: []
                         };
@@ -448,12 +455,13 @@
                 const talleresSnapshot = await getDocs(collection(db, "calificaciones_talleres"));
                 talleresSnapshot.forEach(doc => {
                     const data = doc.data();
-                    const usuario = data.usuario || "Estudiante_Anonimo";
+                    const usuario = (data.usuario || "Estudiante_Anonimo").toString().trim();
                     
                     if (!globalDataEstudiantes[usuario]) {
+                        const infoParticipante = participantesMap[usuario] || {};
                         globalDataEstudiantes[usuario] = {
-                            apellidoNombre: perfilesMap[usuario]?.apellidoNombre || usuario,
-                            dni: perfilesMap[usuario]?.dni || "No registrado",
+                            apellidoNombre: infoParticipante.apellidoNombre || usuario,
+                            dni: infoParticipante.dni || "No registrado",
                             tests: [],
                             talleres: []
                         };
@@ -484,11 +492,12 @@
                     return;
                 }
 
+                // Poblar el selector mostrando claramente Apellido y Nombre (y DNI entre paréntesis)
                 listaUsuarios.forEach(user => {
                     const est = globalDataEstudiantes[user];
                     const opt = document.createElement("option");
                     opt.value = user;
-                    opt.innerText = `${est.apellidoNombre} (${user})`;
+                    opt.innerText = `${est.apellidoNombre} - DNI: ${est.dni}`;
                     selectEstudiante.appendChild(opt);
                 });
 
@@ -512,12 +521,12 @@
 
             const dataEstudiante = globalDataEstudiantes[estudianteSeleccionado];
             
-            // Rellenar Datos del Estudiante mostrando Apellido y Nombres reales junto al DNI
+            // Rellenar Datos del Estudiante con los valores recuperados de participantes
             const studentDataGrid = document.getElementById("studentDataGrid");
             studentDataGrid.innerHTML = `
                 <div><strong>Apellidos y Nombres:</strong> ${dataEstudiante.apellidoNombre}</div>
                 <div><strong>DNI:</strong> ${dataEstudiante.dni}</div>
-                <div><strong>Usuario Sistema:</strong> ${estudianteSeleccionado}</div>
+                <div><strong>Código / Usuario:</strong> ${estudianteSeleccionado}</div>
                 <div><strong>Cohorte:</strong> 2027</div>
             `;
 
@@ -573,7 +582,7 @@
                     `;
                 });
 
-                // Cálculo funcional del índice analítico (Promedio Tests * 0.50 + Promedio Talleres * 0.50)
+                // Cálculo funcional del resultado final ponderado
                 const promTests = countTests > 0 ? (sumaTests / countTests) : 0;
                 const promTalleres = countTalleres > 0 ? (sumaTalleres / countTalleres) : 0;
                 const indiceFinal = ((promTests * 0.50) + (promTalleres * 0.50)).toFixed(2);
