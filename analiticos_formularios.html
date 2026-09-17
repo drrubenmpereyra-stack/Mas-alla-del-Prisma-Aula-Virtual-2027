@@ -4,7 +4,6 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Formularios Analíticos - Reporte Académico PDF</title>
-    <!-- Incluir jsPDF y html2canvas desde CDN para la generación y descarga directa de PDF -->
     <script src="https://cdnjs.cloudflare.com/ajax/libs/html2canvas/1.4.1/html2canvas.min.js"></script>
     <script src="https://cdnjs.cloudflare.com/ajax/libs/jspdf/2.5.1/jspdf.umd.min.js"></script>
     <style>
@@ -119,7 +118,6 @@
             background-color: #a9dfbf;
         }
 
-        /* Estilos del Informe a Exportar en PDF (Diseño institucional formal) */
         .pdf-preview-container {
             background: #ffffff;
             border: 2px solid var(--border-color);
@@ -217,8 +215,12 @@
             border-radius: 6px;
             padding: 12px 15px;
             margin-bottom: 20px;
-            font-size: 0.88rem;
-            line-height: 1.4;
+            font-size: 0.9rem;
+            font-weight: 700;
+            color: #7d6608;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
         }
 
         .pdf-footer {
@@ -286,12 +288,11 @@
                 </select>
                 <button class="btn-generar" onclick="generarInformeAnalitico()">Generar Informe Analítico</button>
             </div>
-            <div id="statusMsg" class="placeholder-text">Seleccione un estudiante para visualizar el informe previo a su descarga.</div>
+            <div id="statusMsg" class="placeholder-text">Seleccione un estudiante de la lista para proyectar su informe analítico oficial.</div>
         </div>
 
         <!-- Vista Previa del Informe PDF -->
         <div id="pdfPreviewContainer" class="pdf-preview-container">
-            <!-- Contenido exacto que se convertirá en PDF -->
             <div id="pdfContent">
                 <!-- Encabezado con logotipo a la izquierda -->
                 <div class="pdf-header">
@@ -303,10 +304,10 @@
                     </div>
                 </div>
 
-                <!-- Datos del Estudiante -->
+                <!-- Datos del Estudiante (Apellido y Nombres reales + DNI) -->
                 <div class="section-title">Datos del Estudiante</div>
                 <div class="student-data-grid" id="studentDataGrid">
-                    <!-- Se carga dinámicamente -->
+                    <!-- Dinámico -->
                 </div>
 
                 <!-- Datos de Asistencia -->
@@ -343,12 +344,11 @@
                     </table>
                 </div>
 
-                <!-- Fórmula Académica para Analíticos -->
-                <div class="section-title">Fundamento Metodológico y Fórmula Académica</div>
+                <!-- Resultado de la Fórmula Académica Analítica -->
+                <div class="section-title">Índice Analítico Académico Consolidado</div>
                 <div class="formula-box">
-                    <strong>Fórmula de Evaluación Ponderada de Convergencia (FEPC-2027):</strong><br>
-                    El índice de rendimiento analítico institucional se calcula ponderando el desempeño validado en instancias teóricas (Tests) y prácticas (Talleres):<br>
-                    $$ \text{Índice Final} = \left( \frac{\sum \text{Notas Validadas Test}}{N_{\text{tests}}} \times 0.50 \right) + \left( \frac{\sum \text{Notas Validadas Taller}}{N_{\text{talleres}}} \times 0.50 \right) \times \text{Factor de Asistencia} $$
+                    <span>Resultado Índice Final Ponderado (FEPC-2027):</span>
+                    <span id="resultadoIndiceFinal" style="font-size: 1.2rem; color: #145a32;">0.00 / 10</span>
                 </div>
 
                 <!-- Pie, Fecha y Firma -->
@@ -371,7 +371,6 @@
         </div>
     </div>
 
-    <!-- Script conectado a Firebase Firestore -->
     <script type="module">
         import { initializeApp } from "https://www.gstatic.com/firebasejs/10.8.0/firebase-app.js";
         import { getFirestore, collection, getDocs } from "https://www.gstatic.com/firebasejs/10.8.0/firebase-firestore.js";
@@ -395,13 +394,37 @@
             const statusMsg = document.getElementById("statusMsg");
 
             try {
-                // Recopilar estudiantes y sus notas validadas de tests
+                // 1. Obtener información real de los perfiles de usuario si existe la colección "usuarios" o "perfiles"
+                const perfilesMap = {};
+                try {
+                    const usuariosSnapshot = await getDocs(collection(db, "usuarios"));
+                    usuariosSnapshot.forEach(doc => {
+                        const uData = doc.data();
+                        const username = uData.usuario || uData.username || uData.email;
+                        if (username) {
+                            perfilesMap[username] = {
+                                apellidoNombre: uData.apellidoNombre || uData.nombreCompleto || uData.nombre || username,
+                                dni: uData.dni || uData.documento || "No registrado"
+                            };
+                        }
+                    });
+                } catch (e) {
+                    console.log("No se requirió colección de usuarios directa o no accesible.");
+                }
+
+                // 2. Recopilar tests validados
                 const testsSnapshot = await getDocs(collection(db, "calificaciones_tests"));
                 testsSnapshot.forEach(doc => {
                     const data = doc.data();
                     const usuario = data.usuario || "Estudiante_Anonimo";
+                    
                     if (!globalDataEstudiantes[usuario]) {
-                        globalDataEstudiantes[usuario] = { tests: [], talleres: [] };
+                        globalDataEstudiantes[usuario] = {
+                            apellidoNombre: perfilesMap[usuario]?.apellidoNombre || usuario,
+                            dni: perfilesMap[usuario]?.dni || "No registrado",
+                            tests: [],
+                            talleres: []
+                        };
                     }
 
                     Object.keys(data).forEach(key => {
@@ -421,13 +444,19 @@
                     });
                 });
 
-                // Recopilar talleres validados
+                // 3. Recopilar talleres validados
                 const talleresSnapshot = await getDocs(collection(db, "calificaciones_talleres"));
                 talleresSnapshot.forEach(doc => {
                     const data = doc.data();
                     const usuario = data.usuario || "Estudiante_Anonimo";
+                    
                     if (!globalDataEstudiantes[usuario]) {
-                        globalDataEstudiantes[usuario] = { tests: [], talleres: [] };
+                        globalDataEstudiantes[usuario] = {
+                            apellidoNombre: perfilesMap[usuario]?.apellidoNombre || usuario,
+                            dni: perfilesMap[usuario]?.dni || "No registrado",
+                            tests: [],
+                            talleres: []
+                        };
                     }
 
                     Object.keys(data).forEach(key => {
@@ -456,9 +485,10 @@
                 }
 
                 listaUsuarios.forEach(user => {
+                    const est = globalDataEstudiantes[user];
                     const opt = document.createElement("option");
                     opt.value = user;
-                    opt.innerText = user;
+                    opt.innerText = `${est.apellidoNombre} (${user})`;
                     selectEstudiante.appendChild(opt);
                 });
 
@@ -482,16 +512,16 @@
 
             const dataEstudiante = globalDataEstudiantes[estudianteSeleccionado];
             
-            // Rellenar Datos del Estudiante
+            // Rellenar Datos del Estudiante mostrando Apellido y Nombres reales junto al DNI
             const studentDataGrid = document.getElementById("studentDataGrid");
             studentDataGrid.innerHTML = `
-                <div><strong>Apellidos y Nombres:</strong> ${estudianteSeleccionado}</div>
-                <div><strong>DNI:</strong> [Registrado Institucionalmente]</div>
-                <div><strong>Código / Matrícula:</strong> MAP-2027-${estudianteSeleccionado.substring(0,4).toUpperCase()}</div>
+                <div><strong>Apellidos y Nombres:</strong> ${dataEstudiante.apellidoNombre}</div>
+                <div><strong>DNI:</strong> ${dataEstudiante.dni}</div>
+                <div><strong>Usuario Sistema:</strong> ${estudianteSeleccionado}</div>
                 <div><strong>Cohorte:</strong> 2027</div>
             `;
 
-            // Rellenar Tabla de Asistencia (Simulación analítica basada en participación de entregas)
+            // Asistencia
             const tablaAsistenciaBody = document.getElementById("tablaAsistenciaBody");
             const totalRegistros = dataEstudiante.tests.length + dataEstudiante.talleres.length;
             const porcentajeAsistencia = totalRegistros > 0 ? "100% (Presente en encuentros sincrónicos y entregas)" : "0% sin registros";
@@ -504,21 +534,24 @@
                 </tr>
             `;
 
-            // Rellenar Tabla de Calificaciones
+            // Calificaciones y cálculo del índice funcional
             const tablaCalificacionesBody = document.getElementById("tablaCalificacionesBody");
             tablaCalificacionesBody.innerHTML = "";
 
-            let sumaNotas = 0;
-            let totalNotasCount = 0;
+            let sumaTests = 0;
+            let countTests = 0;
+            let sumaTalleres = 0;
+            let countTalleres = 0;
 
             const todosModulos = [...dataEstudiante.tests, ...dataEstudiante.talleres];
 
             if (todosModulos.length === 0) {
                 tablaCalificacionesBody.innerHTML = `<tr><td colspan="3" style="text-align: center; font-style: italic;">Sin calificaciones validadas registradas.</td></tr>`;
+                document.getElementById("resultadoIndiceFinal").innerText = "0.00 / 10";
             } else {
-                todosModulos.forEach(item => {
-                    sumaNotas += item.nota;
-                    totalNotasCount++;
+                dataEstudiante.tests.forEach(item => {
+                    sumaTests += item.nota;
+                    countTests++;
                     tablaCalificacionesBody.innerHTML += `
                         <tr>
                             <td>${item.modulo}</td>
@@ -528,17 +561,33 @@
                     `;
                 });
 
-                // Fila de Promedio General
-                const promedioGeneral = (sumaNotas / totalNotasCount).toFixed(2);
+                dataEstudiante.talleres.forEach(item => {
+                    sumaTalleres += item.nota;
+                    countTalleres++;
+                    tablaCalificacionesBody.innerHTML += `
+                        <tr>
+                            <td>${item.modulo}</td>
+                            <td><strong>${item.nota}/10</strong> (Oficial)</td>
+                            <td>${item.fecha}</td>
+                        </tr>
+                    `;
+                });
+
+                // Cálculo funcional del índice analítico (Promedio Tests * 0.50 + Promedio Talleres * 0.50)
+                const promTests = countTests > 0 ? (sumaTests / countTests) : 0;
+                const promTalleres = countTalleres > 0 ? (sumaTalleres / countTalleres) : 0;
+                const indiceFinal = ((promTests * 0.50) + (promTalleres * 0.50)).toFixed(2);
+
+                document.getElementById("resultadoIndiceFinal").innerText = `${indiceFinal} / 10`;
+
                 tablaCalificacionesBody.innerHTML += `
                     <tr style="background: #fcf3cf; font-weight: 700;">
                         <td>Promedio General de Calificaciones Validadas</td>
-                        <td colspan="2">${promedioGeneral} / 10</td>
+                        <td colspan="2">${indiceFinal} / 10</td>
                     </tr>
                 `;
             }
 
-            // Fecha actual formateada
             const hoy = new Date().toLocaleDateString('es-AR', { year: 'numeric', month: 'long', day: 'numeric' });
             document.getElementById("fechaEmision").innerText = hoy;
 
@@ -546,12 +595,10 @@
             previewContainer.scrollIntoView({ behavior: 'smooth' });
         }
 
-        // Función para descargar el PDF utilizando html2canvas y jsPDF
         window.descargarPDF = async function() {
             const { jsPDF } = window.jspdf;
             const elementoPDF = document.getElementById("pdfContent");
 
-            // Ocultar botones o elementos innecesarios durante la captura si los hubiera
             try {
                 const canvas = await html2canvas(elementoPDF, { scale: 2, useCORS: true });
                 const imgData = canvas.toDataURL('image/png');
