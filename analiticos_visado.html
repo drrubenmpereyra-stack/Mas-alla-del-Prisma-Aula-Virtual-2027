@@ -1,0 +1,327 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Visado Analítico - Panel de Control</title>
+    <style>
+        :root {
+            --bg-color: #ebdef0;
+            --neural-pattern: radial-gradient(circle, rgba(200,205,215,0.25) 1px, transparent 1px);
+            --card-bg: #ffffff;
+            --border-color: #000000;
+        }
+
+        * {
+            box-sizing: border-box;
+            margin: 0;
+            padding: 0;
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+        }
+
+        body {
+            background-color: var(--bg-color);
+            background-image: var(--neural-pattern);
+            background-size: 24px 24px;
+            color: #2c3e50;
+            padding: 20px;
+        }
+
+        .container {
+            max-width: 1100px;
+            margin: 0 auto;
+        }
+
+        header {
+            text-align: center;
+            margin-bottom: 30px;
+            position: relative;
+        }
+
+        .btn-volver {
+            position: absolute;
+            top: 0;
+            left: 0;
+            background-color: #fadbd8;
+            color: #78281f;
+            border: 2px solid var(--border-color);
+            border-radius: 6px;
+            padding: 8px 14px;
+            font-size: 0.85rem;
+            font-weight: 700;
+            cursor: pointer;
+            box-shadow: 0 0 8px rgba(250, 219, 216, 0.8);
+            transition: all 0.2s ease;
+        }
+
+        .btn-volver:hover {
+            transform: translateY(-2px);
+            filter: brightness(0.95);
+        }
+
+        header h2 {
+            font-size: 1.5rem;
+            color: #1a252f;
+            border-bottom: 2px solid #bdc3c7;
+            padding-bottom: 10px;
+            margin-bottom: 8px;
+            margin-top: 40px;
+        }
+
+        header p {
+            font-size: 0.95rem;
+            color: #5b2c6f;
+            font-weight: 600;
+        }
+
+        .card {
+            background-color: var(--card-bg);
+            border: 2px solid var(--border-color);
+            border-radius: 10px;
+            padding: 25px;
+            box-shadow: 0 4px 20px rgba(0,0,0,0.08);
+            margin-bottom: 25px;
+        }
+
+        .table-responsive {
+            width: 100%;
+            overflow-x: auto;
+        }
+
+        table {
+            width: 100%;
+            border-collapse: collapse;
+            text-align: left;
+            font-size: 0.95rem;
+        }
+
+        th, td {
+            border: 1.5px solid var(--border-color);
+            padding: 12px 15px;
+        }
+
+        th {
+            background-color: #f5eea9;
+            color: #5b2c6f;
+            font-weight: 700;
+        }
+
+        tr:nth-child(even) {
+            background-color: #fcfcfc;
+        }
+
+        .validation-cell {
+            display: flex;
+            flex-direction: column;
+            gap: 6px;
+            align-items: flex-start;
+        }
+
+        .validation-cell label {
+            font-size: 0.85rem;
+            font-weight: 700;
+            display: flex;
+            align-items: center;
+            gap: 6px;
+            cursor: pointer;
+            color: #5b2c6f;
+        }
+
+        .validation-cell input[type="checkbox"] {
+            transform: scale(1.2);
+            cursor: pointer;
+        }
+
+        .btn-guardar {
+            background-color: #d4efdf;
+            color: #145a32;
+            border: 1.5px solid var(--border-color);
+            border-radius: 4px;
+            padding: 6px 12px;
+            font-size: 0.8rem;
+            font-weight: 700;
+            cursor: pointer;
+            transition: all 0.2s ease;
+        }
+
+        .btn-guardar:hover {
+            background-color: #a9dfbf;
+        }
+
+        .status-msg {
+            margin-top: 15px;
+            font-size: 0.9rem;
+            font-weight: 600;
+            text-align: center;
+        }
+
+        .placeholder-loading {
+            text-align: center;
+            padding: 25px;
+            font-style: italic;
+            color: #7f8c8d;
+        }
+
+        .visado-badge {
+            display: inline-block;
+            background-color: #d4efdf;
+            color: #145a32;
+            border: 1px solid #145a32;
+            border-radius: 4px;
+            padding: 3px 8px;
+            font-size: 0.75rem;
+            font-weight: 700;
+            margin-top: 4px;
+        }
+    </style>
+</head>
+<body>
+
+    <div class="container">
+        <header>
+            <button class="btn-volver" onclick="volverDashboard()">← Volver</button>
+            <h2>Visado Analítico Institucional</h2>
+            <p>Control y Validación Oficial de Informes Académicos Generados (2027)</p>
+        </header>
+
+        <div class="card">
+            <h3 style="margin-bottom: 15px; font-size: 1.1rem; color: #5b2c6f;">Listado de Estudiantes con Informes Analíticos Generados</h3>
+            <div class="table-responsive">
+                <table>
+                    <thead>
+                        <tr>
+                            <th>Estudiante (Apellidos y Nombres)</th>
+                            <th>DNI / Matrícula</th>
+                            <th>Fecha de Confección del Informe</th>
+                            <th>Índice Académico Final</th>
+                            <th>Estatus y Visado Analítico Oficial</th>
+                        </tr>
+                    </thead>
+                    <tbody id="cuerpoVisadoAnalitico">
+                        <tr>
+                            <td colspan="5" class="placeholder-loading">Cargando informes analíticos desde la base de datos...</td>
+                        </tr>
+                    </tbody>
+                </table>
+            </div>
+            <div id="statusMsg" class="status-msg"></div>
+        </div>
+    </div>
+
+    <!-- Script conectado a Firebase Firestore -->
+    <script type="module">
+        import { initializeApp } from "https://www.gstatic.com/firebasejs/10.8.0/firebase-app.js";
+        import { getFirestore, collection, getDocs, setDoc, doc } from "https://www.gstatic.com/firebasejs/10.8.0/firebase-firestore.js";
+
+        const firebaseConfig = {
+          apiKey: "AIzaSyDLSIGdkd2y1l7zhMjoVd_bmCj8jjXpX4I",
+          authDomain: "aula-virtual-mas-alla-del-pris.firebaseapp.com",
+          projectId: "aula-virtual-mas-alla-del-pris",
+          storageBucket: "aula-virtual-mas-alla-del-pris.firebasestorage.app",
+          messagingSenderId: "711745866832",
+          appId: "1:711745866832:web:945e046cb0b61ac320d555"
+        };
+
+        const app = initializeApp(firebaseConfig);
+        const db = getFirestore(app);
+
+        async function cargarInformesAnaliticos() {
+            const cuerpoTabla = document.getElementById("cuerpoVisadoAnalitico");
+            cuerpoTabla.innerHTML = `<tr><td colspan="5" class="placeholder-loading">Cargando informes analíticos desde la base de datos...</td></tr>`;
+
+            try {
+                // Consultar la colección "informes_analiticos" generada previamente
+                const querySnapshot = await getDocs(collection(db, "informes_analiticos"));
+                cuerpoTabla.innerHTML = "";
+
+                if (querySnapshot.empty) {
+                    cuerpoTabla.innerHTML = `<tr><td colspan="5" class="placeholder-loading">No se encontraron informes analíticos guardados en la base de datos. Genere primero un informe desde el módulo de Formularios Analíticos.</td></tr>`;
+                    return;
+                }
+
+                querySnapshot.forEach((documento) => {
+                    const data = documento.data();
+                    const docId = documento.id;
+                    const estudianteKey = data.usuario || "Desconocido";
+                    const apellidoNombre = data.apellidoNombre || estudianteKey;
+                    const dni = data.dni || "N/A";
+                    
+                    // Formatear la fecha de confección
+                    let fechaConfeccion = "Fecha no registrada";
+                    if (data.fechaEmision) {
+                        try {
+                            fechaConfeccion = new Date(data.fechaEmision).toLocaleDateString('es-AR', { year: 'numeric', month: 'long', day: 'numeric' });
+                        } catch (e) {
+                            fechaConfeccion = data.fechaEmision;
+                        }
+                    }
+
+                    const indiceFinal = data.indiceFinal || "0.00";
+                    const analiticoVisado = data.analiticoVisado === true;
+                    const checkedAttr = analiticoVisado ? "checked" : "";
+
+                    const tr = document.createElement("tr");
+                    tr.innerHTML = `
+                        <td style="font-weight: 700;">${apellidoNombre}</td>
+                        <td>DNI: ${dni} <br><small style="color: #7f8c8d;">Matrícula: ${estudianteKey}</small></td>
+                        <td>${fechaConfeccion}</td>
+                        <td><strong>${indiceFinal} / 10</strong></td>
+                        <td>
+                            <div class="validation-cell">
+                                <label>
+                                    <input type="checkbox" id="chk_visado_${docId}" ${checkedAttr}> Visado Analítico Oficial
+                                </label>
+                                <button class="btn-guardar" onclick="guardarVisadoAnalitico('${docId}', '${apellidoNombre}')">Guardar Visado</button>
+                                ${analiticoVisado ? '<span class="visado-badge">Oficialmente Visado</span>' : ''}
+                            </div>
+                        </td>
+                    `;
+                    cuerpoTabla.appendChild(tr);
+                });
+
+            } catch (error) {
+                console.error("Error al cargar informes analíticos:", error);
+                cuerpoTabla.innerHTML = `<tr><td colspan="5" class="placeholder-loading" style="color: #641e16;">Error al conectar con la base de datos.</td></tr>`;
+            }
+        }
+
+        window.guardarVisadoAnalitico = async function(docId, nombreEstudiante) {
+            const chk = document.getElementById(`chk_visado_${docId}`).checked;
+            const statusMsg = document.getElementById("statusMsg");
+
+            try {
+                // Actualizar de forma persistente el estatus de visado en el documento analítico
+                await setDoc(doc(db, "informes_analiticos", docId), {
+                    analiticoVisado: chk,
+                    fechaVisado: new Date().toISOString()
+                }, { merge: true });
+
+                statusMsg.style.color = "#145a32";
+                statusMsg.innerText = `¡Visado analítico actualizado con éxito para ${nombreEstudiante}!`;
+
+                // Recargar la tabla para actualizar los estados visuales y badges
+                setTimeout(() => {
+                    cargarInformesAnaliticos();
+                }, 400);
+
+            } catch (error) {
+                console.error("Error al guardar visado analítico:", error);
+                statusMsg.style.color = "#641e16";
+                statusMsg.innerText = "Error al intentar guardar el visado en la base de datos.";
+            }
+        }
+
+        window.volverDashboard = function() {
+            if (window.parent && window.parent !== window) {
+                window.parent.location.reload();
+            } else {
+                window.location.href = "index.html";
+            }
+        }
+
+        window.onload = function() {
+            cargarInformesAnaliticos();
+        };
+    </script>
+</body>
+</html>
