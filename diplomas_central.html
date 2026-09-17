@@ -125,14 +125,14 @@
             background-color: #f48fb1;
         }
 
-        /* Contenedor del Diploma: Marco nítido con capa translúcida y padding-top ampliado a 470px */
+        /* Contenedor del Diploma posicionado de forma absoluta para alinear elementos con precisión de coordenadas */
         .diploma-preview-container {
             background-image: linear-gradient(rgba(255, 253, 248, 0.25), rgba(255, 253, 248, 0.25)), url('marco.jpg');
             background-size: 100% 100%;
             background-position: center;
             background-repeat: no-repeat;
             border-radius: 12px;
-            padding: 470px 110px 80px 110px; /* Posicionamiento óptimo centrado dentro del marco */
+            padding: 85px 90px 70px 90px;
             margin-top: 25px;
             display: none;
             position: relative;
@@ -145,21 +145,27 @@
             display: block;
         }
 
-        .diploma-header {
-            display: flex;
-            justify-content: space-between;
-            align-items: center;
-            padding-bottom: 8px;
-            margin-bottom: 12px;
-        }
-
-        .diploma-logo {
+        /* Logotipo posicionado de forma exacta debajo del firulete superior izquierdo */
+        .diploma-logo-absolute {
+            position: absolute;
+            top: 75px;
+            left: 85px;
             width: 75px;
             height: 75px;
             object-fit: cover;
             border: 1.5px solid #b7950b;
             border-radius: 6px;
             background: #ffffff;
+            z-index: 2;
+        }
+
+        /* Encabezado con datos institucionales alineados a la derecha */
+        .diploma-header {
+            display: flex;
+            justify-content: flex-end;
+            align-items: center;
+            padding-bottom: 5px;
+            margin-bottom: 25px;
         }
 
         .diploma-institution {
@@ -184,41 +190,41 @@
 
         .diploma-body {
             text-align: center;
-            margin: 12px 0;
+            margin: 20px 0;
         }
 
         .diploma-body h1 {
-            font-size: 1.6rem;
+            font-size: 1.7rem;
             font-family: 'Georgia', serif;
             color: #7d6608;
             text-transform: uppercase;
             letter-spacing: 2px;
-            margin-bottom: 8px;
+            margin-bottom: 10px;
             font-weight: 700;
         }
 
         .diploma-body p.certifica {
             font-size: 0.85rem;
             color: #566573;
-            margin-bottom: 8px;
+            margin-bottom: 10px;
             font-style: italic;
         }
 
         .student-name-highlight {
-            font-size: 1.7rem;
+            font-size: 1.8rem;
             font-family: 'Georgia', serif;
             color: #1a252f;
             font-weight: bold;
             border-bottom: 2px solid #b7950b;
             display: inline-block;
-            padding-bottom: 2px;
-            margin: 4px 0 12px 0;
+            padding-bottom: 3px;
+            margin: 5px 0 15px 0;
         }
 
         .diploma-body p.details {
             font-size: 0.85rem;
             color: #2c3e50;
-            line-height: 1.45;
+            line-height: 1.5;
             max-width: 700px;
             margin: 0 auto;
         }
@@ -227,8 +233,8 @@
             display: flex;
             justify-content: space-between;
             align-items: flex-end;
-            margin-top: 20px;
-            padding-top: 8px;
+            margin-top: 35px;
+            padding-top: 10px;
         }
 
         .signature-block {
@@ -309,9 +315,11 @@
         </div>
 
         <div id="diplomaPreviewContainer" class="diploma-preview-container">
+            <!-- Logotipo fijado de manera absoluta debajo del firulete superior izquierdo -->
+            <img src="logotipo.jpg" alt="Logotipo Institucional" class="diploma-logo-absolute" onerror="this.src='https://via.placeholder.com/100?text=Logo'">
+
             <div id="diplomaContent">
                 <div class="diploma-header">
-                    <img src="logotipo.jpg" alt="Logotipo Institucional" class="diploma-logo" onerror="this.src='https://via.placeholder.com/100?text=Logo'">
                     <div class="diploma-institution">
                         <h3>PROGRAMA DE FORMACIÓN PARA PROFESIONALES</h3>
                         <h2>"Más allá del Prisma" 2027</h2>
