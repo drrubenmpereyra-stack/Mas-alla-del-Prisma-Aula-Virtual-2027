@@ -199,12 +199,12 @@
                     console.error("Error al parsear sesión:", e);
                 }
             }
-            return "Estudiante"; // Valor predeterminado si no hay sesión activa simulada
+            return "Estudiante";
         }
 
         async function cargarCalificacionesEstudianteActivo() {
             const usuarioActivo = obtenerUsuarioActivo();
-            document.getElementById("studentInfoBox").innerText = `Estudiante Activo: ${usuarioActivo}`;
+            document.getElementById("studentInfoBox"	).innerText = `Estudiante Activo: ${usuarioActivo}`;
             
             const cuerpoTabla = document.getElementById("cuerpoMisCalificaciones");
             cuerpoTabla.innerHTML = `<tr><td colspan="3" class="placeholder-loading">Consultando calificaciones validadas en la base de datos...</td></tr>`;
@@ -212,7 +212,7 @@
             try {
                 let misRegistros = [];
 
-                // 1. Buscar en calificaciones_tests validados para este usuario
+                // 1. Buscar en tests validados del usuario
                 const testsSnapshot = await getDocs(collection(db, "calificaciones_tests"));
                 testsSnapshot.forEach(documento => {
                     const data = documento.data();
@@ -235,7 +235,7 @@
                     }
                 });
 
-                // 2. Buscar en calificaciones_talleres validados para este usuario
+                // 2. Buscar en talleres validados del usuario
                 const talleresSnapshot = await getDocs(collection(db, "calificaciones_talleres"));
                 talleresSnapshot.forEach(documento => {
                     const data = documento.data();
