@@ -125,24 +125,26 @@
             background-color: #f48fb1;
         }
 
-        /* Marco de Excelencia Académica Estilizado Puro CSS (Sin imágenes de fondo defectuosas) */
+        /* Contenedor del Diploma tipo Flexbox vertical para forzar al footer a fijarse a 10px del borde inferior */
         .diploma-preview-container {
             background: #fffdf9;
             border: 12px solid #1a252f;
             outline: 4px solid #b7950b;
             outline-offset: -8px;
             border-radius: 6px;
-            padding: 50px 70px;
+            padding: 40px 60px 25px 60px; /* Padding inferior ajustado a 25px para que el footer quede exactamente a ras (10px internos) */
             margin-top: 25px;
             display: none;
             position: relative;
             box-shadow: 0 15px 40px rgba(0,0,0,0.25);
             width: 100%;
             aspect-ratio: 1.414 / 1;
+            flex-direction: column;
+            justify-content: space-between; /* Distribuye espacio: Header arriba, Body al medio, Footer abajo */
         }
 
         .diploma-preview-container.show {
-            display: block;
+            display: flex; /* Se activa como flex cuando se muestra */
         }
 
         .diploma-header {
@@ -150,13 +152,13 @@
             justify-content: space-between;
             align-items: center;
             border-bottom: 2px solid #b7950b;
-            padding-bottom: 15px;
-            margin-bottom: 20px;
+            padding-bottom: 12px;
+            width: 100%;
         }
 
         .diploma-logo {
-            width: 80px;
-            height: 80px;
+            width: 75px;
+            height: 75px;
             object-fit: cover;
             border: 2px solid #b7950b;
             border-radius: 6px;
@@ -168,14 +170,14 @@
         }
 
         .diploma-institution h3 {
-            font-size: 0.85rem;
+            font-size: 0.8rem;
             color: #566573;
             text-transform: uppercase;
             letter-spacing: 1px;
         }
 
         .diploma-institution h2 {
-            font-size: 1.15rem;
+            font-size: 1.1rem;
             color: #880e4f;
             font-weight: 800;
             margin-top: 2px;
@@ -185,52 +187,54 @@
 
         .diploma-body {
             text-align: center;
-            margin: 20px 0;
+            width: 100%;
+            margin: auto 0; /* Centra perfectamente el cuerpo en el espacio restante */
         }
 
         .diploma-body h1 {
-            font-size: 2.1rem;
+            font-size: 2rem;
             font-family: 'Georgia', serif;
             color: #b7950b;
             text-transform: uppercase;
             letter-spacing: 3px;
-            margin-bottom: 12px;
+            margin-bottom: 10px;
             font-weight: 700;
         }
 
         .diploma-body p.certifica {
-            font-size: 1rem;
+            font-size: 0.95rem;
             color: #566573;
-            margin-bottom: 15px;
+            margin-bottom: 12px;
             font-style: italic;
         }
 
         .student-name-highlight {
-            font-size: 2.2rem;
+            font-size: 2.1rem;
             font-family: 'Georgia', serif;
             color: #1a252f;
             font-weight: bold;
             border-bottom: 2px solid #b7950b;
             display: inline-block;
             padding-bottom: 4px;
-            margin: 5px 0 20px 0;
+            margin: 5px 0 15px 0;
         }
 
         .diploma-body p.details {
-            font-size: 1rem;
+            font-size: 0.95rem;
             color: #2c3e50;
-            line-height: 1.6;
-            max-width: 780px;
+            line-height: 1.5;
+            max-width: 760px;
             margin: 0 auto;
         }
 
+        /* Footer empujado de manera natural exactamente a la base del marco */
         .diploma-footer {
             display: flex;
             justify-content: space-between;
             align-items: flex-end;
-            margin-top: 40px;
-            padding-top: 15px;
+            padding-top: 10px;
             border-top: 1px solid #d5dbdb;
+            width: 100%;
         }
 
         .signature-block {
@@ -239,19 +243,30 @@
         }
 
         .signature-line {
-            width: 250px;
+            width: 240px;
             border-bottom: 2px solid #1a252f;
-            margin-bottom: 6px;
+            margin-bottom: 4px;
         }
 
         .signature-block strong {
-            font-size: 0.95rem;
+            font-size: 0.9rem;
             color: #1a252f;
         }
 
         .signature-block span {
-            font-size: 0.75rem;
+            font-size: 0.7rem;
             color: #566573;
+        }
+
+        /* Botón Guardar ubicado fuera del área visual del diploma */
+        .external-action-container {
+            text-align: center;
+            margin-top: 25px;
+            display: none;
+        }
+
+        .external-action-container.show {
+            display: block;
         }
 
         .btn-save-db {
@@ -259,15 +274,15 @@
             color: #145a32;
             border: 2px solid var(--border-color);
             border-radius: 6px;
-            padding: 12px 30px;
-            font-size: 1rem;
+            padding: 12px 35px;
+            font-size: 1.05rem;
             font-weight: 700;
             cursor: pointer;
             transition: all 0.2s ease;
-            margin-top: 25px;
             display: inline-flex;
             align-items: center;
             gap: 8px;
+            box-shadow: 0 4px 12px rgba(0,0,0,0.1);
         }
 
         .btn-save-db:hover {
@@ -310,47 +325,46 @@
             <div id="statusMsg" class="placeholder-text">Cargando base de datos de estudiantes y participantes...</div>
         </div>
 
-        <!-- Vista Previa del Diploma con Marco Estilizado Puro CSS -->
+        <!-- Vista Previa del Diploma (Puro contenido visual limpio sin botones dentro) -->
         <div id="diplomaPreviewContainer" class="diploma-preview-container">
-            <div id="diplomaContent">
-                <div class="diploma-header">
-                    <img src="logotipo.jpg" alt="Logotipo Institucional" class="diploma-logo" onerror="this.src='https://via.placeholder.com/100?text=Logo'">
-                    <div class="diploma-institution">
-                        <h3>PROGRAMA DE FORMACIÓN PARA PROFESIONALES</h3>
-                        <h2>"Más allá del Prisma" 2027</h2>
-                    </div>
-                </div>
-
-                <div class="diploma-body">
-                    <h1>Certificado de Excelencia Académica</h1>
-                    <p class="certifica">La Dirección del Programa otorga el presente diploma a:</p>
-                    
-                    <div class="student-name-highlight" id="nombreEstudianteDisplay">-- Apellidos y Nombres --</div>
-                    
-                    <p class="details" id="detallesEstudianteDisplay">
-                        DNI: -- | Matrícula: -- <br>
-                        Por haber completado con excelencia y aprobado satisfactoriamente todas las instancias teóricas, prácticas e investigativas del ciclo académico cohorte 2027.
-                    </p>
-                </div>
-
-                <div class="diploma-footer">
-                    <div>
-                        <strong style="font-size: 0.8rem; color: #566573;">Fecha de Emisión:</strong> <span id="fechaEmisionDiploma" style="font-size: 0.8rem;"></span>
-                    </div>
-                    <div class="signature-block">
-                        <div class="signature-line"></div>
-                        <strong>Dr. y Mgter. Rubén M. Pereyra</strong><br>
-                        <span>Director Programa de Formación "Más allá del prisma"</span>
-                    </div>
-                    <div>
-                        <strong style="font-size: 0.8rem; color: #566573;">Validación:</strong> <span style="font-size: 0.8rem; color: #145a32;">Oficial / Institucional</span>
-                    </div>
+            <div class="diploma-header">
+                <img src="logotipo.jpg" alt="Logotipo Institucional" class="diploma-logo" onerror="this.src='https://via.placeholder.com/100?text=Logo'">
+                <div class="diploma-institution">
+                    <h3>PROGRAMA DE FORMACIÓN PARA PROFESIONALES</h3>
+                    <h2>"Más allá del Prisma" 2027</h2>
                 </div>
             </div>
 
-            <div style="text-align: center;">
-                <button class="btn-save-db" onclick="window.guardarDiplomaEnBaseDeDatos()">💾 Guardar Diploma en Base de Datos</button>
+            <div class="diploma-body">
+                <h1>Certificado de Excelencia Académica</h1>
+                <p class="certifica">La Dirección del Programa otorga el presente diploma a:</p>
+                
+                <div class="student-name-highlight" id="nombreEstudianteDisplay">-- Apellidos y Nombres --</div>
+                
+                <p class="details" id="detallesEstudianteDisplay">
+                    DNI: -- | Matrícula: -- <br>
+                    Por haber completado con excelencia y aprobado satisfactoriamente todas las instancias teóricas, prácticas e investigativas del ciclo académico cohorte 2027.
+                </p>
             </div>
+
+            <div class="diploma-footer">
+                <div>
+                    <strong style="font-size: 0.75rem; color: #566573;">Fecha de Emisión:</strong> <span id="fechaEmisionDiploma" style="font-size: 0.75rem;"></span>
+                </div>
+                <div class="signature-block">
+                    <div class="signature-line"></div>
+                    <strong>Dr. y Mgter. Rubén M. Pereyra</strong><br>
+                    <span>Director Programa de Formación "Más allá del prisma"</span>
+                </div>
+                <div>
+                    <strong style="font-size: 0.75rem; color: #566573;">Validación:</strong> <span style="font-size: 0.75rem; color: #145a32;">Oficial / Institucional</span>
+                </div>
+            </div>
+        </div>
+
+        <!-- Botón Guardar ubicado FUERA del diploma -->
+        <div id="externalActionContainer" class="external-action-container">
+            <button class="btn-save-db" onclick="window.guardarDiplomaEnBaseDeDatos()">💾 Guardar Diploma en Base de Datos</button>
             <div id="dbStatusMsg" class="status-msg"></div>
         </div>
     </div>
@@ -443,10 +457,12 @@
             const select = document.getElementById("selectEstudiante");
             const codigoSeleccionado = select.value;
             const previewContainer = document.getElementById("diplomaPreviewContainer");
+            const externalContainer = document.getElementById("externalActionContainer");
 
             if (!codigoSeleccionado) {
                 alert("Por favor seleccione un estudiante.");
                 previewContainer.classList.remove("show");
+                externalContainer.classList.remove("show");
                 return;
             }
 
@@ -473,6 +489,7 @@
             document.getElementById("dbStatusMsg").innerText = "";
 
             previewContainer.classList.add("show");
+            externalContainer.classList.add("show");
             previewContainer.scrollIntoView({ behavior: 'smooth' });
         }
 
