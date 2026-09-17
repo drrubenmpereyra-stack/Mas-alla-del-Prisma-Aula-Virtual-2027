@@ -99,7 +99,7 @@
             border-radius: 6px;
             font-size: 0.95rem;
             background: #fff;
-            min-width: 300px;
+            min-width: 350px;
         }
 
         .btn-generar {
@@ -288,7 +288,7 @@
                 </select>
                 <button class="btn-generar" onclick="generarInformeAnalitico()">Generar Informe Analítico</button>
             </div>
-            <div id="statusMsg" class="placeholder-text">Seleccione un estudiante de la lista para proyectar su informe analítico oficial.</div>
+            <div id="statusMsg" class="placeholder-text">Cargando base de datos y registros académicos...</div>
         </div>
 
         <!-- Vista Previa del Informe PDF -->
@@ -304,7 +304,7 @@
                     </div>
                 </div>
 
-                <!-- Datos del Estudiante (Apellido y Nombres reales + DNI desde participantes) -->
+                <!-- Datos del Estudiante (Apellido, Nombres y DNI reales) -->
                 <div class="section-title">Datos del Estudiante</div>
                 <div class="student-data-grid" id="studentDataGrid">
                     <!-- Dinámico -->
@@ -394,41 +394,64 @@
             const statusMsg = document.getElementById("statusMsg");
 
             try {
-                // 1. Cargar datos maestros de la colección "participantes" (Apellidos, Nombres, DNI, Usuario)
-                const participantesMap = {};
-                try {
-                    const partSnapshot = await getDocs(collection(db, "participantes"));
-                    partSnapshot.forEach(doc => {
-                        const pData = doc.data();
-                        // Identificar campos posibles de nombre, apellido y DNI en participantes
-                        const apellido = pData.apellido || pData.apellidos || "";
-                        const nombre = pData.nombre || pData.nombres || "";
-                        const apellidoNombreCompleto = apellido && nombre ? `${apellido}, ${nombre}` : (pData.nombreCompleto || pData.apellidoNombre || "");
-                        const dniVal = pData.dni || pData.documento || p.dniEstudiante || "No registrado";
-                        const username = pData.usuario || pData.username || pData.email || pData.codigo || doc.id;
+                const maestroParticipantes = {};
 
-                        if (username) {
-                            participantesMap[username.toString().trim()] = {
-                                apellidoNombre: apellidoNombreCompleto || username,
-                                dni: dniVal
+                // 1. Leer colección "participantes" con sus campos exactos: apellido, nombres, dni, codigoMatricula
+                const partSnapshot = await getDocs(collection(db, "participantes"));
+                partSnapshot.forEach(docSnap => {
+                    const d = docSnap.data();
+                    const codigo = (d.codigoMatricula || "").toString().trim();
+                    const apellido = d.apellido || "";
+                    const nombres = d.nombres || "";
+                    const dni = d.dni || "";
+
+                    if (codigo) {
+                        maestroParticipantes[codigo] = {
+                            apellidoNombre: apellido && nombres ? `${apellido}, ${nombres}` : (apellido || nombres || codigo),
+                            dni: dni || "No registrado"
+                        };
+                    }
+                });
+
+                // 2. Leer colección "Usuario" para respaldar por si acaso el campo user coincide
+                try {
+                    const userSnapshot = await getDocs(collection(db, "Usuario"));
+                    userSnapshot.forEach(docSnap => {
+                        const d = docSnap.data();
+                        const usr = (d.user || "").toString().trim();
+                        // d.name ya viene como "Gomez, Julian"
+                        const name = d.name || "";
+                        const pass = d.pass || "";
+
+                        if (usr && !maestroParticipantes[usr]) {
+                            maestroParticipantes[usr] = {
+                                apellidoNombre: name || usr,
+                                dni: pass || "No registrado"
                             };
                         }
                     });
                 } catch (e) {
-                    console.log("No se pudo leer la colección participantes directamente o está vacía.", e);
+                    console.log("Colección Usuario opcional.");
                 }
 
-                // 2. Recopilar tests validados
+                // 3. Recopilar tests validados y cruzar con los datos del participante
                 const testsSnapshot = await getDocs(collection(db, "calificaciones_tests"));
-                testsSnapshot.forEach(doc => {
-                    const data = doc.data();
-                    const usuario = (data.usuario || "Estudiante_Anonimo").toString().trim();
-                    
-                    if (!globalDataEstudiantes[usuario]) {
-                        const infoParticipante = participantesMap[usuario] || {};
-                        globalDataEstudiantes[usuario] = {
-                            apellidoNombre: infoParticipante.apellidoNombre || usuario,
-                            dni: infoParticipante.dni || "No registrado",
+                testsSnapshot.forEach(docSnap => {
+                    const data = docSnap.data();
+                    const usuarioKey = (data.usuario || "").toString().trim(); // Ej: "G987" o "Julian Gomez"
+
+                    // Buscar coincidencia en el maestro por código exacto o nombre
+                    let info = maestroParticipantes[usuarioKey];
+                    if (!info) {
+                        // Buscar por coincidencia parcial si el usuario guardó el nombre en vez del código
+                        const matchKey = Object.keys(maestroParticipantes).find(k => k.toLowerCase() === usuarioKey.toLowerCase());
+                        info = matchKey ? maestroParticipantes[matchKey] : { apellidoNombre: usuarioKey, dni: "No registrado" };
+                    }
+
+                    if (!globalDataEstudiantes[usuarioKey]) {
+                        globalDataEstudiantes[usuarioKey] = {
+                            apellidoNombre: info.apellidoNombre,
+                            dni: info.dni,
                             tests: [],
                             talleres: []
                         };
@@ -441,7 +464,7 @@
                             const fechaKey = testId === "preliminar" ? "fechaValidacion_preliminar" : `fechaValidacion_${testId}`;
                             
                             if (data[notaKey] !== undefined) {
-                                globalDataEstudiantes[usuario].tests.push({
+                                globalDataEstudiantes[usuarioKey].tests.push({
                                     modulo: `Test ${testId === "preliminar" ? "Preliminar" : testId}`,
                                     nota: data[notaKey],
                                     fecha: data[fechaKey] || "N/A"
@@ -451,17 +474,22 @@
                     });
                 });
 
-                // 3. Recopilar talleres validados
+                // 4. Recopilar talleres validados
                 const talleresSnapshot = await getDocs(collection(db, "calificaciones_talleres"));
-                talleresSnapshot.forEach(doc => {
-                    const data = doc.data();
-                    const usuario = (data.usuario || "Estudiante_Anonimo").toString().trim();
-                    
-                    if (!globalDataEstudiantes[usuario]) {
-                        const infoParticipante = participantesMap[usuario] || {};
-                        globalDataEstudiantes[usuario] = {
-                            apellidoNombre: infoParticipante.apellidoNombre || usuario,
-                            dni: infoParticipante.dni || "No registrado",
+                talleresSnapshot.forEach(docSnap => {
+                    const data = docSnap.data();
+                    const usuarioKey = (data.usuario || "").toString().trim();
+
+                    let info = maestroParticipantes[usuarioKey];
+                    if (!info) {
+                        const matchKey = Object.keys(maestroParticipantes).find(k => k.toLowerCase() === usuarioKey.toLowerCase());
+                        info = matchKey ? maestroParticipantes[matchKey] : { apellidoNombre: usuarioKey, dni: "No registrado" };
+                    }
+
+                    if (!globalDataEstudiantes[usuarioKey]) {
+                        globalDataEstudiantes[usuarioKey] = {
+                            apellidoNombre: info.apellidoNombre,
+                            dni: info.dni,
                             tests: [],
                             talleres: []
                         };
@@ -474,7 +502,7 @@
                             const fechaKey = tallerId === "preliminar" ? "fechaValidacionTaller_preliminar" : `fechaValidacionTaller_${tallerId}`;
                             
                             if (data[notaKey] !== undefined) {
-                                globalDataEstudiantes[usuario].talleres.push({
+                                globalDataEstudiantes[usuarioKey].talleres.push({
                                     modulo: `Taller ${tallerId === "preliminar" ? "Preliminar" : tallerId}`,
                                     nota: data[notaKey],
                                     fecha: data[fechaKey] || "N/A"
@@ -492,12 +520,12 @@
                     return;
                 }
 
-                // Poblar el selector mostrando claramente Apellido y Nombre (y DNI entre paréntesis)
                 listaUsuarios.forEach(user => {
                     const est = globalDataEstudiantes[user];
                     const opt = document.createElement("option");
                     opt.value = user;
-                    opt.innerText = `${est.apellidoNombre} - DNI: ${est.dni}`;
+                    // Muestra de entrada Apellido, Nombres y DNI real en el selector
+                    opt.innerText = `${est.apellidoNombre} — DNI: ${est.dni} (${user})`;
                     selectEstudiante.appendChild(opt);
                 });
 
@@ -521,16 +549,14 @@
 
             const dataEstudiante = globalDataEstudiantes[estudianteSeleccionado];
             
-            // Rellenar Datos del Estudiante con los valores recuperados de participantes
             const studentDataGrid = document.getElementById("studentDataGrid");
             studentDataGrid.innerHTML = `
                 <div><strong>Apellidos y Nombres:</strong> ${dataEstudiante.apellidoNombre}</div>
                 <div><strong>DNI:</strong> ${dataEstudiante.dni}</div>
-                <div><strong>Código / Usuario:</strong> ${estudianteSeleccionado}</div>
+                <div><strong>Código / Matrícula:</strong> ${estudianteSeleccionado}</div>
                 <div><strong>Cohorte:</strong> 2027</div>
             `;
 
-            // Asistencia
             const tablaAsistenciaBody = document.getElementById("tablaAsistenciaBody");
             const totalRegistros = dataEstudiante.tests.length + dataEstudiante.talleres.length;
             const porcentajeAsistencia = totalRegistros > 0 ? "100% (Presente en encuentros sincrónicos y entregas)" : "0% sin registros";
@@ -543,7 +569,6 @@
                 </tr>
             `;
 
-            // Calificaciones y cálculo del índice funcional
             const tablaCalificacionesBody = document.getElementById("tablaCalificacionesBody");
             tablaCalificacionesBody.innerHTML = "";
 
@@ -582,7 +607,6 @@
                     `;
                 });
 
-                // Cálculo funcional del resultado final ponderado
                 const promTests = countTests > 0 ? (sumaTests / countTests) : 0;
                 const promTalleres = countTalleres > 0 ? (sumaTalleres / countTalleres) : 0;
                 const indiceFinal = ((promTests * 0.50) + (promTalleres * 0.50)).toFixed(2);
