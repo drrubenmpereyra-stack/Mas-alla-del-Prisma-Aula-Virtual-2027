@@ -256,6 +256,7 @@
 
                         if (data[fieldName] !== undefined) {
                             estudiantesMap[usuario][k] = {
+                                docId: documento.id,
                                 nota: data[fieldName],
                                 validado: data[validFieldName] === true,
                                 fecha: data[fechaFieldName] || ""
@@ -289,7 +290,7 @@
                                             <input type="checkbox" id="chk_taller_${usuario}_${k}" ${checkedAttr}> Visado
                                         </label>
                                         <input type="date" id="date_taller_${usuario}_${k}" value="${fechaVal}">
-                                        <button class="btn-guardar" onclick="guardarValidacionTaller('${usuario}', '${k}')">Guardar</button>
+                                        <button class="btn-guardar" onclick="guardarValidacionTaller('${info.docId}', '${usuario}', '${k}')">Guardar</button>
                                     </div>
                                 </td>
                             `;
@@ -308,32 +309,28 @@
             }
         }
 
-        window.guardarValidacionTaller = async function(usuario, tallerId) {
+        window.guardarValidacionTaller = async function(docIdOriginal, usuario, tallerId) {
             const chk = document.getElementById(`chk_taller_${usuario}_${tallerId}`).checked;
             const fechaInput = document.getElementById(`date_taller_${usuario}_${tallerId}`).value;
             const statusMsg = document.getElementById("statusMsg");
 
-            const docId = `notaTaller_${tallerId}_${usuario.replace(/[\.\s]/g, "_")}`;
             const fieldValidado = tallerId === "preliminar" ? "validadoTaller_preliminar" : `validadoTaller_${tallerId}`;
             const fieldFecha = tallerId === "preliminar" ? "fechaValidacionTaller_preliminar" : `fechaValidacionTaller_${tallerId}`;
 
             try {
-                const docRef = doc(db, "calificaciones_talleres", docId);
+                const docRef = doc(db, "calificaciones_talleres", docIdOriginal);
                 
-                const payload = {
-                    usuario: usuario,
+                await setDoc(docRef, {
                     [fieldValidado]: chk,
                     [fieldFecha]: fechaInput
-                };
-
-                await setDoc(docRef, payload, { merge: true });
+                }, { merge: true });
 
                 statusMsg.style.color = "#145a32";
                 statusMsg.innerText = `¡Validación guardada con éxito para ${usuario} (Taller ${tallerId})!`;
                 
                 setTimeout(() => {
                     cargarDatosTalleresEstudiantes();
-                }, 500);
+                }, 400);
 
             } catch (error) {
                 console.error("Error al guardar validación de taller:", error);
