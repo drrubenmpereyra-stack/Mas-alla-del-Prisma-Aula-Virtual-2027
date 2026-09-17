@@ -187,7 +187,6 @@
         </div>
     </div>
 
-    <!-- Script conectado a Firebase Firestore -->
     <script type="module">
         import { initializeApp } from "https://www.gstatic.com/firebasejs/10.8.0/firebase-app.js";
         import { getFirestore, collection, getDocs, deleteDoc, doc } from "https://www.gstatic.com/firebasejs/10.8.0/firebase-firestore.js";
@@ -211,13 +210,12 @@
             try {
                 let registrosOficiales = [];
 
-                // 1. Consultar colecciones de tests validados
+                // 1. Consultar tests
                 const testsSnapshot = await getDocs(collection(db, "calificaciones_tests"));
                 testsSnapshot.forEach(documento => {
                     const data = documento.data();
                     const usuario = data.usuario || "Estudiante_Anonimo";
 
-                    // Iterar sobre las claves posibles de tests
                     Object.keys(data).forEach(key => {
                         if (key.startsWith("validadoTest_") && data[key] === true) {
                             const testId = key.replace("validadoTest_", "");
@@ -238,7 +236,7 @@
                     });
                 });
 
-                // 2. Consultar colecciones de talleres validados
+                // 2. Consultar talleres
                 const talleresSnapshot = await getDocs(collection(db, "calificaciones_talleres"));
                 talleresSnapshot.forEach(documento => {
                     const data = documento.data();
