@@ -243,24 +243,44 @@
             margin-bottom: 5px;
         }
 
-        .btn-download-pdf {
-            background-color: #2e4053;
-            color: #ffffff;
+        .action-buttons {
+            display: flex;
+            justify-content: center;
+            gap: 15px;
+            margin-top: 20px;
+            flex-wrap: wrap;
+        }
+
+        .btn-action {
             border: 2px solid var(--border-color);
             border-radius: 6px;
-            padding: 10px 24px;
+            padding: 10px 20px;
             font-size: 0.95rem;
             font-weight: 700;
             cursor: pointer;
             transition: all 0.2s ease;
-            margin-top: 20px;
             display: inline-flex;
             align-items: center;
             gap: 8px;
         }
 
-        .btn-download-pdf:hover {
-            background-color: #1a252f;
+        .btn-download-pdf {
+            background-color: #2e4053;
+            color: #ffffff;
+        }
+        .btn-download-pdf:hover { background-color: #1a252f; }
+
+        .btn-save-db {
+            background-color: #d4efdf;
+            color: #145a32;
+        }
+        .btn-save-db:hover { background-color: #a9dfbf; }
+
+        .status-msg {
+            margin-top: 10px;
+            font-size: 0.85rem;
+            font-weight: 600;
+            text-align: center;
         }
 
         .placeholder-text {
@@ -277,7 +297,7 @@
         <header>
             <button class="btn-volver" onclick="volverDashboard()">← Volver</button>
             <h2>Formularios Analíticos y Reportes Académicos</h2>
-            <p>Generación de Informes Analíticos Institucionales en PDF (2027)</p>
+            <p>Generación y Persistencia de Informes Analíticos Institucionales (2027)</p>
         </header>
 
         <div class="card">
@@ -304,7 +324,7 @@
                     </div>
                 </div>
 
-                <!-- Datos del Estudiante (Apellido, Nombres y DNI reales) -->
+                <!-- Datos del Estudiante -->
                 <div class="section-title">Datos del Estudiante</div>
                 <div class="student-data-grid" id="studentDataGrid">
                     <!-- Dinámico -->
@@ -365,15 +385,18 @@
                 </div>
             </div>
 
-            <div style="text-align: center;">
-                <button class="btn-download-pdf" onclick="descargarPDF()">📥 Descargar Informe en PDF</button>
+            <!-- Botones de Acción: Guardar en Base de Datos y Descargar PDF -->
+            <div class="action-buttons">
+                <button class="btn-action btn-save-db" onclick="guardarInformeEnBaseDeDatos()">💾 Guardar Informe en Base de Datos</button>
+                <button class="btn-action btn-download-pdf" onclick="descargarPDF()">📥 Descargar Informe en PDF</button>
             </div>
+            <div id="dbStatusMsg" class="status-msg"></div>
         </div>
     </div>
 
     <script type="module">
         import { initializeApp } from "https://www.gstatic.com/firebasejs/10.8.0/firebase-app.js";
-        import { getFirestore, collection, getDocs } from "https://www.gstatic.com/firebasejs/10.8.0/firebase-firestore.js";
+        import { getFirestore, collection, getDocs, setDoc, doc } from "https://www.gstatic.com/firebasejs/10.8.0/firebase-firestore.js";
 
         const firebaseConfig = {
           apiKey: "AIzaSyDLSIGdkd2y1l7zhMjoVd_bmCj8jjXpX4I",
@@ -388,6 +411,8 @@
         const db = getFirestore(app);
 
         let globalDataEstudiantes = {};
+        let estudianteActivoActual = null;
+        let reporteCalculadoActual = null;
 
         async function inicializarFormularioAnalitico() {
             const selectEstudiante = document.getElementById("selectEstudiante");
@@ -396,7 +421,6 @@
             try {
                 const maestroParticipantes = {};
 
-                // 1. Leer colección "participantes" con sus campos exactos: apellido, nombres, dni, codigoMatricula
                 const partSnapshot = await getDocs(collection(db, "participantes"));
                 partSnapshot.forEach(docSnap => {
                     const d = docSnap.data();
@@ -413,13 +437,11 @@
                     }
                 });
 
-                // 2. Leer colección "Usuario" para respaldar por si acaso el campo user coincide
                 try {
                     const userSnapshot = await getDocs(collection(db, "Usuario"));
                     userSnapshot.forEach(docSnap => {
                         const d = docSnap.data();
                         const usr = (d.user || "").toString().trim();
-                        // d.name ya viene como "Gomez, Julian"
                         const name = d.name || "";
                         const pass = d.pass || "";
 
@@ -434,16 +456,13 @@
                     console.log("Colección Usuario opcional.");
                 }
 
-                // 3. Recopilar tests validados y cruzar con los datos del participante
                 const testsSnapshot = await getDocs(collection(db, "calificaciones_tests"));
                 testsSnapshot.forEach(docSnap => {
                     const data = docSnap.data();
-                    const usuarioKey = (data.usuario || "").toString().trim(); // Ej: "G987" o "Julian Gomez"
+                    const usuarioKey = (data.usuario || "").toString().trim();
 
-                    // Buscar coincidencia en el maestro por código exacto o nombre
                     let info = maestroParticipantes[usuarioKey];
                     if (!info) {
-                        // Buscar por coincidencia parcial si el usuario guardó el nombre en vez del código
                         const matchKey = Object.keys(maestroParticipantes).find(k => k.toLowerCase() === usuarioKey.toLowerCase());
                         info = matchKey ? maestroParticipantes[matchKey] : { apellidoNombre: usuarioKey, dni: "No registrado" };
                     }
@@ -474,7 +493,6 @@
                     });
                 });
 
-                // 4. Recopilar talleres validados
                 const talleresSnapshot = await getDocs(collection(db, "calificaciones_talleres"));
                 talleresSnapshot.forEach(docSnap => {
                     const data = docSnap.data();
@@ -524,7 +542,6 @@
                     const est = globalDataEstudiantes[user];
                     const opt = document.createElement("option");
                     opt.value = user;
-                    // Muestra de entrada Apellido, Nombres y DNI real en el selector
                     opt.innerText = `${est.apellidoNombre} — DNI: ${est.dni} (${user})`;
                     selectEstudiante.appendChild(opt);
                 });
@@ -547,6 +564,7 @@
                 return;
             }
 
+            estudianteActivoActual = estudianteSeleccionado;
             const dataEstudiante = globalDataEstudiantes[estudianteSeleccionado];
             
             const studentDataGrid = document.getElementById("studentDataGrid");
@@ -578,6 +596,18 @@
             let countTalleres = 0;
 
             const todosModulos = [...dataEstudiante.tests, ...dataEstudiante.talleres];
+
+            // Almacenar el objeto estructurado actual para guardarlo en BD si se requiere
+            reporteCalculadoActual = {
+                usuario: estudianteSeleccionado,
+                apellidoNombre: dataEstudiante.apellidoNombre,
+                dni: dataEstudiante.dni,
+                totalModulosValidados: totalRegistros,
+                tests: dataEstudiante.tests,
+                talleres: dataEstudiante.talleres,
+                indiceFinal: "0.00",
+                fechaEmision: new Date().toISOString()
+            };
 
             if (todosModulos.length === 0) {
                 tablaCalificacionesBody.innerHTML = `<tr><td colspan="3" style="text-align: center; font-style: italic;">Sin calificaciones validadas registradas.</td></tr>`;
@@ -611,6 +641,7 @@
                 const promTalleres = countTalleres > 0 ? (sumaTalleres / countTalleres) : 0;
                 const indiceFinal = ((promTests * 0.50) + (promTalleres * 0.50)).toFixed(2);
 
+                reporteCalculadoActual.indiceFinal = indiceFinal;
                 document.getElementById("resultadoIndiceFinal").innerText = `${indiceFinal} / 10`;
 
                 tablaCalificacionesBody.innerHTML += `
@@ -626,6 +657,27 @@
 
             previewContainer.classList.add("show");
             previewContainer.scrollIntoView({ behavior: 'smooth' });
+        }
+
+        // Función para guardar el informe analítico completo en la colección Firestore "informes_analiticos"
+        window.guardarInformeEnBaseDeDatos = async function() {
+            const dbStatusMsg = document.getElementById("dbStatusMsg");
+            if (!reporteCalculadoActual || !estudianteActivoActual) {
+                alert("No hay ningún informe generado para guardar.");
+                return;
+            }
+
+            try {
+                const docId = `informe_${estudianteActivoActual.replace(/[\.\s]/g, "_")}`;
+                await setDoc(doc(db, "informes_analiticos", docId), reporteCalculadoActual);
+
+                dbStatusMsg.style.color = "#145a32";
+                dbStatusMsg.innerText = "¡Informe analítico guardado exitosamente en la base de datos (colección 'informes_analiticos')!";
+            } catch (error) {
+                console.error("Error al guardar el informe analítico:", error);
+                dbStatusMsg.style.color = "#641e16";
+                dbStatusMsg.innerText = "Error al intentar guardar el informe en la base de datos.";
+            }
         }
 
         window.descargarPDF = async function() {
