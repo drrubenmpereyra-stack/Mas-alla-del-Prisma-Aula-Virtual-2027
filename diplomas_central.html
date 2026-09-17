@@ -125,14 +125,14 @@
             background-color: #f48fb1;
         }
 
-        /* Contenedor del Diploma posicionado de forma absoluta para alinear elementos con precisión de coordenadas */
+        /* Marco de Excelencia Académica Estilizado Puro CSS (Sin imágenes de fondo defectuosas) */
         .diploma-preview-container {
-            background-image: linear-gradient(rgba(255, 253, 248, 0.25), rgba(255, 253, 248, 0.25)), url('marco.jpg');
-            background-size: 100% 100%;
-            background-position: center;
-            background-repeat: no-repeat;
-            border-radius: 12px;
-            padding: 85px 90px 70px 90px;
+            background: #fffdf9;
+            border: 12px solid #1a252f;
+            outline: 4px solid #b7950b;
+            outline-offset: -8px;
+            border-radius: 6px;
+            padding: 50px 70px;
             margin-top: 25px;
             display: none;
             position: relative;
@@ -145,27 +145,22 @@
             display: block;
         }
 
-        /* Logotipo posicionado de forma exacta debajo del firulete superior izquierdo */
-        .diploma-logo-absolute {
-            position: absolute;
-            top: 75px;
-            left: 85px;
-            width: 75px;
-            height: 75px;
-            object-fit: cover;
-            border: 1.5px solid #b7950b;
-            border-radius: 6px;
-            background: #ffffff;
-            z-index: 2;
-        }
-
-        /* Encabezado con datos institucionales alineados a la derecha */
         .diploma-header {
             display: flex;
-            justify-content: flex-end;
+            justify-content: space-between;
             align-items: center;
-            padding-bottom: 5px;
-            margin-bottom: 25px;
+            border-bottom: 2px solid #b7950b;
+            padding-bottom: 15px;
+            margin-bottom: 20px;
+        }
+
+        .diploma-logo {
+            width: 80px;
+            height: 80px;
+            object-fit: cover;
+            border: 2px solid #b7950b;
+            border-radius: 6px;
+            background: #ffffff;
         }
 
         .diploma-institution {
@@ -173,14 +168,14 @@
         }
 
         .diploma-institution h3 {
-            font-size: 0.75rem;
+            font-size: 0.85rem;
             color: #566573;
             text-transform: uppercase;
             letter-spacing: 1px;
         }
 
         .diploma-institution h2 {
-            font-size: 0.95rem;
+            font-size: 1.15rem;
             color: #880e4f;
             font-weight: 800;
             margin-top: 2px;
@@ -194,38 +189,38 @@
         }
 
         .diploma-body h1 {
-            font-size: 1.7rem;
+            font-size: 2.1rem;
             font-family: 'Georgia', serif;
-            color: #7d6608;
+            color: #b7950b;
             text-transform: uppercase;
-            letter-spacing: 2px;
-            margin-bottom: 10px;
+            letter-spacing: 3px;
+            margin-bottom: 12px;
             font-weight: 700;
         }
 
         .diploma-body p.certifica {
-            font-size: 0.85rem;
+            font-size: 1rem;
             color: #566573;
-            margin-bottom: 10px;
+            margin-bottom: 15px;
             font-style: italic;
         }
 
         .student-name-highlight {
-            font-size: 1.8rem;
+            font-size: 2.2rem;
             font-family: 'Georgia', serif;
             color: #1a252f;
             font-weight: bold;
             border-bottom: 2px solid #b7950b;
             display: inline-block;
-            padding-bottom: 3px;
-            margin: 5px 0 15px 0;
+            padding-bottom: 4px;
+            margin: 5px 0 20px 0;
         }
 
         .diploma-body p.details {
-            font-size: 0.85rem;
+            font-size: 1rem;
             color: #2c3e50;
-            line-height: 1.5;
-            max-width: 700px;
+            line-height: 1.6;
+            max-width: 780px;
             margin: 0 auto;
         }
 
@@ -233,8 +228,9 @@
             display: flex;
             justify-content: space-between;
             align-items: flex-end;
-            margin-top: 35px;
-            padding-top: 10px;
+            margin-top: 40px;
+            padding-top: 15px;
+            border-top: 1px solid #d5dbdb;
         }
 
         .signature-block {
@@ -243,18 +239,18 @@
         }
 
         .signature-line {
-            width: 200px;
+            width: 250px;
             border-bottom: 2px solid #1a252f;
-            margin-bottom: 4px;
+            margin-bottom: 6px;
         }
 
         .signature-block strong {
-            font-size: 0.8rem;
+            font-size: 0.95rem;
             color: #1a252f;
         }
 
         .signature-block span {
-            font-size: 0.65rem;
+            font-size: 0.75rem;
             color: #566573;
         }
 
@@ -300,7 +296,7 @@
         <header>
             <button class="btn-volver" onclick="volverDashboard()">← Volver</button>
             <h2>Central de Diplomas - Emisión y Registro</h2>
-            <p>Generación y Persistencia de Certificados de Excelencia Académica con Marco Gráfico (2027)</p>
+            <p>Generación y Persistencia de Certificados de Excelencia Académica (2027)</p>
         </header>
 
         <div class="card">
@@ -314,12 +310,11 @@
             <div id="statusMsg" class="placeholder-text">Cargando base de datos de estudiantes y participantes...</div>
         </div>
 
+        <!-- Vista Previa del Diploma con Marco Estilizado Puro CSS -->
         <div id="diplomaPreviewContainer" class="diploma-preview-container">
-            <!-- Logotipo fijado de manera absoluta debajo del firulete superior izquierdo -->
-            <img src="logotipo.jpg" alt="Logotipo Institucional" class="diploma-logo-absolute" onerror="this.src='https://via.placeholder.com/100?text=Logo'">
-
             <div id="diplomaContent">
                 <div class="diploma-header">
+                    <img src="logotipo.jpg" alt="Logotipo Institucional" class="diploma-logo" onerror="this.src='https://via.placeholder.com/100?text=Logo'">
                     <div class="diploma-institution">
                         <h3>PROGRAMA DE FORMACIÓN PARA PROFESIONALES</h3>
                         <h2>"Más allá del Prisma" 2027</h2>
@@ -340,7 +335,7 @@
 
                 <div class="diploma-footer">
                     <div>
-                        <strong style="font-size: 0.7rem; color: #566573;">Fecha de Emisión:</strong> <span id="fechaEmisionDiploma" style="font-size: 0.7rem;"></span>
+                        <strong style="font-size: 0.8rem; color: #566573;">Fecha de Emisión:</strong> <span id="fechaEmisionDiploma" style="font-size: 0.8rem;"></span>
                     </div>
                     <div class="signature-block">
                         <div class="signature-line"></div>
@@ -348,7 +343,7 @@
                         <span>Director Programa de Formación "Más allá del prisma"</span>
                     </div>
                     <div>
-                        <strong style="font-size: 0.7rem; color: #566573;">Validación:</strong> <span style="font-size: 0.7rem; color: #145a32;">Oficial / Institucional</span>
+                        <strong style="font-size: 0.8rem; color: #566573;">Validación:</strong> <span style="font-size: 0.8rem; color: #145a32;">Oficial / Institucional</span>
                     </div>
                 </div>
             </div>
