@@ -3,9 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Central de Diplomas - Emisión y Descarga</title>
-    <script src="https://cdnjs.cloudflare.com/ajax/libs/html2canvas/1.4.1/html2canvas.min.js"></script>
-    <script src="https://cdnjs.cloudflare.com/ajax/libs/jspdf/2.5.1/jspdf.umd.min.js"></script>
+    <title>Central de Diplomas - Emisión y Registro</title>
     <style>
         :root {
             --bg-color: #fce4ec;
@@ -30,7 +28,7 @@
         }
 
         .container {
-            max-width: 1100px;
+            max-width: 1150px;
             margin: 0 auto;
         }
 
@@ -96,7 +94,6 @@
             flex-wrap: wrap;
         }
 
-        /* Blindaje absoluto para el elemento select */
         .selector-box select {
             padding: 10px 14px;
             border: 2px solid var(--border-color);
@@ -128,15 +125,18 @@
             background-color: #f48fb1;
         }
 
+        /* Marco Académico de Alto Impacto y Calidad Premium (Efecto Filigrana Dorada y Marco Doble Neoclásico) */
         .diploma-preview-container {
-            background: #ffffff;
-            border: 4px double #b7950b;
-            border-radius: 10px;
-            padding: 50px;
-            margin-top: 20px;
+            background: #fffdf9; /* Fondo pergamino sutil */
+            border: 8px double #1a252f;
+            outline: 3px solid #b7950b;
+            outline-offset: 6px;
+            border-radius: 12px;
+            padding: 55px;
+            margin-top: 25px;
             display: none;
             position: relative;
-            box-shadow: 0 10px 30px rgba(0,0,0,0.15);
+            box-shadow: 0 15px 40px rgba(0,0,0,0.2);
         }
 
         .diploma-preview-container.show {
@@ -251,12 +251,13 @@
             color: #566573;
         }
 
-        .btn-download-pdf {
-            background-color: #880e4f;
-            color: #ffffff;
+        /* Botón Guardar en Base de Datos */
+        .btn-save-db {
+            background-color: #d4efdf;
+            color: #145a32;
             border: 2px solid var(--border-color);
             border-radius: 6px;
-            padding: 12px 28px;
+            padding: 12px 30px;
             font-size: 1rem;
             font-weight: 700;
             cursor: pointer;
@@ -267,8 +268,15 @@
             gap: 8px;
         }
 
-        .btn-download-pdf:hover {
-            background-color: #560027;
+        .btn-save-db:hover {
+            background-color: #a9dfbf;
+        }
+
+        .status-msg {
+            margin-top: 15px;
+            font-size: 0.95rem;
+            font-weight: 600;
+            text-align: center;
         }
 
         .placeholder-text {
@@ -285,8 +293,8 @@
     <div class="container">
         <header>
             <button class="btn-volver" onclick="volverDashboard()">← Volver</button>
-            <h2>Central de Diplomas - Emisión y Certificación</h2>
-            <p>Generación de Títulos y Certificados de Excelencia Académica en Formato Horizontal (2027)</p>
+            <h2>Central de Diplomas - Emisión y Registro</h2>
+            <p>Generación y Persistencia de Certificados de Excelencia Académica (2027)</p>
         </header>
 
         <div class="card">
@@ -300,6 +308,7 @@
             <div id="statusMsg" class="placeholder-text">Cargando base de datos de estudiantes y participantes...</div>
         </div>
 
+        <!-- Vista Previa del Diploma con Marco Académico de Alto Impacto Premium -->
         <div id="diplomaPreviewContainer" class="diploma-preview-container">
             <div id="diplomaContent">
                 <div class="diploma-header">
@@ -337,16 +346,18 @@
                 </div>
             </div>
 
+            <!-- Botón Guardar en Base de Datos -->
             <div style="text-align: center;">
-                <button class="btn-download-pdf" onclick="window.descargarDiplomaPDF()">📥 Descargar Diploma en PDF (Horizontal)</button>
+                <button class="btn-save-db" onclick="window.guardarDiplomaEnBaseDeDatos()">💾 Guardar Diploma en Base de Datos</button>
             </div>
+            <div id="dbStatusMsg" class="status-msg"></div>
         </div>
     </div>
 
     <!-- Script conectado a Firebase Firestore -->
     <script type="module">
         import { initializeApp } from "https://www.gstatic.com/firebasejs/10.8.0/firebase-app.js";
-        import { getFirestore, collection, getDocs } from "https://www.gstatic.com/firebasejs/10.8.0/firebase-firestore.js";
+        import { getFirestore, collection, getDocs, setDoc, doc } from "https://www.gstatic.com/firebasejs/10.8.0/firebase-firestore.js";
 
         const firebaseConfig = {
           apiKey: "AIzaSyDLSIGdkd2y1l7zhMjoVd_bmCj8jjXpX4I",
@@ -360,8 +371,8 @@
         const app = initializeApp(firebaseConfig);
         const db = getFirestore(app);
 
-        // Objeto global accesible en window
         window.maestroEstudiantes = {};
+        let diplomaActualData = null;
 
         async function inicializarCentralDiplomas() {
             const selectEstudiante = document.getElementById("selectEstudiante");
@@ -450,30 +461,40 @@
             const hoy = new Date().toLocaleDateString('es-AR', { year: 'numeric', month: 'long', day: 'numeric' });
             document.getElementById("fechaEmisionDiploma").innerText = hoy;
 
+            // Almacenar los datos para guardarlos en la base de datos
+            diplomaActualData = {
+                usuario: est.codigo,
+                apellidoNombre: est.apellidoNombre,
+                dni: est.dni,
+                cohorte: "2027",
+                fechaEmision: new Date().toISOString(),
+                diplomaEmitido: true
+            };
+
+            document.getElementById("dbStatusMsg.innerText = """);
+
             previewContainer.classList.add("show");
             previewContainer.scrollIntoView({ behavior: 'smooth' });
         }
 
-        window.descargarDiplomaPDF = async function() {
-            const { jsPDF } = window.jspdf;
-            const elementoDiploma = document.getElementById("diplomaContent");
+        // Función para guardar el diploma en la colección Firestore "central_diplomas"
+        window.guardarDiplomaEnBaseDeDatos = async function() {
+            const dbStatusMsg = document.getElementById("dbStatusMsg");
+            if (!diplomaActualData) {
+                alert("No hay ningún diploma generado para guardar.");
+                return;
+            }
 
             try {
-                const canvas = await html2canvas(elementoDiploma, { scale: 2.5, useCORS: true });
-                const imgData = canvas.toDataURL('image/png');
+                const docId = `diploma_${diplomaActualData.usuario.replace(/[\.\s]/g, "_")}`;
+                await setDoc(doc(db, "central_diplomas", docId), diplomaActualData);
 
-                const pdf = new jsPDF('l', 'mm', 'a4');
-                const pdfWidth = pdf.internal.pageSize.getWidth();
-                const pdfHeight = pdf.internal.pageSize.getHeight();
-
-                const imgHeight = (canvas.height * pdfWidth) / canvas.width;
-                const posY = (pdfHeight - imgHeight) / 2;
-
-                pdf.addImage(imgData, 'PNG', 0, posY > 0 ? posY : 5, pdfWidth, imgHeight);
-                pdf.save(`Diploma_Excelencia_Mas_Alla_Del_Prisma.pdf`);
+                dbStatusMsg.style.color = "#145a32";
+                dbStatusMsg.innerText = "¡Diploma de excelencia guardado con éxito en la base de datos (colección 'central_diplomas')!";
             } catch (error) {
-                console.error("Error al generar el PDF horizontal del diploma:", error);
-                alert("Ocurrió un error al intentar exportar el diploma en PDF.");
+                console.error("Error al guardar diploma en base de datos:", error);
+                dbStatusMsg.style.color = "#641e16";
+                dbStatusMsg.innerText = "Error al intentar registrar el diploma en la base de datos.";
             }
         }
 
