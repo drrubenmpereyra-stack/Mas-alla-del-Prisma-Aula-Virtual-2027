@@ -125,20 +125,21 @@
             background-color: #f48fb1;
         }
 
-        /* Contenedor del Diploma con marco.jpg de fondo y diseño horizontal ajustado */
+        /* Contenedor del Diploma con marco.jpg de fondo y fondo opaco sólido (#fffdf9) para tapar imperfecciones */
         .diploma-preview-container {
-            background-image: url('marco.jpg');
+            background-color: #fffdf9; /* Fondo opaco que oculta imperfecciones de la imagen */
+            background-image: linear-gradient(rgba(255, 253, 249, 0.92), rgba(255, 253, 249, 0.92)), url('marco.jpg');
             background-size: 100% 100%;
             background-position: center;
             background-repeat: no-repeat;
             border-radius: 12px;
-            padding: 70px 80px; /* Margen interno para que el contenido respete los bordes ornamentales de la imagen */
+            padding: 95px 85px 65px 85px; /* Ajuste superior (top padding) en 95px para desplazar hacia abajo y evitar superposición */
             margin-top: 25px;
             display: none;
             position: relative;
             box-shadow: 0 15px 40px rgba(0,0,0,0.25);
             width: 100%;
-            aspect-ratio: 1.414 / 1; /* Proporción horizontal ideal */
+            aspect-ratio: 1.414 / 1;
         }
 
         .diploma-preview-container.show {
@@ -149,8 +150,8 @@
             display: flex;
             justify-content: space-between;
             align-items: center;
-            padding-bottom: 10px;
-            margin-bottom: 15px;
+            padding-bottom: 12px;
+            margin-bottom: 20px;
         }
 
         .diploma-logo {
@@ -184,7 +185,7 @@
 
         .diploma-body {
             text-align: center;
-            margin: 15px 0;
+            margin: 20px 0;
         }
 
         .diploma-body h1 {
@@ -193,14 +194,14 @@
             color: #7d6608;
             text-transform: uppercase;
             letter-spacing: 2px;
-            margin-bottom: 10px;
+            margin-bottom: 12px;
             font-weight: 700;
         }
 
         .diploma-body p.certifica {
             font-size: 0.95rem;
             color: #566573;
-            margin-bottom: 12px;
+            margin-bottom: 15px;
             font-style: italic;
         }
 
@@ -211,8 +212,8 @@
             font-weight: bold;
             border-bottom: 2px solid #b7950b;
             display: inline-block;
-            padding-bottom: 3px;
-            margin: 5px 0 15px 0;
+            padding-bottom: 4px;
+            margin: 5px 0 18px 0;
         }
 
         .diploma-body p.details {
@@ -227,7 +228,7 @@
             display: flex;
             justify-content: space-between;
             align-items: flex-end;
-            margin-top: 30px;
+            margin-top: 35px;
             padding-top: 15px;
         }
 
@@ -308,7 +309,7 @@
             <div id="statusMsg" class="placeholder-text">Cargando base de datos de estudiantes y participantes...</div>
         </div>
 
-        <!-- Vista Previa del Diploma con marco.jpg de fondo -->
+        <!-- Vista Previa del Diploma con fondo opaco y ajuste de posición top -->
         <div id="diplomaPreviewContainer" class="diploma-preview-container">
             <div id="diplomaContent">
                 <div class="diploma-header">
