@@ -1,0 +1,541 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Visado y Aprobación de Diplomas - Panel Oficial</title>
+    <style>
+        :root {
+            --bg-color: #fce4ec;
+            --neural-pattern: radial-gradient(circle, rgba(200,205,215,0.25) 1px, transparent 1px);
+            --card-bg: #ffffff;
+            --border-color: #000000;
+        }
+
+        * {
+            box-sizing: border-box;
+            margin: 0;
+            padding: 0;
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+        }
+
+        body {
+            background-color: var(--bg-color);
+            background-image: var(--neural-pattern);
+            background-size: 24px 24px;
+            color: #2c3e50;
+            padding: 20px;
+        }
+
+        .container {
+            max-width: 1150px;
+            margin: 0 auto;
+        }
+
+        header {
+            text-align: center;
+            margin-bottom: 30px;
+            position: relative;
+        }
+
+        .btn-volver {
+            position: absolute;
+            top: 0;
+            left: 0;
+            background-color: #fadbd8;
+            color: #78281f;
+            border: 2px solid var(--border-color);
+            border-radius: 6px;
+            padding: 8px 14px;
+            font-size: 0.85rem;
+            font-weight: 700;
+            cursor: pointer;
+            box-shadow: 0 0 8px rgba(250, 219, 216, 0.8);
+            transition: all 0.2s ease;
+            z-index: 10;
+        }
+
+        .btn-volver:hover {
+            transform: translateY(-2px);
+            filter: brightness(0.95);
+        }
+
+        header h2 {
+            font-size: 1.5rem;
+            color: #1a252f;
+            border-bottom: 2px solid #bdc3c7;
+            padding-bottom: 10px;
+            margin-bottom: 8px;
+            margin-top: 40px;
+        }
+
+        header p {
+            font-size: 0.95rem;
+            color: #880e4f;
+            font-weight: 600;
+        }
+
+        /* Tarjeta del mismo color que el botón principal de generación (#f8bbd0) */
+        .card {
+            background-color: #f8bbd0;
+            border: 2px solid var(--border-color);
+            border-radius: 10px;
+            padding: 25px;
+            box-shadow: 0 4px 20px rgba(0,0,0,0.08);
+            margin-bottom: 25px;
+            position: relative;
+            z-index: 5;
+        }
+
+        .selector-box {
+            display: flex;
+            gap: 15px;
+            align-items: center;
+            margin-bottom: 15px;
+            flex-wrap: wrap;
+        }
+
+        .selector-box select {
+            padding: 10px 14px;
+            border: 2px solid var(--border-color);
+            border-radius: 6px;
+            font-size: 1rem;
+            background: #ffffff;
+            color: #000000;
+            min-width: 400px;
+            cursor: pointer;
+            pointer-events: auto !important;
+            z-index: 999;
+            position: relative;
+        }
+
+        .btn-cargar {
+            background-color: #f8bbd0;
+            color: #880e4f;
+            border: 2px solid var(--border-color);
+            border-radius: 6px;
+            padding: 10px 20px;
+            font-size: 0.95rem;
+            font-weight: 700;
+            cursor: pointer;
+            transition: all 0.2s ease;
+            pointer-events: auto !important;
+        }
+
+        .btn-cargar:hover {
+            background-color: #f48fb1;
+        }
+
+        /* Contenedor del Diploma */
+        .diploma-preview-container {
+            background: #fffdf9;
+            border: 12px solid #1a252f;
+            outline: 4px solid #b7950b;
+            outline-offset: -8px;
+            border-radius: 6px;
+            padding: 40px 60px 25px 60px;
+            margin-top: 25px;
+            display: none;
+            position: relative;
+            box-shadow: 0 15px 40px rgba(0,0,0,0.25);
+            width: 100%;
+            aspect-ratio: 1.414 / 1;
+            flex-direction: column;
+            justify-content: space-between;
+        }
+
+        .diploma-preview-container.show {
+            display: flex;
+        }
+
+        .diploma-header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            border-bottom: 2px solid #b7950b;
+            padding-bottom: 12px;
+            width: 100%;
+        }
+
+        .diploma-logo {
+            width: 75px;
+            height: 75px;
+            object-fit: cover;
+            border: 2px solid #b7950b;
+            border-radius: 6px;
+            background: #ffffff;
+        }
+
+        .diploma-institution {
+            text-align: right;
+        }
+
+        .diploma-institution h3 {
+            font-size: 0.8rem;
+            color: #566573;
+            text-transform: uppercase;
+            letter-spacing: 1px;
+        }
+
+        .diploma-institution h2 {
+            font-size: 1.1rem;
+            color: #880e4f;
+            font-weight: 800;
+            margin-top: 2px;
+            border: none;
+            padding: 0;
+        }
+
+        .diploma-body {
+            text-align: center;
+            width: 100%;
+            margin: auto 0;
+        }
+
+        .diploma-body h1 {
+            font-size: 2rem;
+            font-family: 'Georgia', serif;
+            color: #b7950b;
+            text-transform: uppercase;
+            letter-spacing: 3px;
+            margin-bottom: 10px;
+            font-weight: 700;
+        }
+
+        .diploma-body p.certifica {
+            font-size: 0.95rem;
+            color: #566573;
+            margin-bottom: 12px;
+            font-style: italic;
+        }
+
+        .student-name-highlight {
+            font-size: 2.1rem;
+            font-family: 'Georgia', serif;
+            color: #1a252f;
+            font-weight: bold;
+            border-bottom: 2px solid #b7950b;
+            display: inline-block;
+            padding-bottom: 4px;
+            margin: 5px 0 15px 0;
+        }
+
+        .diploma-body p.details {
+            font-size: 0.95rem;
+            color: #2c3e50;
+            line-height: 1.5;
+            max-width: 760px;
+            margin: 0 auto;
+        }
+
+        .diploma-footer {
+            display: flex;
+            justify-content: space-between;
+            align-items: flex-end;
+            padding-top: 10px;
+            border-top: 1px solid #d5dbdb;
+            width: 100%;
+        }
+
+        .signature-block {
+            text-align: center;
+            margin: 0 auto;
+        }
+
+        .signature-line {
+            width: 240px;
+            border-bottom: 2px solid #1a252f;
+            margin-bottom: 4px;
+        }
+
+        .signature-block strong {
+            font-size: 0.9rem;
+            color: #1a252f;
+        }
+
+        .signature-block span {
+            font-size: 0.7rem;
+            color: #566573;
+        }
+
+        /* Panel de visado fuera del diploma */
+        .visado-action-container {
+            background-color: #f8bbd0;
+            border: 2px solid var(--border-color);
+            border-radius: 10px;
+            padding: 20px;
+            text-align: center;
+            margin-top: 25px;
+            display: none;
+            box-shadow: 0 4px 15px rgba(0,0,0,0.08);
+        }
+
+        .visado-action-container.show {
+            display: block;
+        }
+
+        .checkbox-container {
+            display: inline-flex;
+            align-items: center;
+            gap: 10px;
+            font-size: 1.05rem;
+            font-weight: 700;
+            color: #880e4f;
+            cursor: pointer;
+            margin-bottom: 15px;
+            background: #ffffff;
+            padding: 10px 20px;
+            border: 2px solid var(--border-color);
+            border-radius: 6px;
+        }
+
+        .checkbox-container input {
+            width: 20px;
+            height: 20px;
+            cursor: pointer;
+        }
+
+        .btn-save-visado {
+            background-color: #d4efdf;
+            color: #145a32;
+            border: 2px solid var(--border-color);
+            border-radius: 6px;
+            padding: 12px 35px;
+            font-size: 1.05rem;
+            font-weight: 700;
+            cursor: pointer;
+            transition: all 0.2s ease;
+            display: block;
+            margin: 0 auto;
+            box-shadow: 0 4px 12px rgba(0,0,0,0.1);
+        }
+
+        .btn-save-visado:hover {
+            background-color: #a9dfbf;
+        }
+
+        .status-msg {
+            margin-top: 15px;
+            font-size: 0.95rem;
+            font-weight: 600;
+            text-align: center;
+        }
+
+        .placeholder-text {
+            text-align: center;
+            padding: 15px;
+            font-style: italic;
+            color: #5b2c6f;
+            font-weight: 600;
+        }
+    </style>
+</head>
+<body>
+
+    <div class="container">
+        <header>
+            <button class="btn-volver" onclick="volverDashboard()">← Volver</button>
+            <h2>Visado y Aprobación de Diplomas Institucionales</h2>
+            <p>Control de Verificación Oficial para Egreso de Excelencia (2027)</p>
+        </header>
+
+        <!-- Formulario del mismo color que el botón (#f8bbd0) -->
+        <div class="card">
+            <h3 style="margin-bottom: 15px; font-size: 1.1rem; color: #880e4f;">Selección de Estudiante Registrado en Central de Diplomas</h3>
+            <div class="selector-box">
+                <select id="selectEstudiante">
+                    <option value="">-- Seleccione un estudiante con diploma generado --</option>
+                </select>
+                <button class="btn-cargar" onclick="window.cargarDiplomaEstudiante()">Cargar Diploma para Visado</button>
+            </div>
+            <div id="statusMsg" class="placeholder-text">Sincronizando base de datos de diplomas emitidos...</div>
+        </div>
+
+        <!-- Vista Previa del Diploma generado para el alumno respectivo -->
+        <div id="diplomaPreviewContainer" class="diploma-preview-container">
+            <div class="diploma-header">
+                <img src="logotipo.jpg" alt="Logotipo Institucional" class="diploma-logo" onerror="this.src='https://via.placeholder.com/100?text=Logo'">
+                <div class="diploma-institution">
+                    <h3>PROGRAMA DE FORMACIÓN PARA PROFESIONALES</h3>
+                    <h2>"Más allá del Prisma" 2027</h2>
+                </div>
+            </div>
+
+            <div class="diploma-body">
+                <h1>Certificado de Excelencia Académica</h1>
+                <p class="certifica">La Dirección del Programa otorga el presente diploma a:</p>
+                
+                <div class="student-name-highlight" id="nombreEstudianteDisplay">-- Apellidos y Nombres --</div>
+                
+                <p class="details" id="detallesEstudianteDisplay">
+                    DNI: -- | Matrícula: -- <br>
+                    Por haber completado con excelencia y aprobado satisfactoriamente todas las instancias teóricas, prácticas e investigativas del ciclo académico cohorte 2027.
+                </p>
+            </div>
+
+            <div class="diploma-footer">
+                <div>
+                    <strong style="font-size: 0.75rem; color: #566573;">Fecha de Emisión:</strong> <span id="fechaEmisionDiploma" style="font-size: 0.75rem;"></span>
+                </div>
+                <div class="signature-block">
+                    <div class="signature-line"></div>
+                    <strong>Dr. y Mgter. Rubén M. Pereyra</strong><br>
+                    <span>Director Programa de Formación "Más allá del prisma"</span>
+                </div>
+                <div>
+                    <strong style="font-size: 0.75rem; color: #566573;">Validación:</strong> <span style="font-size: 0.75rem; color: #145a32;">Oficial / Institucional</span>
+                </div>
+            </div>
+        </div>
+
+        <!-- Panel de Visado con tilde y botón de guardado en base de datos -->
+        <div id="visadoActionContainer" class="visado-action-container">
+            <label class="checkbox-container">
+                <input type="checkbox" id="checkVisado"> Visado y Aprobado Oficialmente por la Dirección
+            </label>
+            <button class="btn-save-visado" onclick="window.guardarDiplomaVisado()">💾 Guardar Diploma Visado en Base de Datos</button>
+            <div id="dbStatusMsg" class="status-msg"></div>
+        </div>
+    </div>
+
+    <script type="module">
+        import { initializeApp } from "https://www.gstatic.com/firebasejs/10.8.0/firebase-app.js";
+        import { getFirestore, collection, getDocs, setDoc, doc } from "https://www.gstatic.com/firebasejs/10.8.0/firebase-firestore.js";
+
+        const firebaseConfig = {
+          apiKey: "AIzaSyDLSIGdkd2y1l7zhMjoVd_bmCj8jjXpX4I",
+          authDomain: "aula-virtual-mas-alla-del-pris.firebaseapp.com",
+          projectId: "aula-virtual-mas-alla-del-pris",
+          storageBucket: "aula-virtual-mas-alla-del-pris.firebasestorage.app",
+          messagingSenderId: "711745866832",
+          appId: "1:711745866832:web:945e046cb0b61ac320d555"
+        };
+
+        const app = initializeApp(firebaseConfig);
+        const db = getFirestore(app);
+
+        window.diplomasDisponibles = {};
+        let diplomaSeleccionadoActual = null;
+
+        async function inicializarVisadoDiplomas() {
+            const selectEstudiante = document.getElementById("selectEstudiante");
+            const statusMsg = document.getElementById("statusMsg");
+
+            try {
+                // Leer diplomas emitidos desde la colección central_diplomas
+                const snap = await getDocs(collection(db, "central_diplomas"));
+                snap.forEach(docSnap => {
+                    const d = docSnap.data();
+                    const usuario = d.usuario || "";
+                    if (usuario) {
+                        window.diplomasDisponibles[usuario] = d;
+                    }
+                });
+
+                const listaKeys = Object.keys(window.diplomasDisponibles);
+                selectEstudiante.innerHTML = '<option value="">-- Seleccione un estudiante con diploma generado --</option>';
+
+                if (listaKeys.length === 0) {
+                    statusMsg.innerText = "No se encontraron diplomas emitidos en la colección 'central_diplomas'. Genere diplomas primero.";
+                    return;
+                }
+
+                listaKeys.forEach(key => {
+                    const d = window.diplomasDisponibles[key];
+                    const opt = document.createElement("option");
+                    opt.value = key;
+                    opt.innerText = `${d.apellidoNombre} — DNI: ${d.dni} (Código: ${d.usuario})`;
+                    selectEstudiante.appendChild(opt);
+                });
+
+                statusMsg.innerText = "¡Listado sincronizado! Seleccione un estudiante para revisar y visar su diploma.";
+
+            } catch (error) {
+                console.error("Error al cargar diplomas para visado:", error);
+                statusMsg.innerText = "Error al conectar con la base de datos institucional.";
+            }
+        }
+
+        window.cargarDiplomaEstudiante = function() {
+            const select = document.getElementById("selectEstudiante");
+            const codigo = select.value;
+            const previewContainer = document.getElementById("diplomaPreviewContainer");
+            const visadoContainer = document.getElementById("visadoActionContainer");
+
+            if (!codigo) {
+                alert("Por favor seleccione un estudiante.");
+                previewContainer.classList.remove("show");
+                visadoContainer.classList.remove("show");
+                return;
+            }
+
+            const d = window.diplomasDisponibles[codigo];
+            diplomaSeleccionadoActual = d;
+
+            document.getElementById("nombreEstudianteDisplay").innerText = d.apellidoNombre;
+            document.getElementById("detallesEstudianteDisplay").innerHTML = `
+                DNI: ${d.dni} &nbsp;|&nbsp; Código de Matrícula: ${d.usuario}<br>
+                Por haber completado con excelencia y aprobado satisfactoriamente todas las instancias teóricas, prácticas e investigativas del ciclo académico cohorte ${d.cohorte || '2027'}.
+            `;
+
+            const fechaStr = d.fechaEmision ? new Date(d.fechaEmision).toLocaleDateString('es-AR', { year: 'numeric', month: 'long', day: 'numeric' }) : new Date().toLocaleDateString('es-AR');
+            document.getElementById("fechaEmisionDiploma").innerText = fechaStr;
+
+            // Reiniciar tilde y estado
+            document.getElementById("checkVisado").checked = false;
+            document.getElementById("dbStatusMsg").innerText = "";
+
+            previewContainer.classList.add("show");
+            visadoContainer.classList.add("show");
+            previewContainer.scrollIntoView({ behavior: 'smooth' });
+        }
+
+        // Función para guardar el diploma visado en la colección "diplomas_visados"
+        window.guardarDiplomaVisado = async function() {
+            const dbStatusMsg = document.getElementById("dbStatusMsg");
+            const isChecked = document.getElementById("checkVisado").checked;
+
+            if (!diplomaSeleccionadoActual) {
+                alert("No hay ningún diploma cargado.");
+                return;
+            }
+
+            if (!isChecked) {
+                alert("Debe tildar la casilla de visado y aprobación oficial antes de guardar.");
+                return;
+            }
+
+            try {
+                const docId = `visado_${diplomaSeleccionadoActual.usuario.replace(/[\.\s]/g, "_")}`;
+                const dataVisado = {
+                    ...diplomaSeleccionadoActual,
+                    visadoOficial: true,
+                    fechaVisado: new Date().toISOString(),
+                    firmante: "Dr. y Mgter. Rubén M. Pereyra"
+                };
+
+                await setDoc(doc(db, "diplomas_visados", docId), dataVisado);
+
+                dbStatusMsg.style.color = "#145a32";
+                dbStatusMsg.innerText = "¡Diploma visado y guardado correctamente en la base de datos ('diplomas_visados'), listo para otros formularios!";
+            } catch (error) {
+                console.error("Error al guardar diploma visado:", error);
+                dbStatusMsg.style.color = "#641e16";
+                dbStatusMsg.innerText = "Error al intentar registrar el visado en la base de datos.";
+            }
+        }
+
+        window.volverDashboard = function() {
+            if (window.parent && window.parent !== window) {
+                window.parent.location.reload();
+            } else {
+                window.location.href = "index.html";
+            }
+        }
+
+        window.onload = function() {
+            inicializarVisadoDiplomas();
+        };
+    </script>
+</body>
+</html>
