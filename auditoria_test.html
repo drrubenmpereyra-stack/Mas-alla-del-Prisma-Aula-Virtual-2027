@@ -6,7 +6,7 @@
     <title>Panel de Autoría y Validación de Tests</title>
     <style>
         :root {
-            --bg-color: #fcf3cf; /* Color de fondo idéntico al botón de Mis Test */
+            --bg-color: #fcf3cf;
             --neural-pattern: radial-gradient(circle, rgba(200,205,215,0.25) 1px, transparent 1px);
             --card-bg: #ffffff;
             --border-color: #000000;
@@ -212,7 +212,6 @@
         </div>
     </div>
 
-    <!-- Script conectado a Firebase Firestore -->
     <script type="module">
         import { initializeApp } from "https://www.gstatic.com/firebasejs/10.8.0/firebase-app.js";
         import { getFirestore, collection, getDocs, setDoc, doc } from "https://www.gstatic.com/firebasejs/10.8.0/firebase-firestore.js";
@@ -229,9 +228,8 @@
         const app = initializeApp(firebaseConfig);
         const db = getFirestore(app);
 
-        // Mapeo de campos de tests en la base de datos
         const testKeys = [
-            "test_preliminar",
+            "preliminar",
             "1", "2", "3", "4", "5", "6", "7", "8", "9", "10", "11", "12"
         ];
 
@@ -251,11 +249,10 @@
                         estudiantesMap[usuario] = {};
                     }
 
-                    // Identificar qué test corresponde según las claves del documento
                     testKeys.forEach(k => {
-                        const fieldName = k === "test_preliminar" ? "notaTest_preliminar" : `notaTest_${k}`;
-                        const validFieldName = k === "test_preliminar" ? "validadoTest_preliminar" : `validadoTest_${k}`;
-                        const fechaFieldName = k === "test_preliminar" ? "fechaValidacion_preliminar" : `fechaValidacion_${k}`;
+                        const fieldName = k === "preliminar" ? "notaTest_preliminar" : `notaTest_${k}`;
+                        const validFieldName = k === "preliminar" ? "validadoTest_preliminar" : `validadoTest_${k}`;
+                        const fechaFieldName = k === "preliminar" ? "fechaValidacion_preliminar" : `fechaValidacion_${k}`;
 
                         if (data[fieldName] !== undefined) {
                             estudiantesMap[usuario][k] = {
@@ -316,21 +313,21 @@
             const fechaInput = document.getElementById(`date_${usuario}_${testId}`).value;
             const statusMsg = document.getElementById("statusMsg");
 
-            const docId = `NOTA_TEST_${testId.toUpperCase()}_${usuario.replace(/[\.\s]/g, "_")}`;
-            const fieldValidado = testId === "test_preliminar" ? "validadoTest_preliminar" : `validadoTest_${testId}`;
-            const fieldFecha = testId === "test_preliminar" ? "fechaValidacion_preliminar" : `fechaValidacion_${testId}`;
+            // Asegurar ID idéntico al que genera el test al rendir
+            const docId = `notaTest_${testId}_${usuario.replace(/[\.\s]/g, "_")}`;
+            const fieldValidado = testId === "preliminar" ? "validadoTest_preliminar" : `validadoTest_${testId}`;
+            const fieldFecha = testId === "preliminar" ? "fechaValidacion_preliminar" : `fechaValidacion_${testId}`;
 
             try {
-                // Actualizamos el documento existente en la colección manteniendo la estructura
                 await setDoc(doc(db, "calificaciones_tests", docId), {
+                    usuario: usuario,
                     [fieldValidado]: chk,
                     [fieldFecha]: fechaInput
                 }, { merge: true });
 
                 statusMsg.style.color = "#145a32";
-                statusMsg.innerText = `¡Validación guardada con éxito para ${usuario} (Test ${testId})! Datos prioritarios actualizados.`;
+                statusMsg.innerText = `¡Validación guardada con éxito para ${usuario} (Test ${testId})!`;
                 
-                // Recargar el listado para reflejar cambios actualizados
                 cargarDatosEstudiantes();
             } catch (error) {
                 console.error("Error al guardar validación:", error);
