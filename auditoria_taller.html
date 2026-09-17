@@ -6,7 +6,7 @@
     <title>Panel de Autoría y Validación de Talleres</title>
     <style>
         :root {
-            --bg-color: #d4efdf; /* Color de fondo idéntico al botón de Mis Talleres (verde pastel) */
+            --bg-color: #d4efdf;
             --neural-pattern: radial-gradient(circle, rgba(200,205,215,0.25) 1px, transparent 1px);
             --card-bg: #ffffff;
             --border-color: #000000;
@@ -212,7 +212,6 @@
         </div>
     </div>
 
-    <!-- Script conectado a Firebase Firestore -->
     <script type="module">
         import { initializeApp } from "https://www.gstatic.com/firebasejs/10.8.0/firebase-app.js";
         import { getFirestore, collection, getDocs, setDoc, doc } from "https://www.gstatic.com/firebasejs/10.8.0/firebase-firestore.js";
@@ -229,7 +228,6 @@
         const app = initializeApp(firebaseConfig);
         const db = getFirestore(app);
 
-        // Mapeo de campos de talleres en la base de datos
         const tallerKeys = [
             "preliminar",
             "1", "2", "3", "4", "5", "6", "7", "8", "9", "10", "11", "12"
@@ -315,18 +313,20 @@
             const fechaInput = document.getElementById(`date_taller_${usuario}_${tallerId}`).value;
             const statusMsg = document.getElementById("statusMsg");
 
-            const docId = `NOTA_TALLER_${tallerId.toUpperCase()}_${usuario.replace(/[\.\s]/g, "_")}`;
+            // Asegurar ID idéntico al que genera el taller al rendir
+            const docId = `notaTaller_${tallerId}_${usuario.replace(/[\.\s]/g, "_")}`;
             const fieldValidado = tallerId === "preliminar" ? "validadoTaller_preliminar" : `validadoTaller_${tallerId}`;
             const fieldFecha = tallerId === "preliminar" ? "fechaValidacionTaller_preliminar" : `fechaValidacionTaller_${tallerId}`;
 
             try {
                 await setDoc(doc(db, "calificaciones_talleres", docId), {
+                    usuario: usuario,
                     [fieldValidado]: chk,
                     [fieldFecha]: fechaInput
                 }, { merge: true });
 
                 statusMsg.style.color = "#145a32";
-                statusMsg.innerText = `¡Validación guardada con éxito para ${usuario} (Taller ${tallerId})! Datos prioritarios actualizados.`;
+                statusMsg.innerText = `¡Validación guardada con éxito para ${usuario} (Taller ${tallerId})!`;
                 
                 cargarDatosTalleresEstudiantes();
             } catch (error) {
