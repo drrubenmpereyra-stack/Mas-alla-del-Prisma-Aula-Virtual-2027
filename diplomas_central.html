@@ -1,0 +1,493 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Central de Diplomas - Emisión y Descarga</title>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/html2canvas/1.4.1/html2canvas.min.js"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/jspdf/2.5.1/jspdf.umd.min.js"></script>
+    <style>
+        :root {
+            --bg-color: #fce4ec;
+            --neural-pattern: radial-gradient(circle, rgba(200,205,215,0.25) 1px, transparent 1px);
+            --card-bg: #ffffff;
+            --border-color: #000000;
+        }
+
+        * {
+            box-sizing: border-box;
+            margin: 0;
+            padding: 0;
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+        }
+
+        body {
+            background-color: var(--bg-color);
+            background-image: var(--neural-pattern);
+            background-size: 24px 24px;
+            color: #2c3e50;
+            padding: 20px;
+        }
+
+        .container {
+            max-width: 1100px;
+            margin: 0 auto;
+        }
+
+        header {
+            text-align: center;
+            margin-bottom: 30px;
+            position: relative;
+        }
+
+        .btn-volver {
+            position: absolute;
+            top: 0;
+            left: 0;
+            background-color: #fadbd8;
+            color: #78281f;
+            border: 2px solid var(--border-color);
+            border-radius: 6px;
+            padding: 8px 14px;
+            font-size: 0.85rem;
+            font-weight: 700;
+            cursor: pointer;
+            box-shadow: 0 0 8px rgba(250, 219, 216, 0.8);
+            transition: all 0.2s ease;
+            z-index: 10;
+        }
+
+        .btn-volver:hover {
+            transform: translateY(-2px);
+            filter: brightness(0.95);
+        }
+
+        header h2 {
+            font-size: 1.5rem;
+            color: #1a252f;
+            border-bottom: 2px solid #bdc3c7;
+            padding-bottom: 10px;
+            margin-bottom: 8px;
+            margin-top: 40px;
+        }
+
+        header p {
+            font-size: 0.95rem;
+            color: #880e4f;
+            font-weight: 600;
+        }
+
+        .card {
+            background-color: var(--card-bg);
+            border: 2px solid var(--border-color);
+            border-radius: 10px;
+            padding: 25px;
+            box-shadow: 0 4px 20px rgba(0,0,0,0.08);
+            margin-bottom: 25px;
+            position: relative;
+            z-index: 5;
+        }
+
+        .selector-box {
+            display: flex;
+            gap: 15px;
+            align-items: center;
+            margin-bottom: 20px;
+            flex-wrap: wrap;
+        }
+
+        /* Blindaje absoluto para el elemento select */
+        .selector-box select {
+            padding: 10px 14px;
+            border: 2px solid var(--border-color);
+            border-radius: 6px;
+            font-size: 1rem;
+            background: #ffffff;
+            color: #000000;
+            min-width: 400px;
+            cursor: pointer;
+            pointer-events: auto !important;
+            z-index: 999;
+            position: relative;
+        }
+
+        .btn-generar {
+            background-color: #f8bbd0;
+            color: #880e4f;
+            border: 2px solid var(--border-color);
+            border-radius: 6px;
+            padding: 10px 20px;
+            font-size: 0.95rem;
+            font-weight: 700;
+            cursor: pointer;
+            transition: all 0.2s ease;
+            pointer-events: auto !important;
+        }
+
+        .btn-generar:hover {
+            background-color: #f48fb1;
+        }
+
+        .diploma-preview-container {
+            background: #ffffff;
+            border: 4px double #b7950b;
+            border-radius: 10px;
+            padding: 50px;
+            margin-top: 20px;
+            display: none;
+            position: relative;
+            box-shadow: 0 10px 30px rgba(0,0,0,0.15);
+        }
+
+        .diploma-preview-container.show {
+            display: block;
+        }
+
+        .diploma-header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            border-bottom: 2px solid #b7950b;
+            padding-bottom: 20px;
+            margin-bottom: 25px;
+        }
+
+        .diploma-logo {
+            width: 100px;
+            height: 100px;
+            object-fit: cover;
+            border: 2px solid #b7950b;
+            border-radius: 8px;
+        }
+
+        .diploma-institution {
+            text-align: right;
+        }
+
+        .diploma-institution h3 {
+            font-size: 0.95rem;
+            color: #7f8c8d;
+            text-transform: uppercase;
+            letter-spacing: 1px;
+        }
+
+        .diploma-institution h2 {
+            font-size: 1.2rem;
+            color: #880e4f;
+            font-weight: 800;
+            margin-top: 4px;
+            border: none;
+            padding: 0;
+        }
+
+        .diploma-body {
+            text-align: center;
+            margin: 30px 0;
+        }
+
+        .diploma-body h1 {
+            font-size: 2.2rem;
+            font-family: 'Georgia', serif;
+            color: #b7950b;
+            text-transform: uppercase;
+            letter-spacing: 3px;
+            margin-bottom: 15px;
+            font-weight: 700;
+        }
+
+        .diploma-body p.certifica {
+            font-size: 1.05rem;
+            color: #566573;
+            margin-bottom: 20px;
+            font-style: italic;
+        }
+
+        .student-name-highlight {
+            font-size: 2.2rem;
+            font-family: 'Georgia', serif;
+            color: #1a252f;
+            font-weight: bold;
+            border-bottom: 2px solid #b7950b;
+            display: inline-block;
+            padding-bottom: 5px;
+            margin: 10px 0 20px 0;
+        }
+
+        .diploma-body p.details {
+            font-size: 1.05rem;
+            color: #2c3e50;
+            line-height: 1.6;
+            max-width: 800px;
+            margin: 0 auto;
+        }
+
+        .diploma-footer {
+            display: flex;
+            justify-content: space-between;
+            align-items: flex-end;
+            margin-top: 50px;
+            padding-top: 20px;
+            border-top: 1px solid #d5dbdb;
+        }
+
+        .signature-block {
+            text-align: center;
+            margin: 0 auto;
+        }
+
+        .signature-line {
+            width: 280px;
+            border-bottom: 2px solid #1a252f;
+            margin-bottom: 8px;
+        }
+
+        .signature-block strong {
+            font-size: 1rem;
+            color: #1a252f;
+        }
+
+        .signature-block span {
+            font-size: 0.85rem;
+            color: #566573;
+        }
+
+        .btn-download-pdf {
+            background-color: #880e4f;
+            color: #ffffff;
+            border: 2px solid var(--border-color);
+            border-radius: 6px;
+            padding: 12px 28px;
+            font-size: 1rem;
+            font-weight: 700;
+            cursor: pointer;
+            transition: all 0.2s ease;
+            margin-top: 25px;
+            display: inline-flex;
+            align-items: center;
+            gap: 8px;
+        }
+
+        .btn-download-pdf:hover {
+            background-color: #560027;
+        }
+
+        .placeholder-text {
+            text-align: center;
+            padding: 15px;
+            font-style: italic;
+            color: #7f8c8d;
+            font-weight: 600;
+        }
+    </style>
+</head>
+<body>
+
+    <div class="container">
+        <header>
+            <button class="btn-volver" onclick="volverDashboard()">← Volver</button>
+            <h2>Central de Diplomas - Emisión y Certificación</h2>
+            <p>Generación de Títulos y Certificados de Excelencia Académica en Formato Horizontal (2027)</p>
+        </header>
+
+        <div class="card">
+            <h3 style="margin-bottom: 15px; font-size: 1.1rem; color: #880e4f;">Selección de Estudiante para Emisión de Diploma</h3>
+            <div class="selector-box">
+                <select id="selectEstudiante">
+                    <option value="">-- Seleccione un estudiante --</option>
+                </select>
+                <button class="btn-generar" onclick="window.generarDiploma()">Generar Diploma Institucional</button>
+            </div>
+            <div id="statusMsg" class="placeholder-text">Cargando base de datos de estudiantes y participantes...</div>
+        </div>
+
+        <div id="diplomaPreviewContainer" class="diploma-preview-container">
+            <div id="diplomaContent">
+                <div class="diploma-header">
+                    <img src="logotipo.jpg" alt="Logotipo Institucional" class="diploma-logo" onerror="this.src='https://via.placeholder.com/100?text=Logo'">
+                    <div class="diploma-institution">
+                        <h3>PROGRAMA DE FORMACIÓN PARA PROFESIONALES</h3>
+                        <h2>"Más allá del Prisma" 2027</h2>
+                    </div>
+                </div>
+
+                <div class="diploma-body">
+                    <h1>Certificado de Excelencia Académica</h1>
+                    <p class="certifica">La Dirección del Programa otorga el presente diploma a:</p>
+                    
+                    <div class="student-name-highlight" id="nombreEstudianteDisplay">-- Apellidos y Nombres --</div>
+                    
+                    <p class="details" id="detallesEstudianteDisplay">
+                        DNI: -- | Matrícula: -- <br>
+                        Por haber completado con excelencia y aprobado satisfactoriamente todas las instancias teóricas, prácticas e investigativas del ciclo académico cohorte 2027.
+                    </p>
+                </div>
+
+                <div class="diploma-footer">
+                    <div>
+                        <strong style="font-size: 0.85rem; color: #566573;">Fecha de Emisión:</strong> <span id="fechaEmisionDiploma" style="font-size: 0.85rem;"></span>
+                    </div>
+                    <div class="signature-block">
+                        <div class="signature-line"></div>
+                        <strong>Dr. y Mgter. Rubén M. Pereyra</strong><br>
+                        <span>Director Programa de Formación "Más allá del prisma"</span>
+                    </div>
+                    <div>
+                        <strong style="font-size: 0.85rem; color: #566573;">Validación:</strong> <span style="font-size: 0.85rem; color: #145a32;">Oficial / Institucional</span>
+                    </div>
+                </div>
+            </div>
+
+            <div style="text-align: center;">
+                <button class="btn-download-pdf" onclick="window.descargarDiplomaPDF()">📥 Descargar Diploma en PDF (Horizontal)</button>
+            </div>
+        </div>
+    </div>
+
+    <!-- Script conectado a Firebase Firestore -->
+    <script type="module">
+        import { initializeApp } from "https://www.gstatic.com/firebasejs/10.8.0/firebase-app.js";
+        import { getFirestore, collection, getDocs } from "https://www.gstatic.com/firebasejs/10.8.0/firebase-firestore.js";
+
+        const firebaseConfig = {
+          apiKey: "AIzaSyDLSIGdkd2y1l7zhMjoVd_bmCj8jjXpX4I",
+          authDomain: "aula-virtual-mas-alla-del-pris.firebaseapp.com",
+          projectId: "aula-virtual-mas-alla-del-pris",
+          storageBucket: "aula-virtual-mas-alla-del-pris.firebasestorage.app",
+          messagingSenderId: "711745866832",
+          appId: "1:711745866832:web:945e046cb0b61ac320d555"
+        };
+
+        const app = initializeApp(firebaseConfig);
+        const db = getFirestore(app);
+
+        // Objeto global accesible en window
+        window.maestroEstudiantes = {};
+
+        async function inicializarCentralDiplomas() {
+            const selectEstudiante = document.getElementById("selectEstudiante");
+            const statusMsg = document.getElementById("statusMsg");
+
+            try {
+                const partSnapshot = await getDocs(collection(db, "participantes"));
+                partSnapshot.forEach(docSnap => {
+                    const d = docSnap.data();
+                    const codigo = (d.codigoMatricula || "").toString().trim();
+                    const apellido = d.apellido || "";
+                    const nombres = d.nombres || "";
+                    const dni = d.dni || "No registrado";
+
+                    if (codigo) {
+                        const apellidoNombreCompleto = apellido && nombres ? `${apellido}, ${nombres}` : (apellido || nombres || codigo);
+                        window.maestroEstudiantes[codigo] = {
+                            apellidoNombre: apellidoNombreCompleto,
+                            dni: dni,
+                            codigo: codigo
+                        };
+                    }
+                });
+
+                try {
+                    const userSnapshot = await getDocs(collection(db, "Usuario"));
+                    userSnapshot.forEach(docSnap => {
+                        const d = docSnap.data();
+                        const usr = (d.user || "").toString().trim();
+                        const name = d.name || "";
+                        const pass = d.pass || "";
+
+                        if (usr && !window.maestroEstudiantes[usr]) {
+                            window.maestroEstudiantes[usr] = {
+                                apellidoNombre: name || usr,
+                                dni: pass || "No registrado",
+                                codigo: usr
+                            };
+                        }
+                    });
+                } catch(e) {}
+
+                const listaCodigos = Object.keys(window.maestroEstudiantes);
+                selectEstudiante.innerHTML = '<option value="">-- Seleccione un estudiante --</option>';
+
+                if (listaCodigos.length === 0) {
+                    statusMsg.innerText = "No se encontraron estudiantes registrados en la base de datos.";
+                    return;
+                }
+
+                listaCodigos.forEach(codigo => {
+                    const est = window.maestroEstudiantes[codigo];
+                    const opt = document.createElement("option");
+                    opt.value = codigo;
+                    opt.innerText = `${est.apellidoNombre} — DNI: ${est.dni} (Matrícula: ${codigo})`;
+                    selectEstudiante.appendChild(opt);
+                });
+
+                statusMsg.innerText = "¡Listado cargado con éxito! Seleccione un estudiante para emitir su diploma.";
+
+            } catch (error) {
+                console.error("Error al cargar estudiantes para diplomas:", error);
+                statusMsg.innerText = "Error al conectar con la base de datos institucional.";
+            }
+        }
+
+        window.generarDiploma = function() {
+            const select = document.getElementById("selectEstudiante");
+            const codigoSeleccionado = select.value;
+            const previewContainer = document.getElementById("diplomaPreviewContainer");
+
+            if (!codigoSeleccionado) {
+                alert("Por favor seleccione un estudiante.");
+                previewContainer.classList.remove("show");
+                return;
+            }
+
+            const est = window.maestroEstudiantes[codigoSeleccionado];
+
+            document.getElementById("nombreEstudianteDisplay").innerText = est.apellidoNombre;
+            document.getElementById("detallesEstudianteDisplay").innerHTML = `
+                DNI: ${est.dni} &nbsp;|&nbsp; Código de Matrícula: ${est.codigo}<br>
+                Por haber completado con excelencia y aprobado satisfactoriamente todas las instancias teóricas, prácticas e investigativas del ciclo académico cohorte 2027.
+            `;
+
+            const hoy = new Date().toLocaleDateString('es-AR', { year: 'numeric', month: 'long', day: 'numeric' });
+            document.getElementById("fechaEmisionDiploma").innerText = hoy;
+
+            previewContainer.classList.add("show");
+            previewContainer.scrollIntoView({ behavior: 'smooth' });
+        }
+
+        window.descargarDiplomaPDF = async function() {
+            const { jsPDF } = window.jspdf;
+            const elementoDiploma = document.getElementById("diplomaContent");
+
+            try {
+                const canvas = await html2canvas(elementoDiploma, { scale: 2.5, useCORS: true });
+                const imgData = canvas.toDataURL('image/png');
+
+                const pdf = new jsPDF('l', 'mm', 'a4');
+                const pdfWidth = pdf.internal.pageSize.getWidth();
+                const pdfHeight = pdf.internal.pageSize.getHeight();
+
+                const imgHeight = (canvas.height * pdfWidth) / canvas.width;
+                const posY = (pdfHeight - imgHeight) / 2;
+
+                pdf.addImage(imgData, 'PNG', 0, posY > 0 ? posY : 5, pdfWidth, imgHeight);
+                pdf.save(`Diploma_Excelencia_Mas_Alla_Del_Prisma.pdf`);
+            } catch (error) {
+                console.error("Error al generar el PDF horizontal del diploma:", error);
+                alert("Ocurrió un error al intentar exportar el diploma en PDF.");
+            }
+        }
+
+        window.volverDashboard = function() {
+            if (window.parent && window.parent !== window) {
+                window.parent.location.reload();
+            } else {
+                window.location.href = "index.html";
+            }
+        }
+
+        window.onload = function() {
+            inicializarCentralDiplomas();
+        };
+    </script>
+</body>
+</html>
