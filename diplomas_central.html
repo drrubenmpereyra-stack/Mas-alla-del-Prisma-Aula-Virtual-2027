@@ -125,14 +125,14 @@
             background-color: #f48fb1;
         }
 
-        /* Contenedor del Diploma: Marco nítido con capa translúcida para tapar marcas sin perder la textura */
+        /* Contenedor del Diploma: Marco nítido con capa translúcida y padding-top ampliado a 470px */
         .diploma-preview-container {
-            background-image: linear-gradient(rgba(255, 253, 248, 0.45), rgba(255, 253, 248, 0.45)), url('marco.jpg');
+            background-image: linear-gradient(rgba(255, 253, 248, 0.25), rgba(255, 253, 248, 0.25)), url('marco.jpg');
             background-size: 100% 100%;
             background-position: center;
             background-repeat: no-repeat;
             border-radius: 12px;
-            padding: 150px 100px 70px 100px; /* Desplazamiento top profundo (150px) para dejar ver todo el marco superior y el adorno central */
+            padding: 470px 110px 80px 110px; /* Posicionamiento óptimo centrado dentro del marco */
             margin-top: 25px;
             display: none;
             position: relative;
@@ -149,13 +149,13 @@
             display: flex;
             justify-content: space-between;
             align-items: center;
-            padding-bottom: 10px;
-            margin-bottom: 15px;
+            padding-bottom: 8px;
+            margin-bottom: 12px;
         }
 
         .diploma-logo {
-            width: 80px;
-            height: 80px;
+            width: 75px;
+            height: 75px;
             object-fit: cover;
             border: 1.5px solid #b7950b;
             border-radius: 6px;
@@ -167,14 +167,14 @@
         }
 
         .diploma-institution h3 {
-            font-size: 0.8rem;
+            font-size: 0.75rem;
             color: #566573;
             text-transform: uppercase;
             letter-spacing: 1px;
         }
 
         .diploma-institution h2 {
-            font-size: 1.05rem;
+            font-size: 0.95rem;
             color: #880e4f;
             font-weight: 800;
             margin-top: 2px;
@@ -184,42 +184,42 @@
 
         .diploma-body {
             text-align: center;
-            margin: 15px 0;
+            margin: 12px 0;
         }
 
         .diploma-body h1 {
-            font-size: 1.8rem;
+            font-size: 1.6rem;
             font-family: 'Georgia', serif;
             color: #7d6608;
             text-transform: uppercase;
             letter-spacing: 2px;
-            margin-bottom: 10px;
+            margin-bottom: 8px;
             font-weight: 700;
         }
 
         .diploma-body p.certifica {
-            font-size: 0.9rem;
+            font-size: 0.85rem;
             color: #566573;
-            margin-bottom: 10px;
+            margin-bottom: 8px;
             font-style: italic;
         }
 
         .student-name-highlight {
-            font-size: 1.9rem;
+            font-size: 1.7rem;
             font-family: 'Georgia', serif;
             color: #1a252f;
             font-weight: bold;
             border-bottom: 2px solid #b7950b;
             display: inline-block;
-            padding-bottom: 3px;
-            margin: 5px 0 15px 0;
+            padding-bottom: 2px;
+            margin: 4px 0 12px 0;
         }
 
         .diploma-body p.details {
-            font-size: 0.9rem;
+            font-size: 0.85rem;
             color: #2c3e50;
-            line-height: 1.5;
-            max-width: 720px;
+            line-height: 1.45;
+            max-width: 700px;
             margin: 0 auto;
         }
 
@@ -227,8 +227,8 @@
             display: flex;
             justify-content: space-between;
             align-items: flex-end;
-            margin-top: 25px;
-            padding-top: 10px;
+            margin-top: 20px;
+            padding-top: 8px;
         }
 
         .signature-block {
@@ -237,18 +237,18 @@
         }
 
         .signature-line {
-            width: 220px;
+            width: 200px;
             border-bottom: 2px solid #1a252f;
             margin-bottom: 4px;
         }
 
         .signature-block strong {
-            font-size: 0.85rem;
+            font-size: 0.8rem;
             color: #1a252f;
         }
 
         .signature-block span {
-            font-size: 0.7rem;
+            font-size: 0.65rem;
             color: #566573;
         }
 
@@ -308,7 +308,6 @@
             <div id="statusMsg" class="placeholder-text">Cargando base de datos de estudiantes y participantes...</div>
         </div>
 
-        <!-- Vista Previa del Diploma con marco nítido y separación superior -->
         <div id="diplomaPreviewContainer" class="diploma-preview-container">
             <div id="diplomaContent">
                 <div class="diploma-header">
@@ -333,7 +332,7 @@
 
                 <div class="diploma-footer">
                     <div>
-                        <strong style="font-size: 0.75rem; color: #566573;">Fecha de Emisión:</strong> <span id="fechaEmisionDiploma" style="font-size: 0.75rem;"></span>
+                        <strong style="font-size: 0.7rem; color: #566573;">Fecha de Emisión:</strong> <span id="fechaEmisionDiploma" style="font-size: 0.7rem;"></span>
                     </div>
                     <div class="signature-block">
                         <div class="signature-line"></div>
@@ -341,7 +340,7 @@
                         <span>Director Programa de Formación "Más allá del prisma"</span>
                     </div>
                     <div>
-                        <strong style="font-size: 0.75rem; color: #566573;">Validación:</strong> <span style="font-size: 0.75rem; color: #145a32;">Oficial / Institucional</span>
+                        <strong style="font-size: 0.7rem; color: #566573;">Validación:</strong> <span style="font-size: 0.7rem; color: #145a32;">Oficial / Institucional</span>
                     </div>
                 </div>
             </div>
