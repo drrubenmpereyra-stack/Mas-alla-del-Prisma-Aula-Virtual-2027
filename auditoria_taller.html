@@ -257,7 +257,7 @@
                         if (data[fieldName] !== undefined) {
                             estudiantesMap[usuario][k] = {
                                 nota: data[fieldName],
-                                validado: data[validFieldName] || false,
+                                validado: data[validFieldName] === true,
                                 fecha: data[fechaFieldName] || ""
                             };
                         }
@@ -313,22 +313,28 @@
             const fechaInput = document.getElementById(`date_taller_${usuario}_${tallerId}`).value;
             const statusMsg = document.getElementById("statusMsg");
 
-            // Asegurar ID idéntico al que genera el taller al rendir
             const docId = `notaTaller_${tallerId}_${usuario.replace(/[\.\s]/g, "_")}`;
             const fieldValidado = tallerId === "preliminar" ? "validadoTaller_preliminar" : `validadoTaller_${tallerId}`;
             const fieldFecha = tallerId === "preliminar" ? "fechaValidacionTaller_preliminar" : `fechaValidacionTaller_${tallerId}`;
 
             try {
-                await setDoc(doc(db, "calificaciones_talleres", docId), {
+                const docRef = doc(db, "calificaciones_talleres", docId);
+                
+                const payload = {
                     usuario: usuario,
                     [fieldValidado]: chk,
                     [fieldFecha]: fechaInput
-                }, { merge: true });
+                };
+
+                await setDoc(docRef, payload, { merge: true });
 
                 statusMsg.style.color = "#145a32";
                 statusMsg.innerText = `¡Validación guardada con éxito para ${usuario} (Taller ${tallerId})!`;
                 
-                cargarDatosTalleresEstudiantes();
+                setTimeout(() => {
+                    cargarDatosTalleresEstudiantes();
+                }, 500);
+
             } catch (error) {
                 console.error("Error al guardar validación de taller:", error);
                 statusMsg.style.color = "#641e16";
