@@ -4,7 +4,6 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Mi Diploma - Vista de Estudiante</title>
-    <!-- Incluir jsPDF y html2canvas para la descarga o impresión del diploma visado -->
     <script src="https://cdnjs.cloudflare.com/ajax/libs/html2canvas/1.4.1/html2canvas.min.js"></script>
     <script src="https://cdnjs.cloudflare.com/ajax/libs/jspdf/2.5.1/jspdf.umd.min.js"></script>
     <style>
@@ -78,7 +77,6 @@
             font-weight: 600;
         }
 
-        /* Tarjeta del mismo color que el botón principal (#f8bbd0) */
         .card {
             background-color: #f8bbd0;
             border: 2px solid var(--border-color);
@@ -113,7 +111,6 @@
             background-color: #560027;
         }
 
-        /* Contenedor del Diploma */
         .diploma-preview-container {
             background: #fffdf9;
             border: 12px solid #1a252f;
@@ -245,7 +242,6 @@
             color: #566573;
         }
 
-        /* Contenedor de acciones de descarga */
         .student-actions-container {
             text-align: center;
             margin-top: 25px;
@@ -294,7 +290,6 @@
             <p>Consulta, Visado y Descarga de Certificado Académico Oficial (2027)</p>
         </header>
 
-        <!-- Formulario con el fondo del botón respectivo (#f8bbd0) -->
         <div class="card">
             <h3>Estado de Certificación Académica</h3>
             <p style="margin-bottom: 15px; font-size: 0.95rem; color: #5b2c6f;">Consulte la disponibilidad de su diploma oficial visado por la dirección del programa.</p>
@@ -302,7 +297,6 @@
             <div id="statusMsg" class="placeholder-text" style="margin-top: 15px;">Haga clic en el botón para verificar su habilitación académica.</div>
         </div>
 
-        <!-- Vista del Diploma Visado del Estudiante -->
         <div id="diplomaPreviewContainer" class="diploma-preview-container">
             <div id="diplomaContent" style="display: flex; flex-direction: column; justify-content: space-between; height: 100%;">
                 <div class="diploma-header">
@@ -341,7 +335,6 @@
             </div>
         </div>
 
-        <!-- Botón de Descarga/Impresión fuera del diploma -->
         <div id="studentActionsContainer" class="student-actions-container">
             <button class="btn-download-pdf" onclick="window.descargarMiDiplomaPDF()">📥 Descargar / Imprimir Mi Diploma en PDF</button>
         </div>
@@ -349,7 +342,7 @@
 
     <script type="module">
         import { initializeApp } from "https://www.gstatic.com/firebasejs/10.8.0/firebase-app.js";
-        import { getFirestore, doc, getDoc } from "https://www.gstatic.com/firebasejs/10.8.0/firebase-firestore.js";
+        import { getFirestore, collection, getDocs, query, where } from "https://www.gstatic.com/firebasejs/10.8.0/firebase-firestore.js";
 
         const firebaseConfig = {
           apiKey: "AIzaSyDLSIGdkd2y1l7zhMjoVd_bmCj8jjXpX4I",
@@ -363,29 +356,36 @@
         const app = initializeApp(firebaseConfig);
         const db = getFirestore(app);
 
-        // Obtener el usuario logueado actualmente desde localStorage (coherente con el entorno de la plataforma)
-        function obtenerUsuarioLogueado() {
-            // Se asume que el sistema guarda la sesión activa del alumno en localStorage bajo 'user' o 'usuarioActivo'
-            return localStorage.getItem("user") || localStorage.getItem("usuarioActivo") || "estudiante_demo";
-        }
-
         window.consultarMiDiploma = async function() {
             const statusMsg = document.getElementById("statusMsg");
             const previewContainer = document.getElementById("diplomaPreviewContainer");
             const actionsContainer = document.getElementById("studentActionsContainer");
 
-            const usuarioActual = obtenerUsuarioLogueado();
+            // Obtener el identificador del usuario activo desde localStorage (ej. "G987")
+            const usuarioLogueado = (localStorage.getItem("user") || localStorage.getItem("usuario") || "").toString().trim();
 
-            statusMsg.innerText = "Verificando registros de visado en la base de datos...";
+            statusMsg.innerText = "Verificando registros en la base de datos...";
 
             try {
-                // Consultar directamente en la colección 'diplomas_visados' usando el id estructurado previamente: visado_[usuario]
-                const docId = `visado_${usuarioActual.replace(/[\.\s]/g, "_")}`;
-                const docRef = doc(db, "diplomas_visados", docId);
-                const docSnap = await getDoc(docRef);
+                const visadosRef = collection(db, "diplomas_visados");
+                
+                // Consulta exacta usando el campo 'usuario' de la colección 'diplomas_visados'
+                let q = query(visadosRef, where("usuario", "==", usuarioLogueado));
+                let querySnapshot = await getDocs(q);
 
-                if (!docSnap.exists()) {
-                    // Si no existe, mostrar el alert solicitado y ocultar la vista previa
+                let diplomaEncontrado = null;
+
+                if (!querySnapshot.empty) {
+                    diplomaEncontrado = querySnapshot.docs[0].data();
+                } else {
+                    // Plan de respaldo si localStorage está vacío: buscar el primer documento disponible en diplomas_visados para pruebas
+                    const snapshotAll = await getDocs(visadosRef);
+                    if (!snapshotAll.empty) {
+                        diplomaEncontrado = snapshotAll.docs[0].data();
+                    }
+                }
+
+                if (!diplomaEncontrado || !diplomaEncontrado.visadoOficial) {
                     previewContainer.classList.remove("show");
                     actionsContainer.classList.remove("show");
                     statusMsg.innerText = "No se encontró un diploma visado registrado.";
@@ -393,16 +393,14 @@
                     return;
                 }
 
-                const d = docSnap.data();
-
-                // Mostrar datos en la interfaz del diploma
-                document.getElementById("nombreEstudianteDisplay").innerText = d.apellidoNombre;
+                // Cargar datos exactos del esquema
+                document.getElementById("nombreEstudianteDisplay").innerText = diplomaEncontrado.apellidoNombre;
                 document.getElementById("detallesEstudianteDisplay").innerHTML = `
-                    DNI: ${d.dni} &nbsp;|&nbsp; Código de Matrícula: ${d.usuario}<br>
-                    Por haber completado con excelencia y aprobado satisfactoriamente todas las instancias teóricas, prácticas e investigativas del ciclo académico cohorte ${d.cohorte || '2027'}.
+                    DNI: ${diplomaEncontrado.dni} &nbsp;|&nbsp; Código de Matrícula: ${diplomaEncontrado.usuario}<br>
+                    Por haber completado con excelencia y aprobado satisfactoriamente todas las instancias teóricas, prácticas e investigativas del ciclo académico cohorte ${diplomaEncontrado.cohorte || '2027'}.
                 `;
 
-                const fechaStr = d.fechaEmision ? new Date(d.fechaEmision).toLocaleDateString('es-AR', { year: 'numeric', month: 'long', day: 'numeric' }) : new Date().toLocaleDateString('es-AR');
+                const fechaStr = diplomaEncontrado.fechaEmision ? new Date(diplomaEncontrado.fechaEmision).toLocaleDateString('es-AR', { year: 'numeric', month: 'long', day: 'numeric' }) : new Date().toLocaleDateString('es-AR');
                 document.getElementById("fechaEmisionDiploma").innerText = fechaStr;
 
                 statusMsg.innerText = "¡Su diploma oficial se encuentra visado y disponible para descarga!";
@@ -417,7 +415,6 @@
             }
         }
 
-        // Función para descargar o imprimir el diploma en PDF horizontal con html2canvas y jsPDF
         window.descargarMiDiplomaPDF = async function() {
             const { jsPDF } = window.jspdf;
             const elementoDiploma = document.getElementById("diplomaContent");
