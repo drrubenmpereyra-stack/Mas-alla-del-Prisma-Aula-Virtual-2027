@@ -257,7 +257,7 @@
                         if (data[fieldName] !== undefined) {
                             estudiantesMap[usuario][k] = {
                                 nota: data[fieldName],
-                                validado: data[validFieldName] || false,
+                                validado: data[validFieldName] === true,
                                 fecha: data[fechaFieldName] || ""
                             };
                         }
@@ -313,22 +313,30 @@
             const fechaInput = document.getElementById(`date_${usuario}_${testId}`).value;
             const statusMsg = document.getElementById("statusMsg");
 
-            // Asegurar ID idéntico al que genera el test al rendir
             const docId = `notaTest_${testId}_${usuario.replace(/[\.\s]/g, "_")}`;
             const fieldValidado = testId === "preliminar" ? "validadoTest_preliminar" : `validadoTest_${testId}`;
             const fieldFecha = testId === "preliminar" ? "fechaValidacion_preliminar" : `fechaValidacion_${testId}`;
 
             try {
-                await setDoc(doc(db, "calificaciones_tests", docId), {
+                // Recuperar primero el documento actual para no pisar la nota
+                const docRef = doc(db, "calificaciones_tests", docId);
+                
+                const payload = {
                     usuario: usuario,
                     [fieldValidado]: chk,
                     [fieldFecha]: fechaInput
-                }, { merge: true });
+                };
+
+                await setDoc(docRef, payload, { merge: true });
 
                 statusMsg.style.color = "#145a32";
                 statusMsg.innerText = `¡Validación guardada con éxito para ${usuario} (Test ${testId})!`;
                 
-                cargarDatosEstudiantes();
+                // Dar un respiro de 500ms antes de recargar para asegurar sincronización visual
+                setTimeout(() => {
+                    cargarDatosEstudiantes();
+                }, 500);
+
             } catch (error) {
                 console.error("Error al guardar validación:", error);
                 statusMsg.style.color = "#641e16";
