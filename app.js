@@ -16,6 +16,12 @@ const firebaseConfig = {
 const app = initializeApp(firebaseConfig);
 const db = getFirestore(app);
 
+// Enlace raw oficial del video intro en GitHub
+const VIDEO_INTRO_URL = "https://github.com/drrubenmpereyra-stack/video-intro-Ms-alla-del-prisma/raw/refs/heads/main/Intro_masalladelprisma.mp4";
+
+// Foto del Administrador en GitHub
+const ADMIN_GITHUB_PHOTO = "https://raw.githubusercontent.com/drrubenmpereyra-stack/video-intro-Ms-alla-del-prisma/main/admin_foto.jpg";
+
 // Función para inicializar usuarios base (Administrador y Estudiante de prueba por defecto)
 async function inicializarUsuariosBase() {
     try {
@@ -65,8 +71,7 @@ document.getElementById("loginForm").addEventListener("submit", async function(e
         if (userDocSnap.exists()) {
             const userData = userDocSnap.data();
             if (userData.pass === pInput) {
-                sessionStorage.setItem("current_session", JSON.stringify(userData));
-                loadDashboard(userData);
+                iniciarSecuenciaAcceso(userData);
                 return;
             }
         }
@@ -83,14 +88,14 @@ document.getElementById("loginForm").addEventListener("submit", async function(e
                 estudianteEncontrado = {
                     user: p.codigoMatricula,
                     role: "student",
-                    name: `${p.apellido}, ${p.nombres}`
+                    name: `${p.apellido}, ${p.nombres}`,
+                    fotoDrive: p.foto || p.fotoUrl || p.imagen || "" // Obtiene la foto de Drive registrada en participantes
                 };
             }
         });
 
         if (estudianteEncontrado) {
-            sessionStorage.setItem("current_session", JSON.stringify(estudianteEncontrado));
-            loadDashboard(estudianteEncontrado);
+            iniciarSecuenciaAcceso(estudianteEncontrado);
         } else {
             errorMsg.style.display = "block";
         }
@@ -102,13 +107,93 @@ document.getElementById("loginForm").addEventListener("submit", async function(e
     }
 });
 
+// Secuencia de Acceso: Muestra la intro de video antes de cargar el dashboard
+function iniciarSecuenciaAcceso(userObj) {
+    sessionStorage.setItem("current_session", JSON.stringify(userObj));
+    document.getElementById("login-container").style.display = "none";
+
+    let introContainer = document.getElementById("intro-video-container");
+    if (!introContainer) {
+        introContainer = document.createElement("div");
+        introContainer.id = "intro-video-container";
+        introContainer.style.cssText = "position:fixed;top:0;left:0;width:100vw;height:100vh;background:#000;z-index:9999;display:flex;flex-direction:column;justify-content:center;align-items:center;";
+        
+        introContainer.innerHTML = `
+            <video id="introVideo" src="${VIDEO_INTRO_URL}" autoplay playsinline style="max-width:100%; max-height:85vh; outline:none;"></video>
+            <button id="skipIntroBtn" style="margin-top:15px; background:#880e4f; color:#fff; border:2px solid #fff; padding:8px 20px; border-radius:6px; cursor:pointer; font-weight:bold; font-size:0.95rem;">Saltar Introducción ⏭</button>
+        `;
+        document.body.appendChild(introContainer);
+    } else {
+        introContainer.style.display = "flex";
+    }
+
+    const videoElement = document.getElementById("introVideo");
+    videoElement.currentTime = 0;
+    videoElement.play().catch(e => console.log("Interacción requerida para reproducción automática:", e));
+
+    const finalizarIntro = () => {
+        introContainer.style.display = "none";
+        loadDashboard(userObj);
+    };
+
+    videoElement.onended = finalizarIntro;
+    document.getElementById("skipIntroBtn").onclick = finalizarIntro;
+}
+
 // Cargar panel correspondiente según el rol
 function loadDashboard(userObj) {
     document.getElementById("login-container").style.display = "none";
     document.getElementById("app-container").style.display = "flex";
-    document.getElementById("userDisplay").innerText = userObj.name;
+    
+    // Inyectar foto y animación vectorial de bienvenida en el identificador de usuario
+    renderizarPerfilYBienvenida(userObj);
 
     buildMenu(userObj.role);
+}
+
+// Renderizar foto y animación vectorial de bienvenida
+function renderizarPerfilYBienvenida(userObj) {
+    const userDisplay = document.getElementById("userDisplay");
+    if (!userDisplay) return;
+
+    let fotoUrl = "";
+    if (userObj.role === "admin") {
+        fotoUrl = ADMIN_GITHUB_PHOTO;
+    } else {
+        fotoUrl = userObj.fotoDrive || "https://via.placeholder.com/100?text=Estudiante";
+        if (fotoUrl.includes("drive.google.com") && fotoUrl.includes("id=")) {
+            const fileId = fotoUrl.split("id=")[1].split("&")[0];
+            fotoUrl = `https://lh3.googleusercontent.com/d/` + fileId;
+        }
+    }
+
+    userDisplay.innerHTML = `
+        <div style="display:flex; align-items:center; gap:12px; padding: 5px;">
+            <img src="${fotoUrl}" alt="Foto de perfil" style="width:48px; height:48px; border-radius:50%; object-fit:cover; border:2px solid #b7950b; background:#fff;" onerror="this.src='https://via.placeholder.com/48?text=User'">
+            <div style="display:flex; flex-direction:column; text-align:left;">
+                <span style="font-size:0.7rem; color:#880e4f; font-weight:600; text-transform:uppercase; letter-spacing:1px;">Usuario Activo</span>
+                <div style="font-size:1rem; font-weight:800; color:#1a252f; font-family:'Georgia', serif; overflow:hidden; white-space:nowrap; border-right:2px solid #880e4f; animation: typing 2.5s steps(30, end), blink-caret 0.75s step-end infinite;">
+                    ${userObj.name}
+                </div>
+            </div>
+        </div>
+    `;
+
+    if (!document.getElementById("vectorAnimStyles")) {
+        const styleTag = document.createElement("style");
+        styleTag.id = "vectorAnimStyles";
+        styleTag.innerHTML = `
+            @keyframes typing {
+                from { width: 0 }
+                to { width: 100% }
+            }
+            @keyframes blink-caret {
+                from, to { border-color: transparent }
+                50% { border-color: #880e4f; }
+            }
+        `;
+        document.head.appendChild(styleTag);
+    }
 }
 
 // Construir menús según la jerarquía solicitada
@@ -243,7 +328,7 @@ function logout() {
     location.reload();
 }
 
-// Mantener sesión activa al recargar
+// Mantener sesión activa al recargar (si ya pasó la intro previamente en la sesión)
 window.onload = function() {
     const activeSession = sessionStorage.getItem("current_session");
     if (activeSession) {
