@@ -83,7 +83,6 @@ document.getElementById("loginForm").addEventListener("submit", async function(e
 
         querySnapshot.forEach((docSnap) => {
             const p = docSnap.data();
-            // Compara el apellido (sin distinguir mayúsculas) y la contraseña con el código de matrícula
             if (p.apellido && p.apellido.trim().toLowerCase() === uInput.toLowerCase() && p.codigoMatricula === pInput) {
                 estudianteEncontrado = {
                     user: p.codigoMatricula,
@@ -145,13 +144,13 @@ function loadDashboard(userObj) {
     document.getElementById("login-container").style.display = "none";
     document.getElementById("app-container").style.display = "flex";
     
-    // Inyectar foto y animación vectorial de bienvenida en el identificador de usuario
+    // Inyectar foto real (si existe) y animación vectorial de bienvenida
     renderizarPerfilYBienvenida(userObj);
 
     buildMenu(userObj.role);
 }
 
-// Renderizar foto y animación vectorial de bienvenida de forma robusta
+// Renderizar foto real del usuario y animación vectorial de bienvenida limpia
 function renderizarPerfilYBienvenida(userObj) {
     let userDisplay = document.getElementById("userDisplay");
     if (!userDisplay) return;
@@ -159,8 +158,8 @@ function renderizarPerfilYBienvenida(userObj) {
     let fotoUrl = "";
     if (userObj.role === "admin") {
         fotoUrl = ADMIN_GITHUB_PHOTO;
-    } else {
-        fotoUrl = userObj.fotoDrive || "https://via.placeholder.com/100?text=Estudiante";
+    } else if (userObj.fotoDrive) {
+        fotoUrl = userObj.fotoDrive;
         if (fotoUrl.includes("drive.google.com") && fotoUrl.includes("id=")) {
             const fileId = fotoUrl.split("id=")[1].split("&")[0];
             fotoUrl = `https://lh3.googleusercontent.com/d/` + fileId;
@@ -174,8 +173,15 @@ function renderizarPerfilYBienvenida(userObj) {
     userDisplay.style.alignItems = "center";
     userDisplay.style.gap = "12px";
 
-    userDisplay.innerHTML = `
-        <img src="${fotoUrl}" alt="Perfil" style="width:48px; height:48px; border-radius:50%; object-fit:cover; border:2px solid #b7950b; background:#ffffff; flex-shrink:0;" onerror="this.src='https://via.placeholder.com/48?text=User'">
+    // Si hay foto real la muestra, si no hay foto, muestra únicamente la animación vectorial con el nombre
+    let htmlContent = "";
+    if (fotoUrl) {
+        htmlContent = `
+            <img src="${fotoUrl}" alt="Perfil" style="width:48px; height:48px; border-radius:50%; object-fit:cover; border:2px solid #b7950b; background:#ffffff; flex-shrink:0;" onerror="this.style.display='none'">
+        `;
+    }
+
+    htmlContent += `
         <div style="display:flex; flex-direction:column; text-align:left; line-height: 1.2;">
             <span style="font-size:0.68rem; color:#880e4f; font-weight:700; text-transform:uppercase; letter-spacing:1px;">Bienvenido/a</span>
             <div class="vector-typing-text" style="font-size:1.05rem; font-weight:800; color:#1a252f; font-family:'Georgia', serif; overflow:hidden; white-space:nowrap; border-right:2px solid #880e4f; animation: typing 2.5s steps(35, end), blink-caret 0.75s step-end infinite;">
@@ -183,6 +189,8 @@ function renderizarPerfilYBienvenida(userObj) {
             </div>
         </div>
     `;
+
+    userDisplay.innerHTML = htmlContent;
 
     if (!document.getElementById("vectorAnimStyles")) {
         const styleTag = document.createElement("style");
