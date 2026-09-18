@@ -1,0 +1,465 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Simulador Clínico: Ventana de Tolerancia</title>
+    <style>
+        :root {
+            --bg-color: #f4f5f7;
+            --neural-pattern: radial-gradient(circle, rgba(200,205,215,0.25) 1px, transparent 1px);
+            --card-bg: #ffffff;
+            --border-color: #000000;
+        }
+
+        * {
+            box-sizing: border-box;
+            margin: 0;
+            padding: 0;
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+        }
+
+        body {
+            background-color: var(--bg-color);
+            background-image: var(--neural-pattern);
+            background-size: 24px 24px;
+            color: #2c3e50;
+            padding: 20px;
+        }
+
+        .container {
+            max-width: 850px;
+            margin: 0 auto;
+        }
+
+        header {
+            text-align: center;
+            margin-bottom: 25px;
+            position: relative;
+        }
+
+        .btn-volver {
+            position: absolute;
+            top: 0;
+            left: 0;
+            background-color: #fadbd8;
+            color: #78281f;
+            border: 2px solid var(--border-color);
+            border-radius: 6px;
+            padding: 8px 14px;
+            font-size: 0.85rem;
+            font-weight: 700;
+            cursor: pointer;
+            box-shadow: 0 0 8px rgba(250, 219, 216, 0.8);
+            transition: all 0.2s ease;
+        }
+
+        .btn-volver:hover {
+            transform: translateY(-2px);
+            filter: brightness(0.95);
+        }
+
+        header h2 {
+            font-size: 1.4rem;
+            color: #1a252f;
+            border-bottom: 2px solid #bdc3c7;
+            padding-bottom: 10px;
+            margin-bottom: 6px;
+            margin-top: 40px;
+        }
+
+        header p {
+            font-size: 0.9rem;
+            color: #0b5345;
+            font-weight: 600;
+        }
+
+        .sim-card {
+            background-color: var(--card-bg);
+            border: 2.5px solid var(--border-color);
+            border-radius: 10px;
+            padding: 30px;
+            box-shadow: 0 4px 20px rgba(0,0,0,0.08);
+            margin-bottom: 25px;
+        }
+
+        .caso-box {
+            background: #eef7f6;
+            border: 2px solid #0b5345;
+            border-radius: 8px;
+            padding: 20px;
+            margin-bottom: 25px;
+        }
+
+        .caso-box h3 {
+            font-size: 1rem;
+            color: #0b5345;
+            margin-bottom: 10px;
+            text-transform: uppercase;
+            letter-spacing: 0.5px;
+        }
+
+        .caso-texto {
+            font-size: 0.98rem;
+            line-height: 1.5;
+            color: #2c3e50;
+        }
+
+        .seccion-pregunta {
+            margin-bottom: 25px;
+        }
+
+        .seccion-titulo {
+            font-size: 1.05rem;
+            font-weight: 700;
+            color: #1a252f;
+            margin-bottom: 12px;
+        }
+
+        .options-list {
+            display: flex;
+            flex-direction: column;
+            gap: 12px;
+        }
+
+        .option-btn {
+            background: #fff;
+            border: 2px solid var(--border-color);
+            border-radius: 6px;
+            padding: 12px 16px;
+            text-align: left;
+            font-size: 0.95rem;
+            font-weight: 600;
+            color: #2c3e50;
+            cursor: pointer;
+            transition: all 0.2s ease;
+        }
+
+        .option-btn:hover:not(:disabled) {
+            background-color: #a3e4d7;
+            border-color: #0b5345;
+        }
+
+        .option-btn.correct {
+            background-color: #d4efdf !important;
+            color: #145a32 !important;
+            border-color: #145a32 !important;
+        }
+
+        .option-btn.incorrect {
+            background-color: #f5b7b1 !important;
+            color: #641e16 !important;
+            border-color: #641e16 !important;
+        }
+
+        .option-btn:disabled {
+            cursor: default;
+        }
+
+        .feedback-box {
+            margin-top: 15px;
+            padding: 15px;
+            border-radius: 6px;
+            font-size: 0.9rem;
+            font-weight: 600;
+            display: none;
+            line-height: 1.4;
+        }
+
+        .feedback-box.show {
+            display: block;
+        }
+
+        .feedback-box.correct-fb {
+            background-color: #d4efdf;
+            color: #145a32;
+            border: 1.5px solid #145a32;
+        }
+
+        .feedback-box.incorrect-fb {
+            background-color: #f9d5d2;
+            color: #641e16;
+            border: 1.5px solid #641e16;
+        }
+
+        .btn-siguiente {
+            background-color: #0b5345;
+            color: #ffffff;
+            border: 2px solid var(--border-color);
+            border-radius: 6px;
+            padding: 12px 24px;
+            font-size: 0.95rem;
+            font-weight: 700;
+            cursor: pointer;
+            margin-top: 20px;
+            display: none;
+            width: 100%;
+            box-shadow: 0 4px 10px rgba(11, 83, 69, 0.3);
+        }
+
+        .btn-siguiente:hover {
+            filter: brightness(1.1);
+        }
+
+        .results-card {
+            background-color: var(--card-bg);
+            border: 2.5px solid var(--border-color);
+            border-radius: 10px;
+            padding: 40px;
+            text-align: center;
+            display: none;
+            box-shadow: 0 4px 20px rgba(0,0,0,0.08);
+        }
+
+        .results-card h3 {
+            font-size: 1.5rem;
+            color: #1a252f;
+            margin-bottom: 15px;
+        }
+
+        .results-card p {
+            font-size: 1.05rem;
+            color: #0b5345;
+            font-weight: 700;
+            margin-bottom: 20px;
+        }
+    </style>
+</head>
+<body>
+
+    <div class="container">
+        <header>
+            <button class="btn-volver" onclick="window.history.back()">← Volver</button>
+            <h2>Simulador Clínico: Ventana de Tolerancia</h2>
+            <p>Clínica de la Convergencia - Módulo de Simulación Interactiva</p>
+        </header>
+
+        <!-- Tarjeta del Simulador -->
+        <div id="simuladorCard" class="sim-card">
+            
+            <div class="caso-box">
+                <h3>Viñeta Clínica de Evaluación</h3>
+                <p id="casoTexto" class="caso-texto"></p>
+            </div>
+
+            <!-- Paso 1: Diagnóstico Autonómico -->
+            <div id="paso1Container" class="seccion-pregunta">
+                <div class="seccion-titulo" id="preguntaEstadoTitulo"></div>
+                <div class="options-list" id="opcionesEstado"></div>
+                <div id="feedbackEstado" class="feedback-box"></div>
+            </div>
+
+            <!-- Paso 2: Elección Táctica de Intervención -->
+            <div id="paso2Container" class="seccion-pregunta" style="display:none;">
+                <div class="seccion-titulo">Seleccione la intervención táctica convergente adecuada:</div>
+                <div class="options-list" id="opcionesIntervencion"></div>
+                <div id="feedbackIntervencion" class="feedback-box"></div>
+            </div>
+
+            <button id="btnSiguienteCaso" class="btn-siguiente" onclick="siguienteCaso()">Siguiente Caso Clínico ↗</button>
+        </div>
+
+        <!-- Tarjeta de Resultados Finales -->
+        <div id="resultsCard" class="results-card">
+            <h3>Simulación Finalizada con Éxito</h3>
+            <p id="scoreText"></p>
+            <div id="resultStatus" style="font-weight: 700; font-size: 0.95rem;"></div>
+        </div>
+    </div>
+
+    <!-- Script conectado a Firebase Firestore -->
+    <script type="module">
+        import { initializeApp } from "https://www.gstatic.com/firebasejs/10.8.0/firebase-app.js";
+        import { getFirestore, setDoc, doc } from "https://www.gstatic.com/firebasejs/10.8.0/firebase-firestore.js";
+
+        const firebaseConfig = {
+          apiKey: "AIzaSyDLSIGdkd2y1l7zhMjoVd_bmCj8jjXpX4I",
+          authDomain: "aula-virtual-mas-alla-del-pris.firebaseapp.com",
+          projectId: "aula-virtual-mas-alla-del-pris",
+          storageBucket: "aula-virtual-mas-alla-del-pris.firebasestorage.app",
+          messagingSenderId: "711745866832",
+          appId: "1:711745866832:web:945e046cb0b61ac320d555"
+        };
+
+        const app = initializeApp(firebaseConfig);
+        const db = getFirestore(app);
+
+        // Casos clínicos del simulador
+        const casos = [
+            {
+                id: 1,
+                viñeta: "Mariano, de 42 años, ingresa a la consulta hipervigilante, respirando de manera agitada, con taquicardia perceptible, rumiando catastróficamente sobre una posible ruina económica y refiriendo que siente que 'el pecho le estalla' tras recibir una notificación laboral.",
+                estadoCorrecto: 0, // Hiperactivación
+                preguntaEstado: "Identifique el estado autonómico en el que se encuentra el sistema nervioso de Mariano:",
+                opcionesEstado: [
+                    "Hiperactivación (Hiperarousal): Respuesta simpática extrema con descarga de adrenalina y secuestro amigdalino.",
+                    "Hipoarousal: Respuesta dorsal del nervio vago con congelamiento y disociación profunda.",
+                    "Ventana de Tolerancia: Franja de activación equilibrada apta para simbolización abstracta."
+                ],
+                feedbackEstado: "Correcto. Mariano exhibe una hiperactivación simpática masiva (lucha/huida) donde la amígdala secuestra los centros prefrontales.",
+                intervencionCorrecta: 1, // Contención somática + Ajuste
+                opcionesIntervencion: [
+                    "Iniciar de inmediato una asociación libre profunda interpretando el miedo infantil a la ruina paterna.",
+                    "Adoptar una presencia activa, validar el desborde somático y usar contención verbal para reducir la descarga autonómica.",
+                    "Prescribir altas dosis de benzodiacepinas de forma autónoma sin consultar al psiquiatra."
+                ],
+                feedbackIntervencion: "Correcto en la táctica convergente. Ante el colapso simpático, la intervención debe ser continente y somática; interpretar en este estado agudo es inútil."
+            },
+            {
+                id: 2,
+                viñeta: "Claudia acude a la sesión sumida en un mutismo casi absoluto, astenia profunda, aplanamiento afectivo total y mirada perdida en el vacío. Apenas responde con monosílabos y su cuerpo parece apagado, sin registro de dolor ni afecto.",
+                estadoCorrecto: 1, // Hipoarousal
+                preguntaEstado: "Identifique el estado autonómico en el que se encuentra el sistema nervioso de Claudia:",
+                opcionesEstado: [
+                    "Hiperactivación (Hiperarousal): Pánico, agitación y desborde impulsivo simpático.",
+                    "Hipoarousal (Hipoactivación): Respuesta dorsal del nervio vago caracterizada por colapso, disociación y aplanamiento.",
+                    "Ventana de Tolerancia: Procesamiento equilibrado de estímulos internos y externos."
+                ],
+                feedbackEstado: "Correcto. El cuadro corresponde claramente a una hipoactivación o hipoarousal (congelamiento defensivo y apagamiento vagal).",
+                intervencionCorrecta: 0, // Derivación para ajuste / movilización
+                opcionesIntervencion: [
+                    "Derivar para evaluación psiquiátrica y reajuste molecular que saque al sistema del congelamiento, coordinando un abordaje transdisciplinario.",
+                    "Exigirle verbalmente mayor participación activa y reprochar su falta de asociación.",
+                    "Interpretar que su mutismo es un acting out histérico dirigido contra el analista."
+                ],
+                feedbackIntervencion: "Correcto. El sistema en hipoarousal requiere una prótesis regulatoria y articulación fármaco-analítica para salir del estupor antes de operar con la palabra."
+            }
+        ];
+
+        let casoActual = 0;
+        let aciertosSimulador = 0;
+
+        function cargarCaso() {
+            if (casoActual >= casos.length) {
+                finalizarSimulador();
+                return;
+            }
+
+            const c = casos[casoActual];
+            document.getElementById("casoTexto").innerText = c.viñeta;
+            document.getElementById("preguntaEstadoTitulo").innerText = c.preguntaEstado;
+
+            // Renderizar opciones de Estado
+            const containerEstado = document.getElementById("opcionesEstado");
+            containerEstado.innerHTML = "";
+            c.opcionesEstado.forEach((op, idx) => {
+                containerEstado.innerHTML += `<button class="option-btn" onclick="verificarEstado(${idx})">${op}</button>`;
+            });
+
+            document.getElementById("paso1Container").style.display = "block";
+            document.getElementById("paso2Container").style.display = "none";
+            document.getElementById("feedbackEstado").className = "feedback-box";
+            document.getElementById("btnSiguienteCaso").style.display = "none";
+        }
+
+        window.verificarEstado = function(selectedIdx) {
+            const c = casos[casoActual];
+            const buttons = document.getElementById("opcionesEstado").getElementsByClassName("option-btn");
+            const fb = document.getElementById("feedbackEstado");
+
+            for (let i = 0; i < buttons.length; i++) {
+                buttons[i].disabled = true;
+                if (i === c.estadoCorrecto) buttons[i].classList.add("correct");
+                else if (i === selectedIdx) buttons[i].classList.add("incorrect");
+            }
+
+            if (selectedIdx === c.estadoCorrecto) {
+                aciertosSimulador += 0.5;
+                fb.className = "feedback-box show correct-fb";
+                fb.innerText = c.feedbackEstado;
+            } else {
+                fb.className = "feedback-box show incorrect-fb";
+                fb.innerText = "Incorrecto. " + c.feedbackEstado;
+            }
+
+            // Mostrar Paso 2: Intervención Táctica
+            setTimeout(() => {
+                mostrarPasoIntervencion();
+            }, 800);
+        }
+
+        function mostrarPasoIntervencion() {
+            const c = casos[casoActual];
+            const containerInt = document.getElementById("opcionesIntervencion");
+            containerInt.innerHTML = "";
+            c.opcionesIntervencion.forEach((op, idx) => {
+                containerInt.innerHTML += `<button class="option-btn" onclick="verificarIntervencion(${idx})">${op}</button>`;
+            });
+
+            document.getElementById("paso2Container").style.display = "block";
+            containerInt.scrollIntoView({ behavior: 'smooth' });
+        }
+
+        window.verificarIntervencion = function(selectedIdx) {
+            const c = casos[casoActual];
+            const buttons = document.getElementById("opcionesIntervencion").getElementsByClassName("option-btn");
+            const fb = document.getElementById("feedbackIntervencion");
+
+            for (let i = 0; i < buttons.length; i++) {
+                buttons[i].disabled = true;
+                if (i === c.intervencionCorrecta) buttons[i].classList.add("correct");
+                else if (i === selectedIdx) buttons[i].classList.add("incorrect");
+            }
+
+            if (selectedIdx === c.intervencionCorrecta) {
+                aciertosSimulador += 0.5;
+                fb.className = "feedback-box show correct-fb";
+                fb.innerText = c.feedbackIntervencion;
+            } else {
+                fb.className = "feedback-box show incorrect-fb";
+                fb.innerText = "Incorrecto técnicamente. " + c.feedbackIntervencion;
+            }
+
+            document.getElementById("btnSiguienteCaso").style.display = "block";
+        }
+
+        window.siguienteCaso = function() {
+            casoActual++;
+            cargarCaso();
+        }
+
+        async function finalizarSimulador() {
+            document.getElementById("simuladorCard").style.display = "none";
+            const resultsCard = document.getElementById("resultsCard");
+            const scoreText = document.getElementById("scoreText");
+            const resultStatus = document.getElementById("resultStatus");
+
+            resultsCard.style.display = "block";
+            scoreText.innerText = `Simulación completada. Calificación obtenida: ${aciertosSimulador} de ${casos.length} puntos totales.`;
+
+            const sessionData = sessionStorage.getItem("current_session");
+            let userId = "Estudiante_Anonimo";
+            if (sessionData) {
+                try {
+                    const userObj = JSON.parse(sessionData);
+                    userId = userObj.user || userObj.name || "Estudiante";
+                } catch (e) {
+                    console.error("Error al parsear sesión:", e);
+                }
+            }
+
+            const docId = `EJERCICIO_SIMULADOR_${userId.replace(/[\.\s]/g, "_")}`;
+
+            try {
+                await setDoc(doc(db, "calificaciones_ejercicios", docId), {
+                    usuario: userId,
+                    modulo: "Simulador Ventana de Tolerancia",
+                    calificacion: aciertosSimulador,
+                    fecha: new Date().toISOString()
+                });
+
+                resultStatus.style.color = "#145a32";
+                resultStatus.innerText = "¡Resultado del simulador guardado con éxito en la base de datos!";
+            } catch (error) {
+                console.error("Error al guardar en base de datos:", error);
+                resultStatus.style.color = "#641e16";
+                resultStatus.innerText = "Error al sincronizar el resultado con la base de datos.";
+            }
+        }
+
+        window.onload = function() {
+            cargarCaso();
+        };
+    </script>
+</body>
+</html>
