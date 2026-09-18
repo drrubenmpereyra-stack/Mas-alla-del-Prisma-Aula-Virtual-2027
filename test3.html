@@ -1,0 +1,524 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Test 3 - El Trauma Colectivo y el Colapso del Lazo Social</title>
+    <style>
+        :root {
+            --bg-color: #f4f5f7;
+            --neural-pattern: radial-gradient(circle, rgba(200,205,215,0.25) 1px, transparent 1px);
+            --card-bg: #ffffff;
+            --border-color: #000000;
+        }
+
+        * {
+            box-sizing: border-box;
+            margin: 0;
+            padding: 0;
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+        }
+
+        body {
+            background-color: var(--bg-color);
+            background-image: var(--neural-pattern);
+            background-size: 24px 24px;
+            color: #2c3e50;
+            padding: 20px;
+        }
+
+        .container {
+            max-width: 850px;
+            margin: 0 auto;
+        }
+
+        header {
+            text-align: center;
+            margin-bottom: 30px;
+            position: relative;
+        }
+
+        .btn-volver {
+            position: absolute;
+            top: 0;
+            left: 0;
+            background-color: #fadbd8;
+            color: #78281f;
+            border: 2px solid var(--border-color);
+            border-radius: 6px;
+            padding: 8px 14px;
+            font-size: 0.85rem;
+            font-weight: 700;
+            cursor: pointer;
+            box-shadow: 0 0 8px rgba(250, 219, 216, 0.8);
+            transition: all 0.2s ease;
+        }
+
+        .btn-volver:hover {
+            transform: translateY(-2px);
+            filter: brightness(0.95);
+        }
+
+        header h2 {
+            font-size: 1.5rem;
+            color: #1a252f;
+            border-bottom: 2px solid #bdc3c7;
+            padding-bottom: 10px;
+            margin-bottom: 8px;
+            margin-top: 40px;
+        }
+
+        header p {
+            font-size: 0.95rem;
+            color: #7d6608;
+            font-weight: 600;
+        }
+
+        .quiz-card {
+            background-color: var(--card-bg);
+            border: 2px solid var(--border-color);
+            border-radius: 10px;
+            padding: 30px;
+            box-shadow: 0 4px 20px rgba(0,0,0,0.08);
+            margin-bottom: 25px;
+            display: none;
+        }
+
+        .quiz-card.active {
+            display: block;
+        }
+
+        .question-number {
+            font-size: 0.85rem;
+            font-weight: 700;
+            color: #7d6608;
+            text-transform: uppercase;
+            letter-spacing: 1px;
+            margin-bottom: 8px;
+        }
+
+        .question-title {
+            font-size: 1.15rem;
+            font-weight: 700;
+            color: #2c3e50;
+            margin-bottom: 20px;
+            line-height: 1.4;
+        }
+
+        .options-list {
+            display: flex;
+            flex-direction: column;
+            gap: 12px;
+            margin-bottom: 20px;
+        }
+
+        .option-btn {
+            background: #fff;
+            border: 2px solid var(--border-color);
+            border-radius: 6px;
+            padding: 12px 16px;
+            text-align: left;
+            font-size: 0.95rem;
+            font-weight: 600;
+            color: #2c3e50;
+            cursor: pointer;
+            transition: all 0.2s ease;
+        }
+
+        .option-btn:hover:not(:disabled) {
+            background-color: #fcf3cf;
+            border-color: #7d6608;
+        }
+
+        .option-btn.correct {
+            background-color: #d4efdf !important;
+            color: #145a32 !important;
+            border-color: #145a32 !important;
+            box-shadow: 0 0 10px rgba(212, 239, 223, 0.9);
+        }
+
+        .option-btn.incorrect {
+            background-color: #f5b7b1 !important;
+            color: #641e16 !important;
+            border-color: #641e16 !important;
+            box-shadow: 0 0 10px rgba(245, 183, 177, 0.9);
+        }
+
+        .option-btn:disabled {
+            cursor: default;
+        }
+
+        .feedback-box {
+            margin-top: 15px;
+            padding: 14px;
+            border-radius: 6px;
+            font-size: 0.9rem;
+            font-weight: 600;
+            display: none;
+        }
+
+        .feedback-box.show {
+            display: block;
+        }
+
+        .feedback-box.correct-fb {
+            background-color: #d4efdf;
+            color: #145a32;
+            border: 1.5px solid #145a32;
+        }
+
+        .feedback-box.incorrect-fb {
+            background-color: #f9d5d2;
+            color: #641e16;
+            border: 1.5px solid #641e16;
+        }
+
+        .nav-actions {
+            display: flex;
+            justify-content: flex-end;
+            margin-top: 20px;
+        }
+
+        .btn-next {
+            background-color: #d4efdf;
+            color: #145a32;
+            border: 2px solid var(--border-color);
+            border-radius: 6px;
+            padding: 10px 24px;
+            font-size: 0.95rem;
+            font-weight: 700;
+            cursor: pointer;
+            box-shadow: 0 0 8px rgba(212, 239, 223, 0.8);
+            display: none;
+            transition: all 0.2s ease;
+        }
+
+        .btn-next:hover {
+            background-color: #a9dfbf;
+        }
+
+        .results-card {
+            background-color: var(--card-bg);
+            border: 2px solid var(--border-color);
+            border-radius: 10px;
+            padding: 40px;
+            text-align: center;
+            box-shadow: 0 4px 20px rgba(0,0,0,0.08);
+            display: none;
+        }
+
+        .results-card h3 {
+            font-size: 1.6rem;
+            color: #1a252f;
+            margin-bottom: 15px;
+        }
+
+        .results-card p {
+            font-size: 1.1rem;
+            color: #7d6608;
+            font-weight: 700;
+            margin-bottom: 25px;
+        }
+
+        .msg-status {
+            margin-top: 15px;
+            font-size: 0.95rem;
+            font-weight: 600;
+        }
+    </style>
+</head>
+<body>
+
+    <div class="container">
+        <header>
+            <button class="btn-volver" onclick="volverDashboard()">← Volver</button>
+            <h2>Test 3: El Trauma Colectivo y el Colapso del Lazo Social</h2>
+            <p>Programa de Formación para Profesionales de la Salud Mental (2027)</p>
+        </header>
+
+        <!-- Contenedor del Cuestionario -->
+        <div id="questionsContainer"></div>
+
+        <!-- Tarjeta de Resultados Finales -->
+        <div id="resultsCard" class="results-card">
+            <h3>Evaluación Finalizada</h3>
+            <p id="scoreText"></p>
+            <div id="resultStatus" class="msg-status"></div>
+        </div>
+    </div>
+
+    <!-- Script conectado a Firebase Firestore -->
+    <script type="module">
+        import { initializeApp } from "https://www.gstatic.com/firebasejs/10.8.0/firebase-app.js";
+        import { getFirestore, setDoc, doc } from "https://www.gstatic.com/firebasejs/10.8.0/firebase-firestore.js";
+
+        const firebaseConfig = {
+          apiKey: "AIzaSyDLSIGdkd2y1l7zhMjoVd_bmCj8jjXpX4I",
+          authDomain: "aula-virtual-mas-alla-del-pris.firebaseapp.com",
+          projectId: "aula-virtual-mas-alla-del-pris",
+          storageBucket: "aula-virtual-mas-alla-del-pris.firebasestorage.app",
+          messagingSenderId: "711745866832",
+          appId: "1:711745866832:web:945e046cb0b61ac320d555"
+        };
+
+        const app = initializeApp(firebaseConfig);
+        const db = getFirestore(app);
+
+        // Definición de las preguntas basadas estrictamente en el material adjunto del Capítulo 3
+        const preguntas = [
+            {
+                id: 1,
+                pregunta: "¿Qué premisa fundamental de la metapsicología clásica cuestiona la clínica contemporánea frente al sufrimiento psíquico[cite: 4]?",
+                opciones: [
+                    "La idea de que la sexualidad infantil es el único motor del desarrollo psíquico.",
+                    "El supuesto de que el consultorio analítico es un espacio aséptico donde los avatares y la crisis del mundo exterior quedan suspendidos[cite: 4].",
+                    "La creencia de que los fármacos poseen alguna utilidad en el tratamiento de las neurosis.",
+                    "La validez del concepto de inconsciente estructurado como un lenguaje.",
+                    "La distinción radical entre los procesos primarios y secundarios."
+                ],
+                correcta: 1,
+                feedback: "Correcto. La metapsicología clásica operaba bajo el supuesto de que el consultorio era un refugio blindado donde los avatares del mundo exterior quedaban suspendidos[cite: 4]."
+            },
+            {
+                id: 2,
+                pregunta: "Según el modelo de la Clínica de la Convergencia, ¿cómo impacta la intemperie social en el consultorio[cite: 4]?",
+                opciones: [
+                    "Como una variable sociológica secundaria que el analista debe desatender estrictamente.",
+                    "Transformada en insomnio crónico, desamparo subjetivo, hipervigilancia paralizante y somatizaciones severas[cite: 4].",
+                    "Como un recurso adaptativo positivo que estimula la sublimación artística.",
+                    "Como un factor que anula por completo la transferencia analítica.",
+                    "Como una ilusión defensiva creada por la resistencia del paciente."
+                ],
+                correcta: 1,
+                feedback: "Correcto. La intemperie social no es una variable secundaria; golpea la puerta del consultorio convertida en insomnio, desamparo, hipervigilancia y somatizaciones[cite: 4]."
+            },
+            {
+                id: 3,
+                pregunta: "¿Cómo define Freud el concepto de desamparo inicial (Hilflosigkeit)[cite: 4]?",
+                opciones: [
+                    "Como una patología exclusiva de las estructuras melancólicas graves.",
+                    "Como la condición prematura del cachorro humano, absolutamente dependiente del auxilio externo para su supervivencia y la constitución de su aparato psíquico[cite: 4].",
+                    "Como un mecanismo de defensa puramente cognitivo frente al peligro real.",
+                    "Como la pérdida definitiva de las funciones del juicio de realidad en la psicosis.",
+                    "Como el equivalente exacto al concepto de represión primaria."
+                ],
+                correcta: 1,
+                feedback: "Correcto. Freud introdujo el Hilflosigkeit para dar cuenta de la condición prematura y de dependencia del cachorro humano respecto al auxilio externo[cite: 4]."
+            },
+            {
+                id: 4,
+                pregunta: "En el contexto del colapso del lazo social, ¿qué ocurre cuando el Gran Otro —como orden simbólico y red institucional— se vuelve errático o ausente[cite: 4]?",
+                opciones: [
+                    "Se produce un despliegue creativo y autónomo de la libertad individual.",
+                    "Se experimenta el retorno del desamparo radical, empobreciendo al yo y transformando la angustia señal en pánico automático[cite: 4].",
+                    "Se activa de manera automática la Red de Modo por Defecto facilitando la sublimación.",
+                    "El sujeto consolida un lazo social alternativo basado en lazos fraternales.",
+                    "Desaparece por completo la necesidad del auxilio externo."
+                ],
+                correcta: 1,
+                feedback: "Correcto. Ante la ausencia del Gran Otro, el yo retrocede hacia formas arcaicas, la angustia se vuelve pánico automático y el prójimo pasa a ser percibido como amenaza[cite: 4]."
+            },
+            {
+                id: 5,
+                pregunta: "¿Qué es la alostasis en el marco de las neurociencias afectivas y la psiconeuroinmunología[cite: 4]?",
+                opciones: [
+                    "Un trastorno degenerativo crónico del sistema nervioso central.",
+                    "La capacidad del organismo humano de alcanzar la estabilidad a través del cambio fisiológico frente a las demandas del entorno[cite: 4].",
+                    "Un mecanismo de defensa metapsicológicoequivalente a la represión.",
+                    "La destrucción irreversible de los neurotransmisores monoaminérgicos.",
+                    "Un estado de desconexión total entre el soma y la psique."
+                ],
+                correcta: 1,
+                feedback: "Correcto. La alostasis es la capacidad del cuerpo para alcanzar la estabilidad a través de la modificación fisiológica ante las demandas ambientales[cite: 4]."
+            },
+            {
+                id: 6,
+                pregunta: "¿Qué consecuencia produce sobre el organismo la precarización perpetua y la exposición crónica a la violencia y la zozobra económica[cite: 4]?",
+                opciones: [
+                    "El fortalecimiento exponencial de la plasticidad sináptica en la corteza prefrontal.",
+                    "El agotamiento alostático (Allostatic Load) debido a la sobregrava sostenida del sistema nervioso y del eje HPA[cite: 4].",
+                    "La anulación total de la secreción de cortisol en cualquier circunstancia.",
+                    "La sincronización perfecta entre la amígdala y el pensamiento reflexivo.",
+                    "La cura espontánea de las afecciones psicosomáticas."
+                ],
+                correcta: 1,
+                feedback: "Correcto. Cuando el peligro se vuelve estructural, somete al sistema a una sobrecarga sostenida que conduce inexorablemente al agotamiento alostático[cite: 4]."
+            },
+            {
+                id: 7,
+                pregunta: "En relación a los perfiles neurobiológicos extremos generados por la fatiga del eje HPA en el trauma colectivo, el texto señala que se observa[cite: 4]:",
+                opciones: [
+                    "Únicamente una bajísima producción de adrenalina sin alteraciones en el cortisol.",
+                    "Hipercortisolemia crónica (hipervigilancia, insomnio y ansiedad paroxística) o hipocortisolemia por agotamiento (fatiga crónica, apatía y depresión refractaria)[cite: 4].",
+                    "Un equilibrio homeostático permanente regulado por el nervio vago ventral.",
+                    "La desaparición absoluta de la respuesta simpática de lucha o huida.",
+                    "Un aumento drástico de la capacidad de almacenamiento mnémico."
+                ],
+                correcta: 1,
+                feedback: "Correcto. La desregulación del eje HPA presenta dos perfiles extremos: hipercortisolemia crónica o hipocortisolemia por agotamiento[cite: 4]."
+            },
+            {
+                id: 8,
+                pregunta: "¿Qué efectos provoca el baño crónico de hormonas de estrés sobre las estructuras cerebrales según el documento[cite: 4]?",
+                opciones: [
+                    "Estimula de manera indefinida el desarrollo de nuevas neuronas en la amígdala.",
+                    "Deteriora la plasticidad sináptica en el hipocampo y reduce el control inhibitorio de la corteza prefrontal sobre la amígdala[cite: 4].",
+                    "Aumenta de forma radical la capacidad de análisis abstracto y reflexivo.",
+                    "Fortalece el escudo antiestímulo (Reisschutz) impidiendo cualquier desborde.",
+                    "Desactiva permanentemente las respuestas defensivas del organismo."
+                ],
+                correcta: 1,
+                feedback: "Correcto. Las hormonas de estrés dañan el hipocampo y disminuyen el control prefrontal sobre la amígdala, atrapando al sujeto en un estado permanente de alarma[cite: 4]."
+            },
+            {
+                id: 9,
+                pregunta: "Desde la perspectiva de la Clínica de la Convergencia, ¿cómo se evalúa el intento de interpretar analíticamente a un paciente con el Eje HPA colapsado por el entorno social[cite: 4]?",
+                opciones: [
+                    "Como el método más eficaz para restituir de inmediato el lazo social perdido.",
+                    "Como un ejercicio de soberbia teórica que abandona al paciente a su intemperie[cite: 4].",
+                    "Como una intervención clásica avalada por la ortodoxia metapsicológica.",
+                    "Como una maniobra precisa que disuelve el agotamiento alostático sin necesidad de fármacos.",
+                    "Como la única vía posible para sanar el desamparo institucional."
+                ],
+                correcta: 1,
+                feedback: "Correcto. Pretender interpretar sin registrar el colapso del Eje HPA y la desconexión prefrontal constituye una soberbia teórica que deja al paciente en la intemperie[cite: 4]."
+            },
+            {
+                id: 10,
+                pregunta: "¿Por qué el desamparo (Hilflosigkeit) no debe considerarse una etapa infantil ya superada[cite: 4]?",
+                opciones: [
+                    "Porque reaparece latente cada vez que las coordenadas simbólicas e institucionales que sostienen al sujeto se desploman[cite: 4].",
+                    "Porque biológicamente el sistema nervioso humano madura de forma incompleta hasta la vejez.",
+                    "Porque la represión originaria impide el olvido definitivo de la infancia.",
+                    "Porque las instituciones sociales modernas garantizan la erradicación total del sufrimiento.",
+                    "Porque el Complejo de Edipo se reactiva cíclicamente en la adultez."
+                ],
+                correcta: 1,
+                feedback: "Correcto. El desamparo es una condición estructural latente que se experimenta de forma actual cuando las coordenadas simbólicas e institucionales se desploman[cite: 4]."
+            }
+        ];
+
+        let currentQuestion = 0;
+        let score = 0;
+        const totalQuestions = preguntas.length;
+
+        function renderQuiz() {
+            const container = document.getElementById("questionsContainer");
+            container.innerHTML = "";
+
+            preguntas.forEach((p, index) => {
+                const card = document.createElement("div");
+                card.className = `quiz-card ${index === 0 ? 'active' : ''}`;
+                card.id = `question-card-${index}`;
+
+                let opcionesHtml = "";
+                p.opciones.forEach((opcion, optIndex) => {
+                    opcionesHtml += `<button class="option-btn" onclick="verificarRespuesta(${index}, ${optIndex})">${opcion}</button>`;
+                });
+
+                card.innerHTML = `
+                    <div class="question-number">Pregunta ${index + 1} de ${totalQuestions}</div>
+                    <div class="question-title">${p.pregunta}</div>
+                    <div class="options-list" id="options-${index}">
+                        ${opcionesHtml}
+                    </div>
+                    <div class="feedback-box" id="feedback-${index}">${p.feedback}</div>
+                    <div class="nav-actions">
+                        <button class="btn-next" id="btn-next-${index}" onclick="siguientePregunta(${index})">
+                            ${index === totalQuestions - 1 ? 'Finalizar Protocolo' : 'Siguiente Pregunta'}
+                        </button>
+                    </div>
+                `;
+                container.appendChild(card);
+            });
+        }
+
+        window.verificarRespuesta = function(qIndex, selectedOpt) {
+            const p = preguntas[qIndex];
+            const optionsContainer = document.getElementById(`options-${qIndex}`);
+            const buttons = optionsContainer.getElementsByClassName("option-btn");
+            const feedbackBox = document.getElementById(`feedback-${qIndex}`);
+            const nextBtn = document.getElementById(`btn-next-${qIndex}`);
+
+            for (let i = 0; i < buttons.length; i++) {
+                buttons[i].disabled = true;
+                if (i === p.correcta) {
+                    buttons[i].classList.add("correct");
+                } else if (i === selectedOpt) {
+                    buttons[i].classList.add("incorrect");
+                }
+            }
+
+            if (selectedOpt === p.correcta) {
+                score += 1;
+                feedbackBox.className = "feedback-box show correct-fb";
+            } else {
+                feedbackBox.className = "feedback-box show incorrect-fb";
+            }
+
+            nextBtn.style.display = "block";
+        }
+
+        window.siguientePregunta = function(qIndex) {
+            document.getElementById(`question-card-${qIndex}`).classList.remove("active");
+
+            if (qIndex + 1 < totalQuestions) {
+                document.getElementById(`question-card-${qIndex + 1}`).classList.add("active");
+            } else {
+                guardarYMostrarResultados();
+            }
+        }
+
+        async function guardarYMostrarResultados() {
+            document.getElementById("questionsContainer").style.display = "none";
+            const resultsCard = document.getElementById("resultsCard");
+            const scoreText = document.getElementById("scoreText");
+            const resultStatus = document.getElementById("resultStatus");
+
+            resultsCard.style.display = "block";
+            scoreText.innerText = `Protocolo finalizado, Ud. ha obtenido ${score} puntos/10, se enviará a corrección definitiva`;
+
+            const sessionData = sessionStorage.getItem("current_session");
+            let userId = "Estudiante_Anonimo";
+            
+            if (sessionData) {
+                try {
+                    const userObj = JSON.parse(sessionData);
+                    userId = userObj.user || userObj.name || "Estudiante";
+                } catch (e) {
+                    console.error("Error al parsear sesión:", e);
+                }
+            }
+
+            const docId = `NOTA_TEST_3_${userId.replace(/[\.\s]/g, "_")}`;
+
+            try {
+                await setDoc(doc(db, "calificaciones_tests", docId), {
+                    usuario: userId,
+                    notaTest_3: score,
+                    fecha: new Date().toISOString()
+                });
+
+                resultStatus.style.color = "#145a32";
+                resultStatus.innerText = "¡Resultado guardado con éxito en la base de datos!";
+            } catch (error) {
+                console.error("Error al guardar en base de datos:", error);
+                resultStatus.style.color = "#641e16";
+                resultStatus.innerText = "Error al sincronizar el resultado con la base de datos.";
+            }
+        }
+
+        window.volverDashboard = function() {
+            if (window.parent && window.parent !== window) {
+                window.parent.location.reload();
+            } else {
+                window.location.href = "index.html";
+            }
+        }
+
+        window.onload = function() {
+            renderQuiz();
+        };
+    </script>
+</body>
+</html>
