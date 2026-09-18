@@ -1,0 +1,524 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Test 4 - Más allá de la elección de objeto y la neurobiología del lazo</title>
+    <style>
+        :root {
+            --bg-color: #f4f5f7;
+            --neural-pattern: radial-gradient(circle, rgba(200,205,215,0.25) 1px, transparent 1px);
+            --card-bg: #ffffff;
+            --border-color: #000000;
+        }
+
+        * {
+            box-sizing: border-box;
+            margin: 0;
+            padding: 0;
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+        }
+
+        body {
+            background-color: var(--bg-color);
+            background-image: var(--neural-pattern);
+            background-size: 24px 24px;
+            color: #2c3e50;
+            padding: 20px;
+        }
+
+        .container {
+            max-width: 850px;
+            margin: 0 auto;
+        }
+
+        header {
+            text-align: center;
+            margin-bottom: 30px;
+            position: relative;
+        }
+
+        .btn-volver {
+            position: absolute;
+            top: 0;
+            left: 0;
+            background-color: #fadbd8;
+            color: #78281f;
+            border: 2px solid var(--border-color);
+            border-radius: 6px;
+            padding: 8px 14px;
+            font-size: 0.85rem;
+            font-weight: 700;
+            cursor: pointer;
+            box-shadow: 0 0 8px rgba(250, 219, 216, 0.8);
+            transition: all 0.2s ease;
+        }
+
+        .btn-volver:hover {
+            transform: translateY(-2px);
+            filter: brightness(0.95);
+        }
+
+        header h2 {
+            font-size: 1.5rem;
+            color: #1a252f;
+            border-bottom: 2px solid #bdc3c7;
+            padding-bottom: 10px;
+            margin-bottom: 8px;
+            margin-top: 40px;
+        }
+
+        header p {
+            font-size: 0.95rem;
+            color: #7d6608;
+            font-weight: 600;
+        }
+
+        .quiz-card {
+            background-color: var(--card-bg);
+            border: 2px solid var(--border-color);
+            border-radius: 10px;
+            padding: 30px;
+            box-shadow: 0 4px 20px rgba(0,0,0,0.08);
+            margin-bottom: 25px;
+            display: none;
+        }
+
+        .quiz-card.active {
+            display: block;
+        }
+
+        .question-number {
+            font-size: 0.85rem;
+            font-weight: 700;
+            color: #7d6608;
+            text-transform: uppercase;
+            letter-spacing: 1px;
+            margin-bottom: 8px;
+        }
+
+        .question-title {
+            font-size: 1.15rem;
+            font-weight: 700;
+            color: #2c3e50;
+            margin-bottom: 20px;
+            line-height: 1.4;
+        }
+
+        .options-list {
+            display: flex;
+            flex-direction: column;
+            gap: 12px;
+            margin-bottom: 20px;
+        }
+
+        .option-btn {
+            background: #fff;
+            border: 2px solid var(--border-color);
+            border-radius: 6px;
+            padding: 12px 16px;
+            text-align: left;
+            font-size: 0.95rem;
+            font-weight: 600;
+            color: #2c3e50;
+            cursor: pointer;
+            transition: all 0.2s ease;
+        }
+
+        .option-btn:hover:not(:disabled) {
+            background-color: #fcf3cf;
+            border-color: #7d6608;
+        }
+
+        .option-btn.correct {
+            background-color: #d4efdf !important;
+            color: #145a32 !important;
+            border-color: #145a32 !important;
+            box-shadow: 0 0 10px rgba(212, 239, 223, 0.9);
+        }
+
+        .option-btn.incorrect {
+            background-color: #f5b7b1 !important;
+            color: #641e16 !important;
+            border-color: #641e16 !important;
+            box-shadow: 0 0 10px rgba(245, 183, 177, 0.9);
+        }
+
+        .option-btn:disabled {
+            cursor: default;
+        }
+
+        .feedback-box {
+            margin-top: 15px;
+            padding: 14px;
+            border-radius: 6px;
+            font-size: 0.9rem;
+            font-weight: 600;
+            display: none;
+        }
+
+        .feedback-box.show {
+            display: block;
+        }
+
+        .feedback-box.correct-fb {
+            background-color: #d4efdf;
+            color: #145a32;
+            border: 1.5px solid #145a32;
+        }
+
+        .feedback-box.incorrect-fb {
+            background-color: #f9d5d2;
+            color: #641e16;
+            border: 1.5px solid #641e16;
+        }
+
+        .nav-actions {
+            display: flex;
+            justify-content: flex-end;
+            margin-top: 20px;
+        }
+
+        .btn-next {
+            background-color: #d4efdf;
+            color: #145a32;
+            border: 2px solid var(--border-color);
+            border-radius: 6px;
+            padding: 10px 24px;
+            font-size: 0.95rem;
+            font-weight: 700;
+            cursor: pointer;
+            box-shadow: 0 0 8px rgba(212, 239, 223, 0.8);
+            display: none;
+            transition: all 0.2s ease;
+        }
+
+        .btn-next:hover {
+            background-color: #a9dfbf;
+        }
+
+        .results-card {
+            background-color: var(--card-bg);
+            border: 2px solid var(--border-color);
+            border-radius: 10px;
+            padding: 40px;
+            text-align: center;
+            box-shadow: 0 4px 20px rgba(0,0,0,0.08);
+            display: none;
+        }
+
+        .results-card h3 {
+            font-size: 1.6rem;
+            color: #1a252f;
+            margin-bottom: 15px;
+        }
+
+        .results-card p {
+            font-size: 1.1rem;
+            color: #7d6608;
+            font-weight: 700;
+            margin-bottom: 25px;
+        }
+
+        .msg-status {
+            margin-top: 15px;
+            font-size: 0.95rem;
+            font-weight: 600;
+        }
+    </style>
+</head>
+<body>
+
+    <div class="container">
+        <header>
+            <button class="btn-volver" onclick="volverDashboard()">← Volver</button>
+            <h2>Test 4: Más allá de la elección de objeto y la neurobiología del lazo</h2>
+            <p>Programa de Formación para Profesionales de la Salud Mental (2027)</p>
+        </header>
+
+        <!-- Contenedor del Cuestionario -->
+        <div id="questionsContainer"></div>
+
+        <!-- Tarjeta de Resultados Finales -->
+        <div id="resultsCard" class="results-card">
+            <h3>Evaluación Finalizada</h3>
+            <p id="scoreText"></p>
+            <div id="resultStatus" class="msg-status"></div>
+        </div>
+    </div>
+
+    <!-- Script conectado a Firebase Firestore -->
+    <script type="module">
+        import { initializeApp } from "https://www.gstatic.com/firebasejs/10.8.0/firebase-app.js";
+        import { getFirestore, setDoc, doc } from "https://www.gstatic.com/firebasejs/10.8.0/firebase-firestore.js";
+
+        const firebaseConfig = {
+          apiKey: "AIzaSyDLSIGdkd2y1l7zhMjoVd_bmCj8jjXpX4I",
+          authDomain: "aula-virtual-mas-alla-del-pris.firebaseapp.com",
+          projectId: "aula-virtual-mas-alla-del-pris",
+          storageBucket: "aula-virtual-mas-alla-del-pris.firebasestorage.app",
+          messagingSenderId: "711745866832",
+          appId: "1:711745866832:web:945e046cb0b61ac320d555"
+        };
+
+        const app = initializeApp(firebaseConfig);
+        const db = getFirestore(app);
+
+        // Definición de las preguntas basadas estrictamente en el material adjunto del Capítulo 4
+        const preguntas = [
+            {
+                id: 1,
+                pregunta: "¿Cómo abordaba tradicionalmente la metapsicología freudiana clásica la vida amorosa y la elección de pareja[cite: 4]?",
+                opciones: [
+                    "A partir de la teoría de los Modelos Operativos Internos de John Bowlby.",
+                    "Mediante el concepto de elección de objeto, anclada en el complejo de Edipo, las improntas parentales y la repetición de moldes infantiles[cite: 4].",
+                    "Exclusivamente a través de la neurobiología de los neuropéptidos como la oxitocina y la vasopresina.",
+                    "Considerando el lazo amoroso como un sistema dinámico de calibración entre dos sistemas nerviosos independientes.",
+                    "Descartando por completo la influencia de la historia infantil en la vida adulta."
+                ],
+                correcta: 1,
+                feedback: "Correcto. La metapsicología clásica abordó la elección de pareja primordialmente a partir del concepto de elección de objeto anclado en el complejo de Edipo y las improntas parentales[cite: 4]."
+            },
+            {
+                id: 2,
+                pregunta: "¿Qué propone el modelo de la Clínica de la Convergencia respecto a la arquitectura del vínculo amoroso[cite: 4]?",
+                opciones: [
+                    "Reducir el conflicto conyugal a una simple superposición de fantasías edípicas infantiles.",
+                    "Ignorar la metapsicología freudiana para centrarse únicamente en la psiconeuroinmunología.",
+                    "Expandir la mirada analítica tendiendo un puente riguroso entre la teoría de las relaciones objetales, la teoría del apego adulto y la neurobiología de los neuropéptidos[cite: 4].",
+                    "Sostener que la pareja es un montaje fantasmático estático e invariable.",
+                    "Eliminar la noción de inconsciente en el análisis de las relaciones interpersonales."
+                ],
+                correcta: 2,
+                feedback: "Correcto. La Clínica de la Convergencia propone expandir la mirada analítica integrando las relaciones objetales, la teoría del apego y la neurobiología de neuropéptidos como la oxitocina y la vasopresina[cite: 4]."
+            },
+            {
+                id: 3,
+                pregunta: "Según el texto, ¿cómo opera la compulsión a repetir (Wiederholungszwang) formulada por Freud en el territorio específico de la pareja[cite: 4]?",
+                opciones: [
+                    "Como un simple calco estático del pasado sin ninguna finalidad adaptativa.",
+                    "Como un intento desesperado —y habitualmente fallido— de dominar retroactivamente lo traumático[cite: 4].",
+                    "Como un mecanismo cognitivo para planificar racionalmente el futuro conyugal.",
+                    "Como la prueba inequívoca de la inexistencia de conflictos vinculares.",
+                    "Como un proceso que anula por completo la influencia de los guiones tempranos."
+                ],
+                correcta: 1,
+                feedback: "Correcto. En la pareja, la repetición no opera como un simple calco estático, sino como un intento desesperado y habitualmente fallido de dominar retroactivamente lo traumático[cite: 4]."
+            },
+            {
+                id: 4,
+                pregunta: "¿Qué son los Modelos Operativos Internos (Internal Working Models) aportados por John Bowlby[cite: 4]?",
+                opciones: [
+                    "Recuerdos puramente conscientes y descriptivos de la infancia.",
+                    "Matrices inconscientes y somáticas que operan como filtros perceptivos y actitudinales estructurados al calor de los primeros vínculos[cite: 4].",
+                    "Estrategias farmacológicas para regular el eje HPA en adultos.",
+                    "Sinónimos exactos de la represión primaria en la metapsicología freudiana.",
+                    "Mecanismos reflejos que no influyen en la vida amorosa adulta."
+                ],
+                correcta: 1,
+                feedback: "Correcto. Los Modelos Operativos Internos son matrices inconscientes y somáticas que actúan como filtros perceptivos y actitudinales formados en los vínculos tempranos[cite: 4]."
+            },
+            {
+                id: 5,
+                pregunta: "¿Qué características definen al sujeto con apego ansioso-ambivalente en la vida de pareja adulta[cite: 4]?",
+                opciones: [
+                    "Un repliegue autárquico y una tendencia sistemática a evitar la intimidad profunda.",
+                    "Una hipervigilancia crónica ante el peligro de la pérdida, terror pánico al abandono y necesidad reaseguradora constante[cite: 4].",
+                    "Una tolerancia absoluta a la ambivalencia y el reconocimiento del otro como un sujeto separado.",
+                    "La ausencia total de reactividad ante los gestos de distancia del partenaire.",
+                    "Un desinterés metódico por cualquier forma de compromiso vincular."
+                ],
+                correcta: 1,
+                feedback: "Correcto. El apego ansioso-ambivalente se traduce en terror pánico al abandono, necesidad de reaseguro constante e hipervigilancia ante la pérdida[cite: 4]."
+            },
+            {
+                id: 6,
+                pregunta: "En la dinámica vincular, ¿cómo reacciona típicamente el sujeto con apego evitativo ante la intimidad profunda o el conflicto emocional[cite: 4]?",
+                opciones: [
+                    "Busca la fusión inmediata para aplacar el fantasma del desamparo original.",
+                    "Desactiva la demanda afectiva, se aísla, intelectualiza y huye, leyendo la cercanía como una invasión asfixiante[cite: 4].",
+                    "Exige atención constante mediante reclamos explosivos y persecutorios.",
+                    "Despliega una dependencia simbiótica inquebrantable.",
+                    "Inicia automáticamente crisis de celotipia extrema y control obsesivo."
+                ],
+                correcta: 1,
+                feedback: "Correcto. El evitativo despliega un repliegue autárquico: ante la intimidad o el conflicto desactiva la afectividad, se aísla y huye de la cercanía[cite: 4]."
+            },
+            {
+                id: 7,
+                pregunta: "¿Cuál es la paradoja clínica de la oxitocina demostrada por la investigación neurobiológica contemporánea[cite: 4]?",
+                opciones: [
+                    "Que actúa siempre como una 'droga del amor' universal que elimina de inmediato todo tipo de miedo.",
+                    "Que no elimina el miedo, sino que amplifica la saliencia del entorno social; en personas con trauma o apego ansioso, potencia la hipersensibilidad al rechazo y los celos[cite: 4].",
+                    "Que su presencia en el sistema nervioso impide por completo el establecimiento de vínculos duraderos.",
+                    "Que inhibe selectivamente los circuitos de recompensa dopaminérgicos en mamíferos monógamos.",
+                    "Que carece de cualquier efecto modulador sobre la actividad de la amígdala."
+                ],
+                correcta: 1,
+                feedback: "Correcto. La oxitocina no elimina el miedo; amplifica la saliencia social y, en perfiles con trauma o apego ansioso, potencia la hipersensibilidad al rechazo y la suspicacia[cite: 4]."
+            },
+            {
+                id: 8,
+                pregunta: "En la patología vincular, ¿en qué procesos participa activamente la vasopresina cuando sus niveles se encuentran desregulados o hiperactivos[cite: 4]?",
+                opciones: [
+                    "En la desactivación total de los sistemas de defensa territorial.",
+                    "En los circuitos de celotipia extrema, control obsesivo, vigilancia paranoica y reacciones de ira ante la sospecha de pérdida de exclusividad[cite: 4].",
+                    "En la supresión completa de la respuesta de lucha o huida en mamíferos.",
+                    "En la inducción de un estado crónico de aplanamiento afectivo e indiferencia.",
+                    "En la resolución espontánea de los guiones vinculares evitativos."
+                ],
+                correcta: 1,
+                feedback: "Correcto. La vasopresina hiperactiva participa en los circuitos de celotipia extrema, control obsesivo, vigilancia paranoica y agresión defensiva[cite: 4]."
+            },
+            {
+                id: 9,
+                pregunta: "¿Qué ocurre fisiológicamente en el cerebro de los cónyuges durante un 'secuestro amigdalino' agudo en medio de una crisis conyugal[cite: 4]?",
+                opciones: [
+                    "Se activa al máximo la corteza prefrontal dorso-lateral facilitando la empatía y el razonamiento abstracto.",
+                    "El eje HPA se dispara, inundando el cuerpo de adrenalina y cortisol mientras se inhibe drásticamente la corteza prefrontal[cite: 4].",
+                    "Se incrementa de manera sostenida la capacidad de escucha analítica y modulación verbal.",
+                    "El organismo desactiva por completo el sistema nervioso simpático.",
+                    "Se produce una sincronía perfecta de los ritmos biológicos entre los partenaires."
+                ],
+                correcta: 1,
+                feedback: "Correcto. Ante la amenaza de ruptura, se dispara el eje HPA con adrenalina y cortisol, inhibiendo drásticamente la corteza prefrontal y bloqueando el pensamiento reflexivo[cite: 4]."
+            },
+            {
+                id: 10,
+                pregunta: "Desde el enfoque de la Clínica de la Convergencia, ¿por qué resulta una ilusión estéril pretender que un paciente 'escuche razones' o analice su neurosis en pleno secuestro autonómico[cite: 4]?",
+                opciones: [
+                    "Porque la biología del miedo ha secuestrado a la palabra y el sujeto opera bajo una respuesta de supervivencia pura[cite: 4].",
+                    "Porque el psicoanálisis ortodoxo prohíbe intervenir durante las crisis de pareja.",
+                    "Porque los pacientes con apego ansioso carecen por completo de neocorteza.",
+                    "Porque la oxitocina bloquea permanentemente la memoria episódica.",
+                    "Porque el conflicto conyugal siempre se resuelve sin intervención profesional."
+                ],
+                correcta: 1,
+                feedback: "Correcto. En ese estado fisiológico los cónyuges son mamíferos aterrorizados en supervivencia; la biología del miedo ha secuestrado a la palabra y se requiere regulación somática previa[cite: 4]."
+            }
+        ];
+
+        let currentQuestion = 0;
+        let score = 0;
+        const totalQuestions = preguntas.length;
+
+        function renderQuiz() {
+            const container = document.getElementById("questionsContainer");
+            container.innerHTML = "";
+
+            preguntas.forEach((p, index) => {
+                const card = document.createElement("div");
+                card.className = `quiz-card ${index === 0 ? 'active' : ''}`;
+                card.id = `question-card-${index}`;
+
+                let opcionesHtml = "";
+                p.opciones.forEach((opcion, optIndex) => {
+                    opcionesHtml += `<button class="option-btn" onclick="verificarRespuesta(${index}, ${optIndex})">${opcion}</button>`;
+                });
+
+                card.innerHTML = `
+                    <div class="question-number">Pregunta ${index + 1} de ${totalQuestions}</div>
+                    <div class="question-title">${p.pregunta}</div>
+                    <div class="options-list" id="options-${index}">
+                        ${opcionesHtml}
+                    </div>
+                    <div class="feedback-box" id="feedback-${index}">${p.feedback}</div>
+                    <div class="nav-actions">
+                        <button class="btn-next" id="btn-next-${index}" onclick="siguientePregunta(${index})">
+                            ${index === totalQuestions - 1 ? 'Finalizar Protocolo' : 'Siguiente Pregunta'}
+                        </button>
+                    </div>
+                `;
+                container.appendChild(card);
+            });
+        }
+
+        window.verificarRespuesta = function(qIndex, selectedOpt) {
+            const p = preguntas[qIndex];
+            const optionsContainer = document.getElementById(`options-${qIndex}`);
+            const buttons = optionsContainer.getElementsByClassName("option-btn");
+            const feedbackBox = document.getElementById(`feedback-${qIndex}`);
+            const nextBtn = document.getElementById(`btn-next-${qIndex}`);
+
+            for (let i = 0; i < buttons.length; i++) {
+                buttons[i].disabled = true;
+                if (i === p.correcta) {
+                    buttons[i].classList.add("correct");
+                } else if (i === selectedOpt) {
+                    buttons[i].classList.add("incorrect");
+                }
+            }
+
+            if (selectedOpt === p.correcta) {
+                score += 1;
+                feedbackBox.className = "feedback-box show correct-fb";
+            } else {
+                feedbackBox.className = "feedback-box show incorrect-fb";
+            }
+
+            nextBtn.style.display = "block";
+        }
+
+        window.siguientePregunta = function(qIndex) {
+            document.getElementById(`question-card-${qIndex}`).classList.remove("active");
+
+            if (qIndex + 1 < totalQuestions) {
+                document.getElementById(`question-card-${qIndex + 1}`).classList.add("active");
+            } else {
+                guardarYMostrarResultados();
+            }
+        }
+
+        async function guardarYMostrarResultados() {
+            document.getElementById("questionsContainer").style.display = "none";
+            const resultsCard = document.getElementById("resultsCard");
+            const scoreText = document.getElementById("scoreText");
+            const resultStatus = document.getElementById("resultStatus");
+
+            resultsCard.style.display = "block";
+            scoreText.innerText = `Protocolo finalizado, Ud. ha obtenido ${score} puntos/10, se enviará a corrección definitiva`;
+
+            const sessionData = sessionStorage.getItem("current_session");
+            let userId = "Estudiante_Anonimo";
+            
+            if (sessionData) {
+                try {
+                    const userObj = JSON.parse(sessionData);
+                    userId = userObj.user || userObj.name || "Estudiante";
+                } catch (e) {
+                    console.error("Error al parsear sesión:", e);
+                }
+            }
+
+            const docId = `NOTA_TEST_4_${userId.replace(/[\.\s]/g, "_")}`;
+
+            try {
+                await setDoc(doc(db, "calificaciones_tests", docId), {
+                    usuario: userId,
+                    notaTest_4: score,
+                    fecha: new Date().toISOString()
+                });
+
+                resultStatus.style.color = "#145a32";
+                resultStatus.innerText = "¡Resultado guardado con éxito en la base de datos!";
+            } catch (error) {
+                console.error("Error al guardar en base de datos:", error);
+                resultStatus.style.color = "#641e16";
+                resultStatus.innerText = "Error al sincronizar el resultado con la base de datos.";
+            }
+        }
+
+        window.volverDashboard = function() {
+            if (window.parent && window.parent !== window) {
+                window.parent.location.reload();
+            } else {
+                window.location.href = "index.html";
+            }
+        }
+
+        window.onload = function() {
+            renderQuiz();
+        };
+    </script>
+</body>
+</html>
