@@ -1,0 +1,524 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Test 2 - Psicofarmacología y Psicoterapia Focalizada</title>
+    <style>
+        :root {
+            --bg-color: #f4f5f7;
+            --neural-pattern: radial-gradient(circle, rgba(200,205,215,0.25) 1px, transparent 1px);
+            --card-bg: #ffffff;
+            --border-color: #000000;
+        }
+
+        * {
+            box-sizing: border-box;
+            margin: 0;
+            padding: 0;
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+        }
+
+        body {
+            background-color: var(--bg-color);
+            background-image: var(--neural-pattern);
+            background-size: 24px 24px;
+            color: #2c3e50;
+            padding: 20px;
+        }
+
+        .container {
+            max-width: 850px;
+            margin: 0 auto;
+        }
+
+        header {
+            text-align: center;
+            margin-bottom: 30px;
+            position: relative;
+        }
+
+        .btn-volver {
+            position: absolute;
+            top: 0;
+            left: 0;
+            background-color: #fadbd8;
+            color: #78281f;
+            border: 2px solid var(--border-color);
+            border-radius: 6px;
+            padding: 8px 14px;
+            font-size: 0.85rem;
+            font-weight: 700;
+            cursor: pointer;
+            box-shadow: 0 0 8px rgba(250, 219, 216, 0.8);
+            transition: all 0.2s ease;
+        }
+
+        .btn-volver:hover {
+            transform: translateY(-2px);
+            filter: brightness(0.95);
+        }
+
+        header h2 {
+            font-size: 1.5rem;
+            color: #1a252f;
+            border-bottom: 2px solid #bdc3c7;
+            padding-bottom: 10px;
+            margin-bottom: 8px;
+            margin-top: 40px;
+        }
+
+        header p {
+            font-size: 0.95rem;
+            color: #7d6608;
+            font-weight: 600;
+        }
+
+        .quiz-card {
+            background-color: var(--card-bg);
+            border: 2px solid var(--border-color);
+            border-radius: 10px;
+            padding: 30px;
+            box-shadow: 0 4px 20px rgba(0,0,0,0.08);
+            margin-bottom: 25px;
+            display: none;
+        }
+
+        .quiz-card.active {
+            display: block;
+        }
+
+        .question-number {
+            font-size: 0.85rem;
+            font-weight: 700;
+            color: #7d6608;
+            text-transform: uppercase;
+            letter-spacing: 1px;
+            margin-bottom: 8px;
+        }
+
+        .question-title {
+            font-size: 1.15rem;
+            font-weight: 700;
+            color: #2c3e50;
+            margin-bottom: 20px;
+            line-height: 1.4;
+        }
+
+        .options-list {
+            display: flex;
+            flex-direction: column;
+            gap: 12px;
+            margin-bottom: 20px;
+        }
+
+        .option-btn {
+            background: #fff;
+            border: 2px solid var(--border-color);
+            border-radius: 6px;
+            padding: 12px 16px;
+            text-align: left;
+            font-size: 0.95rem;
+            font-weight: 600;
+            color: #2c3e50;
+            cursor: pointer;
+            transition: all 0.2s ease;
+        }
+
+        .option-btn:hover:not(:disabled) {
+            background-color: #fcf3cf;
+            border-color: #7d6608;
+        }
+
+        .option-btn.correct {
+            background-color: #d4efdf !important;
+            color: #145a32 !important;
+            border-color: #145a32 !important;
+            box-shadow: 0 0 10px rgba(212, 239, 223, 0.9);
+        }
+
+        .option-btn.incorrect {
+            background-color: #f5b7b1 !important;
+            color: #641e16 !important;
+            border-color: #641e16 !important;
+            box-shadow: 0 0 10px rgba(245, 183, 177, 0.9);
+        }
+
+        .option-btn:disabled {
+            cursor: default;
+        }
+
+        .feedback-box {
+            margin-top: 15px;
+            padding: 14px;
+            border-radius: 6px;
+            font-size: 0.9rem;
+            font-weight: 600;
+            display: none;
+        }
+
+        .feedback-box.show {
+            display: block;
+        }
+
+        .feedback-box.correct-fb {
+            background-color: #d4efdf;
+            color: #145a32;
+            border: 1.5px solid #145a32;
+        }
+
+        .feedback-box.incorrect-fb {
+            background-color: #f9d5d2;
+            color: #641e16;
+            border: 1.5px solid #641e16;
+        }
+
+        .nav-actions {
+            display: flex;
+            justify-content: flex-end;
+            margin-top: 20px;
+        }
+
+        .btn-next {
+            background-color: #d4efdf;
+            color: #145a32;
+            border: 2px solid var(--border-color);
+            border-radius: 6px;
+            padding: 10px 24px;
+            font-size: 0.95rem;
+            font-weight: 700;
+            cursor: pointer;
+            box-shadow: 0 0 8px rgba(212, 239, 223, 0.8);
+            display: none;
+            transition: all 0.2s ease;
+        }
+
+        .btn-next:hover {
+            background-color: #a9dfbf;
+        }
+
+        .results-card {
+            background-color: var(--card-bg);
+            border: 2px solid var(--border-color);
+            border-radius: 10px;
+            padding: 40px;
+            text-align: center;
+            box-shadow: 0 4px 20px rgba(0,0,0,0.08);
+            display: none;
+        }
+
+        .results-card h3 {
+            font-size: 1.6rem;
+            color: #1a252f;
+            margin-bottom: 15px;
+        }
+
+        .results-card p {
+            font-size: 1.1rem;
+            color: #7d6608;
+            font-weight: 700;
+            margin-bottom: 25px;
+        }
+
+        .msg-status {
+            margin-top: 15px;
+            font-size: 0.95rem;
+            font-weight: 600;
+        }
+    </style>
+</head>
+<body>
+
+    <div class="container">
+        <header>
+            <button class="btn-volver" onclick="volverDashboard()">← Volver</button>
+            <h2>Test 2: Psicofarmacología y Psicoterapia Focalizada</h2>
+            <p>Programa de Formación para Profesionales de la Salud Mental (2027)</p>
+        </header>
+
+        <!-- Contenedor del Cuestionario -->
+        <div id="questionsContainer"></div>
+
+        <!-- Tarjeta de Resultados Finales -->
+        <div id="resultsCard" class="results-card">
+            <h3>Evaluación Finalizada</h3>
+            <p id="scoreText"></p>
+            <div id="resultStatus" class="msg-status"></div>
+        </div>
+    </div>
+
+    <!-- Script conectado a Firebase Firestore -->
+    <script type="module">
+        import { initializeApp } from "https://www.gstatic.com/firebasejs/10.8.0/firebase-app.js";
+        import { getFirestore, setDoc, doc } from "https://www.gstatic.com/firebasejs/10.8.0/firebase-firestore.js";
+
+        const firebaseConfig = {
+          apiKey: "AIzaSyDLSIGdkd2y1l7zhMjoVd_bmCj8jjXpX4I",
+          authDomain: "aula-virtual-mas-alla-del-pris.firebaseapp.com",
+          projectId: "aula-virtual-mas-alla-del-pris",
+          storageBucket: "aula-virtual-mas-alla-del-pris.firebasestorage.app",
+          messagingSenderId: "711745866832",
+          appId: "1:711745866832:web:945e046cb0b61ac320d555"
+        };
+
+        const app = initializeApp(firebaseConfig);
+        const db = getFirestore(app);
+
+        // Definición de las preguntas basadas estrictamente en el material adjunto del Capítulo 2
+        const preguntas = [
+            {
+                id: 1,
+                pregunta: "¿Cuál es el error epistemológico fundamental que comparten tanto la psiquiatría biologicista como el sector dogmático del psicoanálisis respecto al fármaco y la palabra[cite: 4]?",
+                opciones: [
+                    "La sobredimensión de los factores socioculturales en la génesis del síntoma.",
+                    "El error cartesiano de la escisión radical entre el cuerpo y la psique[cite: 4].",
+                    "La confianza excesiva en los métodos de investigación empírica cuantitativa.",
+                    "La negativa absoluta a considerar el inconsciente como estructura transindividual.",
+                    "La homologación de la cura analítica a un proceso de reeducación conductual."
+                ],
+                correcta: 1,
+                feedback: "Correcto. Ambas posturas son hijas del error cartesiano de la escisión radical entre el cuerpo y la psique[cite: 4]."
+            },
+            {
+                id: 2,
+                pregunta: "¿Cómo conceptualiza el modelo de la Clínica de la Convergencia la función del psicofármaco en el tratamiento analítico[cite: 4]?",
+                opciones: [
+                    "Como el curador universal de la subjetividad y sustituto definitivo de la palabra.",
+                    "Como un modulador de base que ensancha la ventana de tolerancia afectiva, permitiendo que la palabra recupere eficacia analítica[cite: 4].",
+                    "Como un mecanismo de defensa auxiliar del yo destinado a obturar la labor del deseo.",
+                    "Como un recurso somático secundario que no incide de ningún modo sobre el sustrato neurobiológico.",
+                    "Como una herramienta exclusiva para eliminar los síntomas sin modificar la estructura."
+                ],
+                correcta: 1,
+                feedback: "Correcto. El psicofármaco opera como un modulador de base que modifica el sustrato neurobiológico para devolverle la plasticidad al psiquismo y hacer operativa la palabra[cite: 4]."
+            },
+            {
+                id: 3,
+                pregunta: "En el contexto de la metapsicología del desborde y la ventana de tolerancia, ¿a qué estado corresponde la hiperactivación (Hiperarousal)[cite: 4]?",
+                opciones: [
+                    "A una respuesta dorsal del nervio vago dominada por el congelamiento, la disociación y el mutismo.",
+                    "A un estado de astenia profunda, anhedonia severa y aplanamiento afectivo total.",
+                    "A una respuesta simpática extrema (lucha/huida) con descarga masiva del eje HPA y secuestro prefrontal por la amígdala[cite: 4].",
+                    "A una falla exclusiva del aparato de inscripción sin compromiso del sistema neurovegetativo.",
+                    "A un mecanismo de defensa secundario de tipo obsesivo enfocado en el aislamiento."
+                ],
+                correcta: 2,
+                feedback: "Correcto. La hiperactivación (Hiperarousal) está dominada por la respuesta simpática extrema de lucha/huida con descarga de cortisol, adrenalina y secuestro amigdalino[cite: 4]."
+            },
+            {
+                id: 4,
+                pregunta: "¿Qué sucede con el aparato psíquico cuando la cantidad de excitación (Reiz) supera ampliamente la capacidad del yo para ligarla (Bindung)[cite: 4]?",
+                opciones: [
+                    "Se activa de manera inmediata el proceso secundario y la simbolización abstracta.",
+                    "Se produce un colapso del aparato psíquico por fallas masivas en la función del escudo antiestímulo (Reisschutz)[cite: 4].",
+                    "El sujeto logra metabolizar el trauma mediante la asociación libre espontánea.",
+                    "Se consolida la sublimación artística como vía de descarga sustitutiva perfecta.",
+                    "Se restablece el equilibrio homeostático gracias a la intervención de la Red de Salinencia."
+                ],
+                correcta: 1,
+                feedback: "Correcto. Cuando el Reiz supera el Bindung, el aparato colapsa por fallas en el escudo antiestímulo (Reisschutz)[cite: 4]."
+            },
+            {
+                id: 5,
+                pregunta: "¿Por qué fracasan estrepitosamente las intervenciones puramente interpretativas cuando el paciente se encuentra en un estado de desborde extremo (pánico o melancolía profunda)[cite: 4]?",
+                opciones: [
+                    "Porque el analista carece de la formación técnica necesaria en psicopatología.",
+                    "Porque intentar interpretar el inconsciente en plena inundación autonómica es como pretender dictar una clase de filosofía en medio de un terremoto[cite: 4].",
+                    "Porque el inconsciente deja de existir durante los episodios de angustia aguda.",
+                    "Porque los pacientes psicóticos no poseen capacidad asociativa transferencial.",
+                    "Porque la interpretación analítica solo es válida en el marco de las neurosis de transferencia."
+                ],
+                correcta: 1,
+                feedback: "Correcto. En estados de desborde, no hay asociación libre posible; intentar interpretar equivale metafóricamente a dictar una clase de filosofía en medio de un terremoto[cite: 4]."
+            },
+            {
+                id: 6,
+                pregunta: "¿Qué estatuto subjetivo del fármaco representa el ideal clínico dentro de la perspectiva de la convergencia[cite: 4]?",
+                opciones: [
+                    "El amuleto mágico que borra el sufrimiento y exime de toda responsabilidad subjetiva.",
+                    "Un tóxico persecutorio vivido como una prueba humillante de debilidad yoica.",
+                    "Un bastón transicional aceptado transitoriamente como soporte material que sostiene el puente mientras el andamiaje psíquico se recompone[cite: 4].",
+                    "Una prótesis permanente e irreversible que sustituye la estructura fantasmática.",
+                    "Un recurso coercitivo implementado exclusivamente para el control institucional del paciente."
+                ],
+                correcta: 2,
+                feedback: "Correcto. El ideal es el bastón transicional: un soporte material externo que sostiene el puente mientras el andamiaje interior se recompone a través de la cura analítica[cite: 4]."
+            },
+            {
+                id: 7,
+                pregunta: "¿Cuál de las siguientes opciones describe correctamente a la hipoactivación (Hipoarousal)[cite: 4]?",
+                opciones: [
+                    "Un estado de rumiación catastrófica, agitación e hipervigilancia simpática.",
+                    "Una respuesta dominada por el nervio vago dorsal que genera congelamiento, disociación, mutismo y aplanamiento afectivo[cite: 4].",
+                    "Una hiperreactividad amigdalina sostenida por descargas masivas de adrenalina.",
+                    "Una franja de activación óptima donde el sujeto simboliza sin perder el anclaje.",
+                    "Una descarga motriz impulsiva asociada al acting out histérico."
+                ],
+                correcta: 1,
+                feedback: "Correcto. La hipoactivación corresponde a la respuesta dorsal del nervio vago (congelamiento, disociación y aplanamiento afectivo total)[cite: 4]."
+            },
+            {
+                id: 8,
+                pregunta: "¿Cómo debe posicionarse el analista frente al uso de la medicación y los cambios que el paciente introduce en ella[cite: 4]?",
+                opciones: [
+                    "Debe ignorarlos por completo, delegando toda injerencia clínica exclusivamente al médico psiquiatra.",
+                    "Debe interrogar permanentemente el estatuto subjetivo del fármaco y atender a sus modificaciones como termómetro de las fluctuaciones pulsionales[cite: 4].",
+                    "Debe prohibir tajantemente cualquier modificación unilateral del dosage para evitar interferencias en la transferencia.",
+                    "Debe asumir el rol de prescripción directa para unificar la dirección de la cura.",
+                    "Debe considerar el uso del fármaco como un obstáculo insalvable para el despliegue asociativo."
+                ],
+                correcta: 1,
+                feedback: "Correcto. El analista debe interrogar el estatuto subjetivo del fármaco y estar atento a los cambios que introduce el paciente, los cuales operan como termómetro pulsional[cite: 4]."
+            },
+            {
+                id: 9,
+                pregunta: "¿Cuáles son las dos contratransferencias peligrosas que el analista debe evitar frente al tratamiento farmacológico[cite: 4]?",
+                opciones: [
+                    "La contratransferencia amorosa y el rechazo fóbico al sufrimiento del paciente.",
+                    "La tentación tecnocrática de evaluar el éxito solo por la remisión de síntomas, y el prejuicio purista de desatender los cambios farmacológicos del paciente[cite: 4].",
+                    "La omnipotencia directiva y la neutralidad absoluta desprovista de tacto clínico.",
+                    "La colusión con el discurso médico hegemónico y la tendencia a psicologizar el daño neurológico.",
+                    "El exceso de empatía transferencial y la desestimación de los límites del encuadre analítico."
+                ],
+                correcta: 1,
+                feedback: "Correcto. Los peligros contratransferenciales son la tentación tecnocrática (éxito por remisión sintomática) y el prejuicio purista (desatender las variaciones del paciente)[cite: 4]."
+            },
+            {
+                id: 10,
+                pregunta: "¿Cuál es la función específica que cumple el psicofármaco debidamente seleccionado frente a la hiperreactividad amigdalina o el congelamiento defensivo[cite: 4]?",
+                opciones: [
+                    "Sustituir de manera definitiva los engranajes del inconsciente reprimido.",
+                    "Achicar el ruido de fondo neurobiológico y ensanchar la ventana de tolerancia para devolver al paciente al territorio operativo de la palabra[cite: 4].",
+                    "Seducir al aparato psíquico mediante una satisfacción alucinatoria de carácter permanente.",
+                    "Anular por completo la memoria traumática inscripta en el cuerpo.",
+                    "Bloquear la acción de la Red de Modo por Defecto para impedir el acceso de fantasías."
+                ],
+                correcta: 1,
+                feedback: "Correcto. Al achicar el ruido de fondo neurobiológico y ensanchar la ventana de tolerancia, el fármaco devuelve al paciente al territorio donde la palabra analítica vuelve a operar[cite: 4]."
+            }
+        ];
+
+        let currentQuestion = 0;
+        let score = 0;
+        const totalQuestions = preguntas.length;
+
+        function renderQuiz() {
+            const container = document.getElementById("questionsContainer");
+            container.innerHTML = "";
+
+            preguntas.forEach((p, index) => {
+                const card = document.createElement("div");
+                card.className = `quiz-card ${index === 0 ? 'active' : ''}`;
+                card.id = `question-card-${index}`;
+
+                let opcionesHtml = "";
+                p.opciones.forEach((opcion, optIndex) => {
+                    opcionesHtml += `<button class="option-btn" onclick="verificarRespuesta(${index}, ${optIndex})">${opcion}</button>`;
+                });
+
+                card.innerHTML = `
+                    <div class="question-number">Pregunta ${index + 1} de ${totalQuestions}</div>
+                    <div class="question-title">${p.pregunta}</div>
+                    <div class="options-list" id="options-${index}">
+                        ${opcionesHtml}
+                    </div>
+                    <div class="feedback-box" id="feedback-${index}">${p.feedback}</div>
+                    <div class="nav-actions">
+                        <button class="btn-next" id="btn-next-${index}" onclick="siguientePregunta(${index})">
+                            ${index === totalQuestions - 1 ? 'Finalizar Protocolo' : 'Siguiente Pregunta'}
+                        </button>
+                    </div>
+                `;
+                container.appendChild(card);
+            });
+        }
+
+        window.verificarRespuesta = function(qIndex, selectedOpt) {
+            const p = preguntas[qIndex];
+            const optionsContainer = document.getElementById(`options-${qIndex}`);
+            const buttons = optionsContainer.getElementsByClassName("option-btn");
+            const feedbackBox = document.getElementById(`feedback-${qIndex}`);
+            const nextBtn = document.getElementById(`btn-next-${qIndex}`);
+
+            for (let i = 0; i < buttons.length; i++) {
+                buttons[i].disabled = true;
+                if (i === p.correcta) {
+                    buttons[i].classList.add("correct");
+                } else if (i === selectedOpt) {
+                    buttons[i].classList.add("incorrect");
+                }
+            }
+
+            if (selectedOpt === p.correcta) {
+                score += 1;
+                feedbackBox.className = "feedback-box show correct-fb";
+            } else {
+                feedbackBox.className = "feedback-box show incorrect-fb";
+            }
+
+            nextBtn.style.display = "block";
+        }
+
+        window.siguientePregunta = function(qIndex) {
+            document.getElementById(`question-card-${qIndex}`).classList.remove("active");
+
+            if (qIndex + 1 < totalQuestions) {
+                document.getElementById(`question-card-${qIndex + 1}`).classList.add("active");
+            } else {
+                guardarYMostrarResultados();
+            }
+        }
+
+        async function guardarYMostrarResultados() {
+            document.getElementById("questionsContainer").style.display = "none";
+            const resultsCard = document.getElementById("resultsCard");
+            const scoreText = document.getElementById("scoreText");
+            const resultStatus = document.getElementById("resultStatus");
+
+            resultsCard.style.display = "block";
+            scoreText.innerText = `Protocolo finalizado, Ud. ha obtenido ${score} puntos/10, se enviará a corrección definitiva`;
+
+            const sessionData = sessionStorage.getItem("current_session");
+            let userId = "Estudiante_Anonimo";
+            
+            if (sessionData) {
+                try {
+                    const userObj = JSON.parse(sessionData);
+                    userId = userObj.user || userObj.name || "Estudiante";
+                } catch (e) {
+                    console.error("Error al parsear sesión:", e);
+                }
+            }
+
+            const docId = `NOTA_TEST_2_${userId.replace(/[\.\s]/g, "_")}`;
+
+            try {
+                await setDoc(doc(db, "calificaciones_tests", docId), {
+                    usuario: userId,
+                    notaTest_2: score,
+                    fecha: new Date().toISOString()
+                });
+
+                resultStatus.style.color = "#145a32";
+                resultStatus.innerText = "¡Resultado guardado con éxito en la base de datos!";
+            } catch (error) {
+                console.error("Error al guardar en base de datos:", error);
+                resultStatus.style.color = "#641e16";
+                resultStatus.innerText = "Error al sincronizar el resultado con la base de datos.";
+            }
+        }
+
+        window.volverDashboard = function() {
+            if (window.parent && window.parent !== window) {
+                window.parent.location.reload();
+            } else {
+                window.location.href = "index.html";
+            }
+        }
+
+        window.onload = function() {
+            renderQuiz();
+        };
+    </script>
+</body>
+</html>
