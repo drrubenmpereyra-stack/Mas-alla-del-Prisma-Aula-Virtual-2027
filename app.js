@@ -19,8 +19,8 @@ const db = getFirestore(app);
 // Enlace raw oficial del video intro en GitHub
 const VIDEO_INTRO_URL = "https://github.com/drrubenmpereyra-stack/video-intro-Ms-alla-del-prisma/raw/refs/heads/main/Intro_masalladelprisma.mp4";
 
-// Enlace raw oficial de la foto del Administrador en GitHub
-const ADMIN_GITHUB_PHOTO = "https://raw.githubusercontent.com/drrubenmpereyra-stack/video-intro-Ms-alla-del-prisma/main/foto_adm.jpg";
+// Enlace de Google Drive para la foto del Administrador
+const ADMIN_DRIVE_PHOTO = "https://drive.google.com/file/d/1_ZF3FTDBH5E33hkWt_4dEWkAIcGe9S_q/view?usp=drive_link";
 
 // Función para inicializar usuarios base (Administrador y Estudiante de prueba por defecto)
 async function inicializarUsuariosBase() {
@@ -71,6 +71,8 @@ document.getElementById("loginForm").addEventListener("submit", async function(e
         if (userDocSnap.exists()) {
             const userData = userDocSnap.data();
             if (userData.pass === pInput) {
+                // Inyectamos el enlace de Google Drive del admin en su objeto de sesión
+                userData.fotoDrive = ADMIN_DRIVE_PHOTO;
                 iniciarSecuenciaAcceso(userData);
                 return;
             }
@@ -148,16 +150,15 @@ function loadDashboard(userObj) {
     buildMenu(userObj.role);
 }
 
-// Renderizar foto real y animación vectorial de bienvenida
+// Renderizar foto real desde Google Drive y animación vectorial de bienvenida
 function renderizarPerfilYBienvenida(userObj) {
     let userDisplay = document.getElementById("userDisplay");
     if (!userDisplay) return;
 
     let fotoUrl = "";
-    if (userObj.role === "admin") {
-        fotoUrl = ADMIN_GITHUB_PHOTO;
-    } else if (userObj.fotoDrive && userObj.fotoDrive.trim() !== "") {
+    if (userObj.fotoDrive && userObj.fotoDrive.trim() !== "") {
         fotoUrl = userObj.fotoDrive.trim();
+        // Procesar formato de enlace compartido de Google Drive
         if (fotoUrl.includes("drive.google.com") && fotoUrl.includes("id=")) {
             const fileId = fotoUrl.split("id=")[1].split("&")[0];
             fotoUrl = `https://lh3.googleusercontent.com/d/` + fileId;
