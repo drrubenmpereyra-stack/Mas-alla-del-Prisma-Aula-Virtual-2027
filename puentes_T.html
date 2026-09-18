@@ -1,0 +1,529 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Constructor de Puentes Transdisciplinarios</title>
+    <style>
+        :root {
+            --bg-color: #f4f5f7;
+            --neural-pattern: radial-gradient(circle, rgba(200,205,215,0.25) 1px, transparent 1px);
+            --card-bg: #ffffff;
+            --border-color: #000000;
+        }
+
+        * {
+            box-sizing: border-box;
+            margin: 0;
+            padding: 0;
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+        }
+
+        body {
+            background-color: var(--bg-color);
+            background-image: var(--neural-pattern);
+            background-size: 24px 24px;
+            color: #2c3e50;
+            padding: 20px;
+        }
+
+        .container {
+            max-width: 850px;
+            margin: 0 auto;
+        }
+
+        header {
+            text-align: center;
+            margin-bottom: 25px;
+            position: relative;
+        }
+
+        .btn-volver {
+            position: absolute;
+            top: 0;
+            left: 0;
+            background-color: #fadbd8;
+            color: #78281f;
+            border: 2px solid var(--border-color);
+            border-radius: 6px;
+            padding: 8px 14px;
+            font-size: 0.85rem;
+            font-weight: 700;
+            cursor: pointer;
+            box-shadow: 0 0 8px rgba(250, 219, 216, 0.8);
+            transition: all 0.2s ease;
+        }
+
+        .btn-volver:hover {
+            transform: translateY(-2px);
+            filter: brightness(0.95);
+        }
+
+        header h2 {
+            font-size: 1.4rem;
+            color: #1a252f;
+            border-bottom: 2px solid #bdc3c7;
+            padding-bottom: 10px;
+            margin-bottom: 6px;
+            margin-top: 40px;
+        }
+
+        header p {
+            font-size: 0.9rem;
+            color: #1b4f72;
+            font-weight: 600;
+        }
+
+        .sim-card {
+            background-color: var(--card-bg);
+            border: 2.5px solid var(--border-color);
+            border-radius: 10px;
+            padding: 30px;
+            box-shadow: 0 4px 20px rgba(0,0,0,0.08);
+            margin-bottom: 25px;
+        }
+
+        .caso-box {
+            background: #ebf5fb;
+            border: 2px solid #1b4f72;
+            border-radius: 8px;
+            padding: 20px;
+            margin-bottom: 25px;
+        }
+
+        .caso-box h3 {
+            font-size: 1rem;
+            color: #1b4f72;
+            margin-bottom: 10px;
+            text-transform: uppercase;
+            letter-spacing: 0.5px;
+        }
+
+        .caso-texto {
+            font-size: 0.98rem;
+            line-height: 1.5;
+            color: #2c3e50;
+        }
+
+        .carril-container {
+            margin-bottom: 25px;
+            background: #fdfefe;
+            border: 2px solid #bdc3c7;
+            border-radius: 8px;
+            padding: 20px;
+        }
+
+        .carril-titulo {
+            font-size: 1.05rem;
+            font-weight: 700;
+            color: #1a252f;
+            margin-bottom: 10px;
+            display: flex;
+            align-items: center;
+            gap: 8px;
+        }
+
+        .options-list {
+            display: flex;
+            flex-direction: column;
+            gap: 10px;
+            margin-top: 10px;
+        }
+
+        .option-btn {
+            background: #fff;
+            border: 2px solid var(--border-color);
+            border-radius: 6px;
+            padding: 12px 16px;
+            text-align: left;
+            font-size: 0.93rem;
+            font-weight: 600;
+            color: #2c3e50;
+            cursor: pointer;
+            transition: all 0.2s ease;
+        }
+
+        .option-btn:hover:not(:disabled) {
+            background-color: #d6eaf8;
+            border-color: #1b4f72;
+        }
+
+        .option-btn.correct {
+            background-color: #d4efdf !important;
+            color: #145a32 !important;
+            border-color: #145a32 !important;
+        }
+
+        .option-btn.incorrect {
+            background-color: #f5b7b1 !important;
+            color: #641e16 !important;
+            border-color: #641e16 !important;
+        }
+
+        .option-btn:disabled {
+            cursor: default;
+        }
+
+        .feedback-box {
+            margin-top: 12px;
+            padding: 12px;
+            border-radius: 6px;
+            font-size: 0.88rem;
+            font-weight: 600;
+            display: none;
+            line-height: 1.4;
+        }
+
+        .feedback-box.show {
+            display: block;
+        }
+
+        .feedback-box.correct-fb {
+            background-color: #d4efdf;
+            color: #145a32;
+            border: 1.5px solid #145a32;
+        }
+
+        .feedback-box.incorrect-fb {
+            background-color: #f9d5d2;
+            color: #641e16;
+            border: 1.5px solid #641e16;
+        }
+
+        .btn-siguiente {
+            background-color: #1b4f72;
+            color: #ffffff;
+            border: 2px solid var(--border-color);
+            border-radius: 6px;
+            padding: 12px 24px;
+            font-size: 0.95rem;
+            font-weight: 700;
+            cursor: pointer;
+            margin-top: 20px;
+            display: none;
+            width: 100%;
+            box-shadow: 0 4px 10px rgba(27, 79, 114, 0.3);
+        }
+
+        .btn-siguiente:hover {
+            filter: brightness(1.1);
+        }
+
+        .results-card {
+            background-color: var(--card-bg);
+            border: 2.5px solid var(--border-color);
+            border-radius: 10px;
+            padding: 40px;
+            text-align: center;
+            display: none;
+            box-shadow: 0 4px 20px rgba(0,0,0,0.08);
+        }
+
+        .results-card h3 {
+            font-size: 1.5rem;
+            color: #1a252f;
+            margin-bottom: 15px;
+        }
+
+        .results-card p {
+            font-size: 1.05rem;
+            color: #1b4f72;
+            font-weight: 700;
+            margin-bottom: 20px;
+        }
+    </style>
+</head>
+<body>
+
+    <div class="container">
+        <header>
+            <button class="btn-volver" onclick="window.history.back()">← Volver</button>
+            <h2>Constructor de Puentes Transdisciplinarios</h2>
+            <p>Análisis Fármaco-Analítico - Estrategia de Abordaje Cruzado</p>
+        </header>
+
+        <!-- Tarjeta del Constructor -->
+        <div id="constructorCard" class="sim-card">
+            
+            <div class="caso-box">
+                <h3>Motivo de Consulta Complejo</h3>
+                <p id="casoTexto" class="caso-texto"></p>
+            </div>
+
+            <!-- Carril 1: Estatuto Subjetivo del Fármaco -->
+            <div class="carril-container" id="carril1">
+                <div class="carril-titulo">Carril 1: Estatuto Subjetivo del Fármaco</div>
+                <p style="font-size: 0.9rem; color: #555; margin-bottom: 10px;">Identifique qué significado o fantasía inconsciente deposita el paciente en su medicación:</p>
+                <div class="options-list" id="opcionesCarril1"></div>
+                <div id="feedbackCarril1" class="feedback-box"></div>
+            </div>
+
+            <!-- Carril 2: Coordinación con Psiquiatría -->
+            <div class="carril-container" id="carril2" style="display:none;">
+                <div class="carril-titulo">Carril 2: Coordinación con Psiquiatría</div>
+                <p style="font-size: 0.9rem; color: #555; margin-bottom: 10px;">Defina los lineamientos tácticos para la mesa de trabajo transdisciplinaria:</p>
+                <div class="options-list" id="opcionesCarril2"></div>
+                <div id="feedbackCarril2" class="feedback-box"></div>
+            </div>
+
+            <!-- Carril 3: Momento de la Interpretación -->
+            <div class="carril-container" id="carril3" style="display:none;">
+                <div class="carril-titulo">Carril 3: Momento de la Interpretación</div>
+                <p style="font-size: 0.9rem; color: #555; margin-bottom: 10px;">Establezca el tiempo lógico preciso para el despliegue de la eficacia analítica:</p>
+                <div class="options-list" id="opcionesCarril3"></div>
+                <div id="feedbackCarril3" class="feedback-box"></div>
+            </div>
+
+            <button id="btnSiguienteEstrategia" class="btn-siguiente" onclick="siguienteEstrategia()">Siguiente Caso Clínico ↗</button>
+        </div>
+
+        <!-- Tarjeta de Resultados Finales -->
+        <div id="resultsCard" class="results-card">
+            <h3>Construcción Estratégica Finalizada</h3>
+            <p id="scoreText"></p>
+            <div id="resultStatus" style="font-weight: 700; font-size: 0.95rem;"></div>
+        </div>
+    </div>
+
+    <!-- Script conectado a Firebase Firestore -->
+    <script type="module">
+        import { initializeApp } from "https://www.gstatic.com/firebasejs/10.8.0/firebase-app.js";
+        import { getFirestore, setDoc, doc } from "https://www.gstatic.com/firebasejs/10.8.0/firebase-firestore.js";
+
+        const firebaseConfig = {
+          apiKey: "AIzaSyDLSIGdkd2y1l7zhMjoVd_bmCj8jjXpX4I",
+          authDomain: "aula-virtual-mas-alla-del-pris.firebaseapp.com",
+          projectId: "aula-virtual-mas-alla-del-pris",
+          storageBucket: "aula-virtual-mas-alla-del-pris.firebasestorage.app",
+          messagingSenderId: "711745866832",
+          appId: "1:711745866832:web:945e046cb0b61ac320d555"
+        };
+
+        const app = initializeApp(firebaseConfig);
+        const db = getFirestore(app);
+
+        // Casos complejos para el constructor de puentes
+        const estrategiasCasos = [
+            {
+                id: 1,
+                vineta: "Esteban consulta por crisis de pánico invalidantes y agorafobia. Al asumir el tratamiento, se observa que toma autogestionadamente dosis excesivas de ansiolíticos buscando que la pastilla 'borre por arte de magia' su angustia laboral, eximiéndose de todo análisis.",
+                carril1Correcto: 1, // Amuleto mágico
+                opcionesCarril1: [
+                    "Un tóxico persecutorio vivido como una castración humiliante.",
+                    "Un amuleto mágico: deposita la fantasía omnipotente de borrar el sufrimiento eximiéndose de responsabilidad subjetiva.",
+                    "Un bastón transicional perfectamente integrado a su labor asociativa."
+                ],
+                feedbackCarril1: "Correcto. Esteban utiliza el fármaco como amuleto mágico para borrar mágicamente el sufrimiento sin asumir responsabilidad subjetiva.",
+                
+                carril2Correcto: 0, // Mesa transdisciplinaria coordinada
+                opcionesCarril2: [
+                    "Establecer diálogo directo con el psiquiatra para pautar una reducción controlada de la autogestión y limpiar el ruido cognitivo.",
+                    "Delegar por completo la dirección de la cura al psiquiatra sin intervenir en el significado de la medicación.",
+                    "Exigir al paciente la suspensión unilateral inmediata de las pastillas en la primera entrevista."
+                ],
+                feedbackCarril2: "Correcto. La coordinación transdisciplinaria permite encauzar el tratamiento farmacológico sin delegar ni aislar al paciente.",
+                
+                carril3Correcto: 2, // Momento preciso post-modulación
+                opcionesCarril3: [
+                    "Interpretar el Edipo y las fantasías arcaicas en plena crisis de pánico aguda.",
+                    "Abstenerse de toda intervención analítica de por vida, limitándose al apoyo médico.",
+                    "Introducir intervenciones focales sobre los disparadores autonómicos una vez que el reajuste ensancha la ventana de tolerancia y cesa el pánico paroxístico."
+                ],
+                feedbackCarril3: "Correcto. La palabra analítica recupera eficacia justo cuando la modulación ensancha la ventana de tolerancia y se trabaja sobre el nexo del desborde."
+            },
+            {
+                id: 2,
+                vineta: "Sofía padece melancolía severa con inhibición profunda. Al proponerle un antidepresivo de base, se aferra a llorar afirmando que la medicación es 'un veneno que destruye su mente y confirma su locura'.",
+                carril1Correcto: 0, // Tóxico persecutorio
+                opcionesCarril1: [
+                    "Un tóxico persecutorio o castración: lo vive como confirmación de la 'locura' y veneno que la aliena.",
+                    "Un amuleto mágico de omnipotencia sintomática.",
+                    "Un soporte transicional ideal aceptado sin resistencia."
+                ],
+                feedbackCarril1: "Correcto. Sofía experimenta el fármaco persecutoriamente como prueba humillante y veneno alienante.",
+                
+                carril2Correcto: 1, // Coordinación para explicar perfil no adictivo
+                opcionesCarril2: [
+                    "Ignorar el terror persecutorio de la paciente y cambiar de psiquiatra sin aviso.",
+                    "Articular con el psiquiatra para explicar conjuntamente el perfil de la molécula y desactivar la fantasía persecutoria en la mesa de trabajo.",
+                    "Aconsejar a la paciente que oculte al psiquiatra su rechazo a las pastillas."
+                ],
+                feedbackCarril2: "Correcto. La articulación transdisciplinaria aborda el estatuto subjetivo persecutorio dándole marco continente.",
+                
+                carril3Correcto: 0, // Esperar plasticidad sináptica
+                opcionesCarril3: [
+                    "Aguardar a que la estabilización del sustrato neurobiológico disipe el aplanamiento defensivo antes de exigir un trabajo asociativo verbal complejo.",
+                    "Forzar asociaciones libres extensas mientras la paciente se encuentra sumida en el estupor melancólico.",
+                    "Sustituir el psicoanálisis por sugerencias conductuales estandarizadas."
+                ],
+                feedbackCarril3: "Correcto. El sustrato neurobiológico debe ser regulado previamente para que el psiquismo recupere la plasticidad necesaria."
+            }
+        ];
+
+        let indexCaso = 0;
+        let puntajeTotal = 0;
+
+        function iniciarEstrategia() {
+            if (indexCaso >= estrategiasCasos.length) {
+                finalizarConstructor();
+                return;
+            }
+
+            const est = estrategiasCasos[indexCaso];
+            document.getElementById("casoTexto").innerText = est.vineta;
+
+            // Render Carril 1
+            const c1 = document.getElementById("opcionesCarril1");
+            c1.innerHTML = "";
+            est.opcionesCarril1.forEach((op, idx) => {
+                c1.innerHTML += `<button class="option-btn" onclick="verificarCarril(1, ${idx})">${op}</button>`;
+            });
+
+            document.getElementById("carril1").style.display = "block";
+            document.getElementById("carril2").style.display = "none";
+            document.getElementById("carril3").style.display = "none";
+            document.getElementById("feedbackCarril1").className = "feedback-box";
+            document.getElementById("feedbackCarril2").className = "feedback-box";
+            document.getElementById("feedbackCarril3").className = "feedback-box";
+            document.getElementById("btnSiguienteEstrategia").style.display = "none";
+        }
+
+        window.verificarCarril = function(nCarril, selectedIdx) {
+            const est = estrategiasCasos[indexCaso];
+            if (nCarril === 1) {
+                const buttons = document.getElementById("opcionesCarril1").getElementsByClassName("option-btn");
+                const fb = document.getElementById("feedbackCarril1");
+
+                for (let i = 0; i < buttons.length; i++) {
+                    buttons[i].disabled = true;
+                    if (i === est.carril1Correcto) buttons[i].classList.add("correct");
+                    else if (i === selectedIdx) buttons[i].classList.add("incorrect");
+                }
+
+                if (selectedIdx === est.carril1Correcto) {
+                    puntajeTotal += 0.5;
+                    fb.className = "feedback-box show correct-fb";
+                    fb.innerText = est.feedbackCarril1;
+                } else {
+                    fb.className = "feedback-box show incorrect-fb";
+                    fb.innerText = "Incorrecto en la lectura del estatuto subjetivo. " + est.feedbackCarril1;
+                }
+
+                setTimeout(() => mostrarCarril2(), 800);
+            } 
+            else if (nCarril === 2) {
+                const buttons = document.getElementById("opcionesCarril2").getElementsByClassName("option-btn");
+                const fb = document.getElementById("feedbackCarril2");
+
+                for (let i = 0; i < buttons.length; i++) {
+                    buttons[i].disabled = true;
+                    if (i === est.carril2Correcto) buttons[i].classList.add("correct");
+                    else if (i === selectedIdx) buttons[i].classList.add("incorrect");
+                }
+
+                if (selectedIdx === est.carril2Correcto) {
+                    puntajeTotal += 0.5;
+                    fb.className = "feedback-box show correct-fb";
+                    fb.innerText = est.feedbackCarril2;
+                } else {
+                    fb.className = "feedback-box show incorrect-fb";
+                    fb.innerText = "Incorrecto en la coordinación. " + est.feedbackCarril2;
+                }
+
+                setTimeout(() => mostrarCarril3(), 800);
+            }
+            else if (nCarril === 3) {
+                const buttons = document.getElementById("opcionesCarril3").getElementsByClassName("option-btn");
+                const fb = document.getElementById("feedbackCarril3");
+
+                for (let i = 0; i < buttons.length; i++) {
+                    buttons[i].disabled = true;
+                    if (i === est.carril3Correcto) buttons[i].classList.add("correct");
+                    else if (i === selectedIdx) buttons[i].classList.add("incorrect");
+                }
+
+                if (selectedIdx === est.carril3Correcto) {
+                    puntajeTotal += 0.5;
+                    fb.className = "feedback-box show correct-fb";
+                    fb.innerText = est.feedbackCarril3;
+                } else {
+                    fb.className = "feedback-box show incorrect-fb";
+                    fb.innerText = "Incorrecto en el tiempo lógico. " + est.feedbackCarril3;
+                }
+
+                document.getElementById("btnSiguienteEstrategia").style.display = "block";
+            }
+        }
+
+        function mostrarCarril2() {
+            const est = estrategiasCasos[indexCaso];
+            const c2 = document.getElementById("opcionesCarril2");
+            c2.innerHTML = "";
+            est.opcionesCarril2.forEach((op, idx) => {
+                c2.innerHTML += `<button class="option-btn" onclick="verificarCarril(2, ${idx})">${op}</button>`;
+            });
+            document.getElementById("carril2").style.display = "block";
+            c2.scrollIntoView({ behavior: 'smooth' });
+        }
+
+        function mostrarCarril3() {
+            const est = estrategiasCasos[indexCaso];
+            const c3 = document.getElementById("opcionesCarril3");
+            c3.innerHTML = "";
+            est.opcionesCarril3.forEach((op, idx) => {
+                c3.innerHTML += `<button class="option-btn" onclick="verificarCarril(3, ${idx})">${op}</button>`;
+            });
+            document.getElementById("carril3").style.display = "block";
+            c3.scrollIntoView({ behavior: 'smooth' });
+        }
+
+        window.siguienteEstrategia = function() {
+            indexCaso++;
+            iniciarEstrategia();
+        }
+
+        async function finalizarConstructor() {
+            document.getElementById("constructorCard").style.display = "none";
+            const resultsCard = document.getElementById("resultsCard");
+            const scoreText = document.getElementById("scoreText");
+            const resultStatus = document.getElementById("resultStatus");
+
+            resultsCard.style.display = "block";
+            scoreText.innerText = `Construcción transdisciplinaria completada. Calificación obtenida: ${puntajeTotal} de ${estrategiasCasos.length * 1.5} puntos totales.`;
+
+            const sessionData = sessionStorage.getItem("current_session");
+            let userId = "Estudiante_Anonimo";
+            if (sessionData) {
+                try {
+                    const userObj = JSON.parse(sessionData);
+                    userId = userObj.user || userObj.name || "Estudiante";
+                } catch (e) {
+                    console.error("Error al parsear sesión:", e);
+                }
+            }
+
+            const docId = `EJERCICIO_PUENTES_${userId.replace(/[\.\s]/g, "_")}`;
+
+            try {
+                await setDoc(doc(db, "calificaciones_ejercicios", docId), {
+                    usuario: userId,
+                    modulo: "Constructor de Puentes Transdisciplinarios",
+                    calificacion: puntajeTotal,
+                    fecha: new Date().toISOString()
+                });
+
+                resultStatus.style.color = "#145a32";
+                resultStatus.innerText = "¡Resultado del constructor guardado con éxito en la base de datos!";
+            } catch (error) {
+                console.error("Error al guardar en base de datos:", error);
+                resultStatus.style.color = "#641e16";
+                resultStatus.innerText = "Error al sincronizar el resultado con la base de datos.";
+            }
+        }
+
+        window.onload = function() {
+            iniciarEstrategia();
+        };
+    </script>
+</body>
+</html>
