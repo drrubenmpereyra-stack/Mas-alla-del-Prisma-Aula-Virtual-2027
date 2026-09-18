@@ -19,7 +19,7 @@ const db = getFirestore(app);
 // Enlace raw oficial del video intro en GitHub
 const VIDEO_INTRO_URL = "https://github.com/drrubenmpereyra-stack/video-intro-Ms-alla-del-prisma/raw/refs/heads/main/Intro_masalladelprisma.mp4";
 
-// Foto del Administrador en GitHub con el nombre exacto: foto_adm.jpg
+// Enlace raw oficial de la foto del Administrador en GitHub
 const ADMIN_GITHUB_PHOTO = "https://raw.githubusercontent.com/drrubenmpereyra-stack/video-intro-Ms-alla-del-prisma/main/foto_adm.jpg";
 
 // Función para inicializar usuarios base (Administrador y Estudiante de prueba por defecto)
@@ -88,7 +88,7 @@ document.getElementById("loginForm").addEventListener("submit", async function(e
                     user: p.codigoMatricula,
                     role: "student",
                     name: `${p.apellido}, ${p.nombres}`,
-                    fotoDrive: p.fotoDrive || "" // Usando exactamente el campo fotoDrive de tu esquema
+                    fotoDrive: p.fotoDrive || "" // Campo exacto en tu colección participantes
                 };
             }
         });
@@ -158,7 +158,6 @@ function renderizarPerfilYBienvenida(userObj) {
         fotoUrl = ADMIN_GITHUB_PHOTO;
     } else if (userObj.fotoDrive && userObj.fotoDrive.trim() !== "") {
         fotoUrl = userObj.fotoDrive.trim();
-        // Procesar enlace de Google Drive si viene en formato compartido
         if (fotoUrl.includes("drive.google.com") && fotoUrl.includes("id=")) {
             const fileId = fotoUrl.split("id=")[1].split("&")[0];
             fotoUrl = `https://lh3.googleusercontent.com/d/` + fileId;
@@ -173,7 +172,6 @@ function renderizarPerfilYBienvenida(userObj) {
     userDisplay.style.gap = "12px";
 
     let htmlContent = "";
-    // Solo si la URL de la foto existe y no está vacía se incluye la etiqueta img
     if (fotoUrl) {
         htmlContent = `
             <img src="${fotoUrl}" alt="Perfil" style="width:48px; height:48px; border-radius:50%; object-fit:cover; border:2px solid #b7950b; background:#ffffff; flex-shrink:0;" onerror="this.style.display='none'">
