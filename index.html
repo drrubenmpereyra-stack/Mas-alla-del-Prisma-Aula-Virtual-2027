@@ -3,14 +3,13 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Aula Virtual - Más Allá del Prisma</title>
+    <title>Más allá del Prisma - Aula Virtual</title>
     <style>
         :root {
-            --bg-color: #eef2f7;
-            --card-bg: rgba(255, 255, 255, 0.92);
-            --border-color: #1a252f;
-            --primary-color: #880e4f;
-            --accent-gold: #b7950b;
+            --bg-color: #f4f5f7;
+            --card-bg: #ffffff;
+            --text-color: #2c3e50;
+            --border-color: #000000;
         }
 
         * {
@@ -20,13 +19,6 @@
             font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
         }
 
-        body, html {
-            width: 100%;
-            height: 100%;
-            overflow: hidden;
-            background-color: var(--bg-color);
-        }
-
         /* Canvas de fondo para la red neuronal animada */
         #neuralCanvas {
             position: fixed;
@@ -34,228 +26,343 @@
             left: 0;
             width: 100vw;
             height: 100vh;
+            z-index: 0;
+            pointer-events: none;
+        }
+
+        body {
+            background-color: #eef2f7;
+            color: var(--text-color);
+            min-height: 100vh;
+            display: flex;
+            flex-direction: column;
+            position: relative;
+            overflow-x: hidden;
+        }
+
+        /* Asegurar que todo el contenido esté por encima del canvas de fondo */
+        #login-container, #app-container {
+            position: relative;
             z-index: 1;
         }
 
-        /* Contenedor general de la interfaz por encima del canvas */
-        .ui-layer {
-            position: relative;
-            z-index: 2;
-            width: 100%;
-            height: 100%;
+        /* --- PANTALLA DE LOGIN --- */
+        #login-container {
             display: flex;
-            justify-content: center;
+            flex-direction: column;
             align-items: center;
+            justify-content: center;
+            min-height: 100vh;
+            padding: 20px;
         }
 
-        /* Contenedor del Login */
         .login-card {
-            background: var(--card-bg);
-            border: 2.5px solid var(--border-color);
-            border-radius: 14px;
+            background: rgba(255, 255, 255, 0.94);
             padding: 40px;
+            border-radius: 12px;
+            box-shadow: 0 10px 30px rgba(0,0,0,0.08);
+            border: 2px solid var(--border-color);
             width: 100%;
             max-width: 420px;
-            box-shadow: 0 10px 30px rgba(0, 0, 0, 0.12);
-            backdrop-filter: blur(8px);
             text-align: center;
+            backdrop-filter: blur(4px);
         }
 
-        .login-card h2 {
-            font-size: 1.4rem;
+        .login-logo {
+            width: 110px;
+            height: 110px;
+            object-fit: cover;
+            border-radius: 50%;
+            border: 2px solid var(--border-color);
+            margin-bottom: 20px;
+            box-shadow: 0 4px 10px rgba(0,0,0,0.1);
+        }
+
+        .login-title {
+            font-size: 1.6rem;
+            font-weight: 700;
             color: #1a252f;
-            margin-bottom: 6px;
-            font-weight: 800;
+            margin-bottom: 25px;
             letter-spacing: 0.5px;
         }
 
-        .login-card p {
-            font-size: 0.88rem;
-            color: var(--primary-color);
-            font-weight: 700;
-            margin-bottom: 25px;
-            text-transform: uppercase;
-            letter-spacing: 1px;
-        }
-
-        .input-group {
-            margin-bottom: 18px;
+        .form-group {
+            margin-bottom: 20px;
             text-align: left;
         }
 
-        .input-group label {
+        .form-group label {
             display: block;
-            font-size: 0.82rem;
-            font-weight: 700;
-            color: #2c3e50;
+            font-size: 0.85rem;
+            font-weight: 600;
             margin-bottom: 6px;
-            text-transform: uppercase;
-            letter-spacing: 0.5px;
+            color: #555;
         }
 
-        .input-group input {
+        .form-group input {
             width: 100%;
-            padding: 12px 14px;
-            border: 2px solid #2c3e50;
-            border-radius: 6px;
-            font-size: 0.95rem;
-            background: #ffffff;
-            color: #2c3e50;
-            outline: none;
-            transition: all 0.2s ease;
-        }
-
-        .input-group input:focus {
-            border-color: var(--primary-color);
-            box-shadow: 0 0 8px rgba(136, 14, 79, 0.2);
-        }
-
-        .btn-submit {
-            width: 100%;
-            background-color: var(--primary-color);
-            color: #ffffff;
+            padding: 12px;
             border: 2px solid var(--border-color);
             border-radius: 6px;
+            font-size: 1rem;
+            outline: none;
+            background: #ffffff;
+            transition: all 0.3s ease;
+        }
+
+        .form-group input:focus {
+            box-shadow: 0 0 8px rgba(52, 152, 219, 0.5);
+        }
+
+        .btn-login {
+            width: 100%;
             padding: 12px;
+            background-color: #d4e6f1;
+            color: #1b4f72;
+            border: 2px solid var(--border-color);
+            border-radius: 6px;
             font-size: 1rem;
             font-weight: 700;
             cursor: pointer;
-            margin-top: 10px;
-            box-shadow: 0 4px 12px rgba(136, 14, 79, 0.3);
+            box-shadow: 0 0 10px rgba(212, 230, 241, 0.8);
             transition: all 0.2s ease;
         }
 
-        .btn-submit:hover {
-            filter: brightness(1.1);
-            transform: translateY(-1px);
+        .btn-login:hover {
+            background-color: #a9cce3;
+            box-shadow: 0 0 15px rgba(169, 204, 227, 1);
+        }
+
+        .login-footer {
+            margin-top: 25px;
+            font-size: 0.9rem;
+            color: #666;
+            line-height: 1.4;
         }
 
         .error-msg {
             color: #c0392b;
             font-size: 0.85rem;
-            font-weight: 700;
-            margin-top: 12px;
+            margin-top: 10px;
             display: none;
         }
 
-        /* Contenedor principal del Aula Virtual (Dashboard) inicialmente oculto */
+        /* --- AULA VIRTUAL (DASHBOARD) --- */
         #app-container {
             display: none;
-            width: 100vw;
-            height: 100vh;
             flex-direction: column;
-            background: rgba(244, 245, 247, 0.95);
+            min-height: 100vh;
+            background: rgba(244, 245, 247, 0.92);
         }
 
         header {
+            background: var(--card-bg);
+            border-bottom: 2px solid var(--border-color);
+            padding: 15px 30px;
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            box-shadow: 0 2px 8px rgba(0,0,0,0.05);
+        }
+
+        .header-left {
+            display: flex;
+            align-items: center;
+            gap: 15px;
+        }
+
+        .header-logo {
+            width: 50px;
+            height: 50px;
+            object-fit: cover;
+            border-radius: 50%;
+            border: 1.5px solid var(--border-color);
+        }
+
+        .header-titles h1 {
+            font-size: 1.25rem;
+            font-weight: 700;
+            color: #1a252f;
+        }
+
+        .header-titles span {
+            font-size: 0.8rem;
+            color: #7f8c8d;
+            text-transform: uppercase;
+            letter-spacing: 1px;
+        }
+
+        .user-badge {
+            font-size: 0.9rem;
+            font-weight: 600;
+            background: #eaeded;
+            padding: 6px 14px;
+            border-radius: 20px;
+            border: 1px solid #bdc3c7;
+        }
+
+        /* --- MENÚ DE NAVEGACIÓN --- */
+        nav {
             background: #ffffff;
             border-bottom: 2px solid var(--border-color);
             padding: 12px 25px;
             display: flex;
-            justify-content: space-between;
-            align-items: center;
-        }
-
-        .main-layout {
-            display: flex;
-            flex: 1;
-            overflow: hidden;
-        }
-
-        aside {
-            width: 280px;
-            background: #ffffff;
-            border-right: 2px solid var(--border-color);
-            padding: 20px;
-            overflow-y: auto;
-            display: flex;
-            flex-direction: column;
+            flex-wrap: wrap;
             gap: 10px;
-        }
-
-        .workspace {
-            flex: 1;
-            background: #eef2f7;
-            padding: 20px;
-            display: flex;
-            flex-direction: column;
-        }
-
-        #contentFrame {
-            width: 100%;
-            height: 100%;
-            border: 2px solid var(--border-color);
-            border-radius: 8px;
-            background: #ffffff;
+            align-items: center;
+            justify-content: flex-start;
         }
 
         .nav-btn {
-            background: #ffffff;
-            border: 2px solid var(--border-color);
+            padding: 8px 14px;
             border-radius: 6px;
-            padding: 10px 14px;
-            text-align: left;
-            font-size: 0.9rem;
-            font-weight: 700;
+            border: 2px solid #000000;
+            font-size: 0.85rem;
+            font-weight: 600;
             cursor: pointer;
             transition: all 0.2s ease;
         }
 
-        .nav-btn:hover {
-            background-color: #fcf3cf;
-            border-color: var(--accent-gold);
-        }
-
+        /* Colores Pastel y Glows */
+        .btn-pastel-1 { background-color: #d1f2eb; box-shadow: 0 0 8px rgba(209, 242, 235, 0.8); color: #0e6251; }
+        .btn-pastel-2 { background-color: #d4efdf; box-shadow: 0 0 8px rgba(212, 239, 223, 0.8); color: #145a32; }
+        .btn-pastel-3 { background-color: #fcf3cf; box-shadow: 0 0 8px rgba(252, 243, 207, 0.8); color: #7d6608; }
+        .btn-pastel-4 { background-color: #fdebd0; box-shadow: 0 0 8px rgba(253, 235, 208, 0.8); color: #7e5109; }
+        .btn-pastel-5 { background-color: #f5b7b1; box-shadow: 0 0 8px rgba(245, 183, 177, 0.8); color: #641e16; }
+        .btn-pastel-6 { background-color: #ebdef0; box-shadow: 0 0 8px rgba(235, 222, 240, 0.8); color: #512e5f; }
+        .btn-pastel-7 { background-color: #e8daef; box-shadow: 0 0 8px rgba(232, 218, 239, 0.8); color: #4a235a; }
+        .btn-pastel-8 { background-color: #d6eaf8; box-shadow: 0 0 8px rgba(214, 234, 248, 0.8); color: #1b4f72; }
+        .btn-pastel-9 { background-color: #a9cce3; box-shadow: 0 0 8px rgba(169, 204, 227, 0.8); color: #154360; }
+        .btn-pastel-10 { background-color: #f9e79f; box-shadow: 0 0 8px rgba(249, 231, 159, 0.8); color: #7d6608; }
+        .btn-pastel-11 { background-color: #a3e4d7; box-shadow: 0 0 8px rgba(163, 228, 215, 0.8); color: #0b5345; }
+        
         .btn-exit {
             background-color: #fadbd8;
             color: #78281f;
-            margin-top: auto;
+            box-shadow: 0 0 8px rgba(250, 219, 216, 0.8);
+            margin-left: auto;
+        }
+
+        .nav-btn:hover {
+            transform: translateY(-2px);
+            filter: brightness(0.95);
+        }
+
+        /* --- WORKSPACE --- */
+        .workspace {
+            flex: 1;
+            display: flex;
+            flex-direction: column;
+            background: #ffffff;
+            margin: 20px;
+            border-radius: 8px;
+            border: 2px solid var(--border-color);
+            box-shadow: 0 4px 15px rgba(0,0,0,0.05);
+            overflow: hidden;
+        }
+
+        iframe {
+            width: 100%;
+            height: 100%;
+            border: none;
+            flex: 1;
+            min-height: 600px;
+        }
+
+        /* Desplegables (Controlados por Clic y clase .show) */
+        .dropdown-container {
+            position: relative;
+            display: inline-block;
+        }
+
+        .dropdown-content {
+            display: none;
+            position: absolute;
+            background-color: #ffffff;
+            min-width: 180px;
+            box-shadow: 0px 8px 16px rgba(0,0,0,0.2);
+            z-index: 10;
+            border: 2px solid #000;
+            border-radius: 6px;
+            top: 100%;
+            left: 0;
+            margin-top: 5px;
+            flex-direction: column;
+        }
+
+        .dropdown-content.show {
+            display: flex;
+        }
+
+        .dropdown-content button {
+            width: 100%;
+            padding: 10px;
+            text-align: left;
+            background: none;
+            border: none;
+            border-bottom: 1px solid #eee;
+            cursor: pointer;
+            font-size: 0.8rem;
+            font-weight: 600;
+        }
+
+        .dropdown-content button:hover {
+            background-color: #f2f3f4;
         }
     </style>
 </head>
 <body>
 
-    <!-- Canvas para la Red Neuronal y destellos de luces erráticas -->
+    <!-- Canvas para la Red Neuronal y destellos de luces erráticas sobre fondo celeste -->
     <canvas id="neuralCanvas"></canvas>
 
-    <!-- Capa de Interfaz de Usuario -->
-    <div class="ui-layer">
-        
-        <!-- Contenedor de Login -->
-        <div id="login-container" class="login-card">
-            <h2>Más Allá del Prisma</h2>
-            <p>Aula Virtual 2027</p>
+    <!-- ================= PANTALLA DE LOGIN ================= -->
+    <div id="login-container">
+        <div class="login-card">
+            <img src="logotipo.jpg" alt="Logotipo" class="login-logo" onerror="this.src='https://via.placeholder.com/110?text=Logo'">
+            <h2 class="login-title">Más allá del prisma</h2>
+            
             <form id="loginForm">
-                <div class="input-group">
-                    <label for="usuario">Usuario / Apellido</label>
-                    <input type="text" id="usuario" required autocomplete="off" placeholder="Ingrese su usuario">
+                <div class="form-group">
+                    <label for="usuario">Usuario:</label>
+                    <input type="text" id="usuario" required autocomplete="username">
                 </div>
-                <div class="input-group">
-                    <label for="contrasena">Contraseña / Matrícula</label>
-                    <input type="password" id="contrasena" required placeholder="••••••••">
+                <div class="form-group">
+                    <label for="contrasena">Contraseña:</label>
+                    <input type="password" id="contrasena" required autocomplete="current-password">
                 </div>
-                <button type="submit" class="btn-submit">Ingresar al Sistema</button>
-                <div id="errorMsg" class="error-msg">Credenciales incorrectas o usuario no registrado.</div>
+                <button type="submit" class="btn-login">Ingresar</button>
+                <div id="errorMsg" class="error-msg">Usuario o contraseña incorrectos.</div>
             </form>
-        </div>
 
-        <!-- Contenedor Principal del Sistema (Dashboard) -->
-        <div id="app-container">
-            <header>
-                <div id="userDisplay"></div>
-                <div style="font-weight: 800; font-size: 1.1rem; color: #1a252f;">Campus Académico</div>
-            </header>
-            <div class="main-layout">
-                <aside id="navMenu"></aside>
-                <div class="workspace">
-                    <iframe id="contentFrame" src="about:blank"></iframe>
-                </div>
+            <div class="login-footer">
+                <p><strong>Dr. y Mgter. Rubén M. Pereyra</strong></p>
+                <p>2027</p>
             </div>
         </div>
-
     </div>
 
-    <!-- Script de Animación Neuronal y Lógica de Aplicación (app.js embebido o conectado) -->
+    <!-- ================= AULA VIRTUAL (DASHBOARD) ================= -->
+    <div id="app-container">
+        <header>
+            <div class="header-left">
+                <img src="logotipo.jpg" alt="Logo" class="header-logo" onerror="this.src='https://via.placeholder.com/50?text=Logo'">
+                <div class="header-titles">
+                    <h1>Mas allá del prisma</h1>
+                    <span>Aula Virtual</span>
+                </div>
+            </div>
+            <div id="userDisplay" class="user-badge">Panel</div>
+        </header>
+
+        <nav id="navMenu"></nav>
+
+        <div class="workspace">
+            <iframe id="contentFrame" name="contentFrame" src="about:blank"></iframe>
+        </div>
+    </div>
+
+    <!-- Script Principal con la lógica y Firebase -->
     <script type="module" src="app.js"></script>
 
     <script>
@@ -275,7 +382,6 @@
         window.addEventListener('resize', resizeCanvas);
         resizeCanvas();
 
-        // Constructor de Neuronas y Glía
         class Node {
             constructor() {
                 this.x = Math.random() * width;
@@ -283,7 +389,7 @@
                 this.vx = (Math.random() - 0.5) * 0.4;
                 this.vy = (Math.random() - 0.5) * 0.4;
                 this.radius = Math.random() * 2.5 + 1.5;
-                this.type = Math.random() > 0.2 ? 'neuron' : 'glia'; // Neuronas o Células gliales
+                this.type = Math.random() > 0.2 ? 'neuron' : 'glia';
                 this.color = this.type === 'neuron' ? '#34495e' : '#2980b9';
             }
 
@@ -301,7 +407,6 @@
                 ctx.fillStyle = this.color;
                 ctx.fill();
                 
-                // Halo sutil para simular núcleo celular
                 if(this.type === 'neuron') {
                     ctx.beginPath();
                     ctx.arc(this.x, this.y, this.radius * 2, 0, Math.PI * 2);
@@ -312,7 +417,6 @@
             }
         }
 
-        // Destellos de luces de colores erráticos viajando por las sinapsis
         class Pulse {
             constructor(startNode, endNode) {
                 this.x = startNode.x;
@@ -324,7 +428,6 @@
                 this.progress = 0;
                 this.speed = Math.random() * 0.015 + 0.008;
                 
-                // Colores erráticos de alta calidad (tonos cyan, magenta, oro, violeta eléctrico)
                 const erraticColors = ['#e74c3c', '#9b59b6', '#f1c40f', '#00cec9', '#e84393', '#0984e3'];
                 this.color = erraticColors[Math.floor(Math.random() * erraticColors.length)];
             }
@@ -342,11 +445,10 @@
                 ctx.shadowBlur = 10;
                 ctx.shadowColor = this.color;
                 ctx.fill();
-                ctx.shadowBlur = 0; // Reset sombra
+                ctx.shadowBlur = 0;
             }
         }
 
-        // Inicializar cantidad óptima de nodos según resolución
         const density = Math.floor((width * height) / 14000);
         for (let i = 0; i < density; i++) {
             nodes.push(new Node());
@@ -357,7 +459,6 @@
             ctx.fillStyle = '#e8f0fe';
             ctx.fillRect(0, 0, width, height);
 
-            // Actualizar y dibujar conexiones sinápticas (red neuronal)
             for (let i = 0; i < nodes.length; i++) {
                 nodes[i].update();
                 nodes[i].draw();
@@ -376,7 +477,6 @@
                         ctx.lineWidth = 1;
                         ctx.stroke();
 
-                        // Generar destellos erráticos aleatorios en las conexiones
                         if (Math.random() < 0.0012 && pulses.length < 25) {
                             pulses.push(new Pulse(nodes[i], nodes[j]));
                         }
@@ -384,7 +484,6 @@
                 }
             }
 
-            // Actualizar y renderizar destellos de luces erráticas
             for (let p = pulses.length - 1; p >= 0; p--) {
                 pulses[p].update();
                 pulses[p].draw();
