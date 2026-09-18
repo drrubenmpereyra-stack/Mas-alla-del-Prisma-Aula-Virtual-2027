@@ -19,8 +19,8 @@ const db = getFirestore(app);
 // Enlace raw oficial del video intro en GitHub
 const VIDEO_INTRO_URL = "https://github.com/drrubenmpereyra-stack/video-intro-Ms-alla-del-prisma/raw/refs/heads/main/Intro_masalladelprisma.mp4";
 
-// Foto del Administrador en GitHub
-const ADMIN_GITHUB_PHOTO = "https://raw.githubusercontent.com/drrubenmpereyra-stack/video-intro-Ms-alla-del-prisma/main/admin_foto.jpg";
+// Foto del Administrador en GitHub con el nombre exacto: foto_adm.jpg
+const ADMIN_GITHUB_PHOTO = "https://raw.githubusercontent.com/drrubenmpereyra-stack/video-intro-Ms-alla-del-prisma/main/foto_adm.jpg";
 
 // Función para inicializar usuarios base (Administrador y Estudiante de prueba por defecto)
 async function inicializarUsuariosBase() {
@@ -88,7 +88,7 @@ document.getElementById("loginForm").addEventListener("submit", async function(e
                     user: p.codigoMatricula,
                     role: "student",
                     name: `${p.apellido}, ${p.nombres}`,
-                    fotoDrive: p.foto || p.fotoUrl || p.imagen || "" // Obtiene la foto de Drive registrada en participantes
+                    fotoDrive: p.fotoDrive || "" // Usando exactamente el campo fotoDrive de tu esquema
                 };
             }
         });
@@ -144,13 +144,11 @@ function loadDashboard(userObj) {
     document.getElementById("login-container").style.display = "none";
     document.getElementById("app-container").style.display = "flex";
     
-    // Inyectar foto real (si existe) y animación vectorial de bienvenida
     renderizarPerfilYBienvenida(userObj);
-
     buildMenu(userObj.role);
 }
 
-// Renderizar foto real del usuario y animación vectorial de bienvenida limpia
+// Renderizar foto real y animación vectorial de bienvenida
 function renderizarPerfilYBienvenida(userObj) {
     let userDisplay = document.getElementById("userDisplay");
     if (!userDisplay) return;
@@ -158,8 +156,9 @@ function renderizarPerfilYBienvenida(userObj) {
     let fotoUrl = "";
     if (userObj.role === "admin") {
         fotoUrl = ADMIN_GITHUB_PHOTO;
-    } else if (userObj.fotoDrive) {
-        fotoUrl = userObj.fotoDrive;
+    } else if (userObj.fotoDrive && userObj.fotoDrive.trim() !== "") {
+        fotoUrl = userObj.fotoDrive.trim();
+        // Procesar enlace de Google Drive si viene en formato compartido
         if (fotoUrl.includes("drive.google.com") && fotoUrl.includes("id=")) {
             const fileId = fotoUrl.split("id=")[1].split("&")[0];
             fotoUrl = `https://lh3.googleusercontent.com/d/` + fileId;
@@ -173,8 +172,8 @@ function renderizarPerfilYBienvenida(userObj) {
     userDisplay.style.alignItems = "center";
     userDisplay.style.gap = "12px";
 
-    // Si hay foto real la muestra, si no hay foto, muestra únicamente la animación vectorial con el nombre
     let htmlContent = "";
+    // Solo si la URL de la foto existe y no está vacía se incluye la etiqueta img
     if (fotoUrl) {
         htmlContent = `
             <img src="${fotoUrl}" alt="Perfil" style="width:48px; height:48px; border-radius:50%; object-fit:cover; border:2px solid #b7950b; background:#ffffff; flex-shrink:0;" onerror="this.style.display='none'">
