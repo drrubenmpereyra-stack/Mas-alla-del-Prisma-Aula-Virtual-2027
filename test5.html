@@ -1,0 +1,524 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Test 5 - La sombra insondable de la celotipia y la neurobiología de la persecución</title>
+    <style>
+        :root {
+            --bg-color: #f4f5f7;
+            --neural-pattern: radial-gradient(circle, rgba(200,205,215,0.25) 1px, transparent 1px);
+            --card-bg: #ffffff;
+            --border-color: #000000;
+        }
+
+        * {
+            box-sizing: border-box;
+            margin: 0;
+            padding: 0;
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+        }
+
+        body {
+            background-color: var(--bg-color);
+            background-image: var(--neural-pattern);
+            background-size: 24px 24px;
+            color: #2c3e50;
+            padding: 20px;
+        }
+
+        .container {
+            max-width: 850px;
+            margin: 0 auto;
+        }
+
+        header {
+            text-align: center;
+            margin-bottom: 30px;
+            position: relative;
+        }
+
+        .btn-volver {
+            position: absolute;
+            top: 0;
+            left: 0;
+            background-color: #fadbd8;
+            color: #78281f;
+            border: 2px solid var(--border-color);
+            border-radius: 6px;
+            padding: 8px 14px;
+            font-size: 0.85rem;
+            font-weight: 700;
+            cursor: pointer;
+            box-shadow: 0 0 8px rgba(250, 219, 216, 0.8);
+            transition: all 0.2s ease;
+        }
+
+        .btn-volver:hover {
+            transform: translateY(-2px);
+            filter: brightness(0.95);
+        }
+
+        header h2 {
+            font-size: 1.5rem;
+            color: #1a252f;
+            border-bottom: 2px solid #bdc3c7;
+            padding-bottom: 10px;
+            margin-bottom: 8px;
+            margin-top: 40px;
+        }
+
+        header p {
+            font-size: 0.95rem;
+            color: #7d6608;
+            font-weight: 600;
+        }
+
+        .quiz-card {
+            background-color: var(--card-bg);
+            border: 2px solid var(--border-color);
+            border-radius: 10px;
+            padding: 30px;
+            box-shadow: 0 4px 20px rgba(0,0,0,0.08);
+            margin-bottom: 25px;
+            display: none;
+        }
+
+        .quiz-card.active {
+            display: block;
+        }
+
+        .question-number {
+            font-size: 0.85rem;
+            font-weight: 700;
+            color: #7d6608;
+            text-transform: uppercase;
+            letter-spacing: 1px;
+            margin-bottom: 8px;
+        }
+
+        .question-title {
+            font-size: 1.15rem;
+            font-weight: 700;
+            color: #2c3e50;
+            margin-bottom: 20px;
+            line-height: 1.4;
+        }
+
+        .options-list {
+            display: flex;
+            flex-direction: column;
+            gap: 12px;
+            margin-bottom: 20px;
+        }
+
+        .option-btn {
+            background: #fff;
+            border: 2px solid var(--border-color);
+            border-radius: 6px;
+            padding: 12px 16px;
+            text-align: left;
+            font-size: 0.95rem;
+            font-weight: 600;
+            color: #2c3e50;
+            cursor: pointer;
+            transition: all 0.2s ease;
+        }
+
+        .option-btn:hover:not(:disabled) {
+            background-color: #fcf3cf;
+            border-color: #7d6608;
+        }
+
+        .option-btn.correct {
+            background-color: #d4efdf !important;
+            color: #145a32 !important;
+            border-color: #145a32 !important;
+            box-shadow: 0 0 10px rgba(212, 239, 223, 0.9);
+        }
+
+        .option-btn.incorrect {
+            background-color: #f5b7b1 !important;
+            color: #641e16 !important;
+            border-color: #641e16 !important;
+            box-shadow: 0 0 10px rgba(245, 183, 177, 0.9);
+        }
+
+        .option-btn:disabled {
+            cursor: default;
+        }
+
+        .feedback-box {
+            margin-top: 15px;
+            padding: 14px;
+            border-radius: 6px;
+            font-size: 0.9rem;
+            font-weight: 600;
+            display: none;
+        }
+
+        .feedback-box.show {
+            display: block;
+        }
+
+        .feedback-box.correct-fb {
+            background-color: #d4efdf;
+            color: #145a32;
+            border: 1.5px solid #145a32;
+        }
+
+        .feedback-box.incorrect-fb {
+            background-color: #f9d5d2;
+            color: #641e16;
+            border: 1.5px solid #641e16;
+        }
+
+        .nav-actions {
+            display: flex;
+            justify-content: flex-end;
+            margin-top: 20px;
+        }
+
+        .btn-next {
+            background-color: #d4efdf;
+            color: #145a32;
+            border: 2px solid var(--border-color);
+            border-radius: 6px;
+            padding: 10px 24px;
+            font-size: 0.95rem;
+            font-weight: 700;
+            cursor: pointer;
+            box-shadow: 0 0 8px rgba(212, 239, 223, 0.8);
+            display: none;
+            transition: all 0.2s ease;
+        }
+
+        .btn-next:hover {
+            background-color: #a9dfbf;
+        }
+
+        .results-card {
+            background-color: var(--card-bg);
+            border: 2px solid var(--border-color);
+            border-radius: 10px;
+            padding: 40px;
+            text-align: center;
+            box-shadow: 0 4px 20px rgba(0,0,0,0.08);
+            display: none;
+        }
+
+        .results-card h3 {
+            font-size: 1.6rem;
+            color: #1a252f;
+            margin-bottom: 15px;
+        }
+
+        .results-card p {
+            font-size: 1.1rem;
+            color: #7d6608;
+            font-weight: 700;
+            margin-bottom: 25px;
+        }
+
+        .msg-status {
+            margin-top: 15px;
+            font-size: 0.95rem;
+            font-weight: 600;
+        }
+    </style>
+</head>
+<body>
+
+    <div class="container">
+        <header>
+            <button class="btn-volver" onclick="volverDashboard()">← Volver</button>
+            <h2>Test 5: La sombra insondable de la celotipia</h2>
+            <p>Programa de Formación para Profesionales de la Salud Mental (2027)</p>
+        </header>
+
+        <!-- Contenedor del Cuestionario -->
+        <div id="questionsContainer"></div>
+
+        <!-- Tarjeta de Resultados Finales -->
+        <div id="resultsCard" class="results-card">
+            <h3>Evaluación Finalizada</h3>
+            <p id="scoreText"></p>
+            <div id="resultStatus" class="msg-status"></div>
+        </div>
+    </div>
+
+    <!-- Script conectado a Firebase Firestore -->
+    <script type="module">
+        import { initializeApp } from "https://www.gstatic.com/firebasejs/10.8.0/firebase-app.js";
+        import { getFirestore, setDoc, doc } from "https://www.gstatic.com/firebasejs/10.8.0/firebase-firestore.js";
+
+        const firebaseConfig = {
+          apiKey: "AIzaSyDLSIGdkd2y1l7zhMjoVd_bmCj8jjXpX4I",
+          authDomain: "aula-virtual-mas-alla-del-pris.firebaseapp.com",
+          projectId: "aula-virtual-mas-alla-del-pris",
+          storageBucket: "aula-virtual-mas-alla-del-pris.firebasestorage.app",
+          messagingSenderId: "711745866832",
+          appId: "1:711745866832:web:945e046cb0b61ac320d555"
+        };
+
+        const app = initializeApp(firebaseConfig);
+        const db = getFirestore(app);
+
+        // Definición de las preguntas basadas estrictamente en el material adjunto del Capítulo 5
+        const preguntas = [
+            {
+                id: 1,
+                pregunta: "¿Qué propone el modelo de la Clínica de la Convergencia para leer los celos patológicos y las derivas de la paranoia[cite: 5]?",
+                opciones: [
+                    "Como un simple jeroglífico del deseo inconsciente desvinculado de todo sustrato biológico.",
+                    "Como el producto de un colapso narcisístico profundo articulado con una hiperreactividad amigdalina y una alteración de los circuitos subcorticales de habituación[cite: 5].",
+                    "Como una manifestación exclusiva de la neurosis obsesiva infantil sin relación con el presente.",
+                    "Como una variante benigna y superable de los celos competitivos normales.",
+                    "Como un trastorno conductual corregible únicamente mediante técnicas de modificación de conducta."
+                ],
+                correcta: 1,
+                feedback: "Correcto. La Clínica de la Convergencia propone leer los celos patológicos como el producto de un colapso narcisístico profundo articulado con hiperreactividad amigdalina y fallas de habituación[cite: 5]."
+            },
+            {
+                id: 2,
+                pregunta: "Según el texto de Sigmund Freud (1922) citado en el capítulo, ¿cómo se estructuran rigurosamente las tres capas de los celos[cite: 5]?",
+                opciones: [
+                    "Celos infantiles, celos edípicos y celos fraternales.",
+                    "Celos normales (competitivos), celos proyectados y celos delirantes[cite: 5].",
+                    "Celos histéricos, celos fóbicos y celos paranoides.",
+                    "Celos transitorios, celos crónicos y celos psicóticos puros.",
+                    "Celos conscientes, celos preconscientes y celos inconscientes."
+                ],
+                correcta: 1,
+                feedback: "Correcto. Freud clasifica los celos en tres capas: celos normales (competitivos), celos proyectados y celos delirantes[cite: 5]."
+            },
+            {
+                id: 3,
+                pregunta: "¿Qué rol cumple el narcisismo herido en el núcleo de la celotipia patológica[cite: 5]?",
+                opciones: [
+                    "Funciona como un estímulo menor que el sujeto tramita rápidamente mediante la autocrítica reflexiva.",
+                    "Constituye el suelo germinal donde el partenaire es investido no por su alteridad, sino como el único dique de contención contra el vaciamiento yoico[cite: 5].",
+                    "Garantiza la autonomía absoluta del yo frente a las demandas del entorno social.",
+                    "Elimina por completo la necesidad de reconocimiento exterior.",
+                    "Equivale a la represión secundaria de los impulsos agresivos."
+                ],
+                correcta: 1,
+                feedback: "Correcto. Ante una fragilidad narcisística, el partenaire se convierte en el único dique de contención contra el vaciamiento yoico, procesando cualquier autonomía como amenaza de aniquilación[cite: 5]."
+            },
+            {
+                id: 4,
+                pregunta: "¿Qué caracteriza metapsicológicamente a los celos proyectados como mecanismo defensivo neurótico[cite: 5]?",
+                opciones: [
+                    "El reconocimiento consciente y pacífico de las propias mociones adúlteras.",
+                    "La proyección de deseos de infidelidad propios o mociones homosexuales reprimidas hacia el exterior, transformando el 'Yo deseo traicionar' en 'Es el otro quien me traiciona'[cite: 5].",
+                    "La absoluta ruptura con la realidad y la presencia de certeza delirante inquebrantable.",
+                    "La capacidad de dudar metódicamente y aceptar la legalidad simbólica del contrato conyugal.",
+                    "La ausencia total de culpa o conflicto psíquico en el sujeto."
+                ],
+                correcta: 1,
+                feedback: "Correcto. En los celos proyectados, el sujeto expulsa sus propios deseos prohibidos (o mociones homosexuales reprimidas) formulando externamente la sospecha persecutoria[cite: 5]."
+            },
+            {
+                id: 5,
+                pregunta: "¿Cuál es una de las diferencias clínicas fundamentales entre el neurótico con celos proyectados y el celoso delirante (estructura psicótica)[cite: 5]?",
+                opciones: [
+                    "El neurótico busca indicios absurdos para confirmar un delirio, mientras que el psicótico duda y sufre el conflicto de no saber.",
+                    "El neurótico duda, busca pruebas y sufre el conflicto de no saber con certeza, mientras que el celoso delirante sabe y posee una certeza inquebrantable e impermeable a la realidad[cite: 5].",
+                    "El psicótico conserva intacto el juicio de realidad (Realitätsprüfung) a diferencia del neurótico.",
+                    "El celoso delirante logra disolver su delirio mediante la asociación libre en las primeras entrevistas.",
+                    "No existe ninguna diferencia estructural entre ambas modalidades celotípicas."
+                ],
+                correcta: 1,
+                feedback: "Correcto. El neurótico duda y sufre el conflicto, mientras que el celoso delirante abole el juicio de realidad y posee una certeza absoluta e impermeable[cite: 5]."
+            },
+            {
+                id: 6,
+                pregunta: "Desde la perspectiva neurobiológica descrita en el capítulo, ¿qué anomalía presenta el complejo amigdalino en el celoso patológico y el paciente paranoico[cite: 5]?",
+                opciones: [
+                    "Opera con un umbral de activación crónicamente bajo (hiperreactividad constante), procesando estímulos sociales ambiguos como impactos de alta peligrosidad[cite: 5].",
+                    "Se encuentra totalmente inactivo, impidiendo que el sujeto perciba cualquier tipo de amenaza exterior.",
+                    "Regula perfectamente la respuesta de calma mediante un exceso de conexiones inhibitorias prefrontales.",
+                    "Bloquea la liberación de adrenalina y cortisol ante situaciones de estrés conyugal.",
+                    "Carece de conexión alguna con el eje HPA."
+                ],
+                correcta: 0,
+                feedback: "Correcto. La amígdala opera con un umbral crónicamente bajo y una hiperreactividad constante, interpretando cualquier cambio sutil como un peligro letal[cite: 5]."
+            },
+            {
+                id: 7,
+                pregunta: "¿Qué es el sesgo de confirmación neurobiológico en el marco de la hiperreactividad límbica del celoso[cite: 5]?",
+                opciones: [
+                    "La capacidad objetiva del cerebro para evaluar imparcialmente las pruebas de fidelidad.",
+                    "El reclutamiento selectivo por parte del cerebro de todos los datos que confirman la sospecha, ignorando sistemáticamente cualquier evidencia que la desmienta[cite: 5].",
+                    "Un mecanismo cognitivo consciente para planificar estrategias de reconciliación conyugal.",
+                    "La habituación progresiva del sistema nervioso ante los estímulos afectivos repetidos.",
+                    "La desactivación automática del circuito del miedo tras una discusión."
+                ],
+                correcta: 1,
+                feedback: "Correcto. El sesgo de confirmación neurobiológico lleva al cerebro a reclutar selectivamente los datos que confirman la sospecha y a descartar las evidencias objetivas[cite: 5]."
+            },
+            {
+                id: 8,
+                pregunta: "¿Qué ocurre con los mecanismos de habituación subcortical en el sujeto celoso patológico según el texto[cite: 5]?",
+                opciones: [
+                    "La habituación funciona de manera óptima, permitiendo que el sujeto se acostumbre rápidamente a la seguridad del vínculo.",
+                    "La habituación está abolida; el sujeto es incapaz de acostumbrarse a la seguridad y cada amanecer el contador neurobiológico de la amenaza se reinicia en cero[cite: 5].",
+                    "Se incrementa de forma masiva la tolerancia a la incertidumbre afectiva.",
+                    "El organismo ahorra energía metabólica gracias a la predicción previsible del entorno.",
+                    "Se produce un apagamiento total del sistema nervioso simpático."
+                ],
+                correcta: 1,
+                feedback: "Correcto. La habituación está abolida: el sujeto no puede acostumbrarse a la seguridad y el contador de la amenaza se reinicia cada día en cero[cite: 5]."
+            },
+            {
+                id: 9,
+                pregunta: "¿Qué consecuencia provoca la hipofrontalidad funcional bajo el baño crónico de hormonas de estrés en el paciente celoso[cite: 5]?",
+                opciones: [
+                    "Fortalece la conexión entre la corteza prefrontal dorsolateral y el sistema límbico.",
+                    "Permite un análisis lógico, crítico y metódico de las pruebas de celos.",
+                    "Desconecta funcionalmente las estructuras prefrontales encargadas de dudar, relativizar e inhibir el pensamiento persecutorio, silenciando los canales lógicos[cite: 5].",
+                    "Restaura de manera espontánea la ventana de tolerancia afectiva.",
+                    "Estimula la plasticidad sináptica positiva en el hipocampo."
+                ],
+                correcta: 2,
+                feedback: "Correcto. La hipofrontalidad funcional y la desconexión prefrontal silencian los sustratos neurobiológicos encargados de dudar y relativizar, consolidando la certeza delirante[cite: 5]."
+            },
+            {
+                id: 10,
+                pregunta: "Desde el punto de vista metapsicológico y clínico, ¿qué función última cumple el delirio celotípico para el yo del sujeto psicótico[cite: 5]?",
+                opciones: [
+                    "Representa un intento desesperado de reconstruir un mundo con sentido y mantener amarrado al otro para evitar la precipitación en el abismo de la fragmentación absoluta[cite: 5].",
+                    "Constituye un mecanismo de defensa neurótico exitoso que disuelve la culpa sin secuelas.",
+                    "Facilita la disolución pacífica y madura del lazo amoroso.",
+                    "Permite el acceso directo a la simbolización abstracta y al trabajo de duelo.",
+                    "Garantiza la independencia afectiva total respecto al partenaire."
+                ],
+                correcta: 0,
+                feedback: "Correcto. El celo delirante es un intento desesperado de reconstruir un mundo con sentido sobre las ruinas de un narcisismo derrumbado, evitando la fragmentación absoluta[cite: 5]."
+            }
+        ];
+
+        let currentQuestion = 0;
+        let score = 0;
+        const totalQuestions = preguntas.length;
+
+        function renderQuiz() {
+            const container = document.getElementById("questionsContainer");
+            container.innerHTML = "";
+
+            preguntas.forEach((p, index) => {
+                const card = document.createElement("div");
+                card.className = `quiz-card ${index === 0 ? 'active' : ''}`;
+                card.id = `question-card-${index}`;
+
+                let opcionesHtml = "";
+                p.opciones.forEach((opcion, optIndex) => {
+                    opcionesHtml += `<button class="option-btn" onclick="verificarRespuesta(${index}, ${optIndex})">${opcion}</button>`;
+                });
+
+                card.innerHTML = `
+                    <div class="question-number">Pregunta ${index + 1} de ${totalQuestions}</div>
+                    <div class="question-title">${p.pregunta}</div>
+                    <div class="options-list" id="options-${index}">
+                        ${opcionesHtml}
+                    </div>
+                    <div class="feedback-box" id="feedback-${index}">${p.feedback}</div>
+                    <div class="nav-actions">
+                        <button class="btn-next" id="btn-next-${index}" onclick="siguientePregunta(${index})">
+                            ${index === totalQuestions - 1 ? 'Finalizar Protocolo' : 'Siguiente Pregunta'}
+                        </button>
+                    </div>
+                `;
+                container.appendChild(card);
+            });
+        }
+
+        window.verificarRespuesta = function(qIndex, selectedOpt) {
+            const p = preguntas[qIndex];
+            const optionsContainer = document.getElementById(`options-${qIndex}`);
+            const buttons = optionsContainer.getElementsByClassName("option-btn");
+            const feedbackBox = document.getElementById(`feedback-${qIndex}`);
+            const nextBtn = document.getElementById(`btn-next-${qIndex}`);
+
+            for (let i = 0; i < buttons.length; i++) {
+                buttons[i].disabled = true;
+                if (i === p.correcta) {
+                    buttons[i].classList.add("correct");
+                } else if (i === selectedOpt) {
+                    buttons[i].classList.add("incorrect");
+                }
+            }
+
+            if (selectedOpt === p.correcta) {
+                score += 1;
+                feedbackBox.className = "feedback-box show correct-fb";
+            } else {
+                feedbackBox.className = "feedback-box show incorrect-fb";
+            }
+
+            nextBtn.style.display = "block";
+        }
+
+        window.siguientePregunta = function(qIndex) {
+            document.getElementById(`question-card-${qIndex}`).classList.remove("active");
+
+            if (qIndex + 1 < totalQuestions) {
+                document.getElementById(`question-card-${qIndex + 1}`).classList.add("active");
+            } else {
+                guardarYMostrarResultados();
+            }
+        }
+
+        async function guardarYMostrarResultados() {
+            document.getElementById("questionsContainer").style.display = "none";
+            const resultsCard = document.getElementById("resultsCard");
+            const scoreText = document.getElementById("scoreText");
+            const resultStatus = document.getElementById("resultStatus");
+
+            resultsCard.style.display = "block";
+            scoreText.innerText = `Protocolo finalizado, Ud. ha obtenido ${score} puntos/10, se enviará a corrección definitiva`;
+
+            const sessionData = sessionStorage.getItem("current_session");
+            let userId = "Estudiante_Anonimo";
+            
+            if (sessionData) {
+                try {
+                    const userObj = JSON.parse(sessionData);
+                    userId = userObj.user || userObj.name || "Estudiante";
+                } catch (e) {
+                    console.error("Error al parsear sesión:", e);
+                }
+            }
+
+            const docId = `NOTA_TEST_5_${userId.replace(/[\.\s]/g, "_")}`;
+
+            try {
+                await setDoc(doc(db, "calificaciones_tests", docId), {
+                    usuario: userId,
+                    notaTest_5: score,
+                    fecha: new Date().toISOString()
+                });
+
+                resultStatus.style.color = "#145a32";
+                resultStatus.innerText = "¡Resultado guardado con éxito en la base de datos!";
+            } catch (error) {
+                console.error("Error al guardar en base de datos:", error);
+                resultStatus.style.color = "#641e16";
+                resultStatus.innerText = "Error al sincronizar el resultado con la base de datos.";
+            }
+        }
+
+        window.volverDashboard = function() {
+            if (window.parent && window.parent !== window) {
+                window.parent.location.reload();
+            } else {
+                window.location.href = "index.html";
+            }
+        }
+
+        window.onload = function() {
+            renderQuiz();
+        };
+    </script>
+</body>
+</html>
