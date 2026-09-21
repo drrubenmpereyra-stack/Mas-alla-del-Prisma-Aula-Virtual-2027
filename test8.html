@@ -1,0 +1,524 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Test 8 - La palabra ante el límite y la desarticulación del cuerpo</title>
+    <style>
+        :root {
+            --bg-color: #f4f5f7;
+            --neural-pattern: radial-gradient(circle, rgba(200,205,215,0.25) 1px, transparent 1px);
+            --card-bg: #ffffff;
+            --border-color: #000000;
+        }
+
+        * {
+            box-sizing: border-box;
+            margin: 0;
+            padding: 0;
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+        }
+
+        body {
+            background-color: var(--bg-color);
+            background-image: var(--neural-pattern);
+            background-size: 24px 24px;
+            color: #2c3e50;
+            padding: 20px;
+        }
+
+        .container {
+            max-width: 850px;
+            margin: 0 auto;
+        }
+
+        header {
+            text-align: center;
+            margin-bottom: 30px;
+            position: relative;
+        }
+
+        .btn-volver {
+            position: absolute;
+            top: 0;
+            left: 0;
+            background-color: #fadbd8;
+            color: #78281f;
+            border: 2px solid var(--border-color);
+            border-radius: 6px;
+            padding: 8px 14px;
+            font-size: 0.85rem;
+            font-weight: 700;
+            cursor: pointer;
+            box-shadow: 0 0 8px rgba(250, 219, 216, 0.8);
+            transition: all 0.2s ease;
+        }
+
+        .btn-volver:hover {
+            transform: translateY(-2px);
+            filter: brightness(0.95);
+        }
+
+        header h2 {
+            font-size: 1.5rem;
+            color: #1a252f;
+            border-bottom: 2px solid #bdc3c7;
+            padding-bottom: 10px;
+            margin-bottom: 8px;
+            margin-top: 40px;
+        }
+
+        header p {
+            font-size: 0.95rem;
+            color: #7d6608;
+            font-weight: 600;
+        }
+
+        .quiz-card {
+            background-color: var(--card-bg);
+            border: 2px solid var(--border-color);
+            border-radius: 10px;
+            padding: 30px;
+            box-shadow: 0 4px 20px rgba(0,0,0,0.08);
+            margin-bottom: 25px;
+            display: none;
+        }
+
+        .quiz-card.active {
+            display: block;
+        }
+
+        .question-number {
+            font-size: 0.85rem;
+            font-weight: 700;
+            color: #7d6608;
+            text-transform: uppercase;
+            letter-spacing: 1px;
+            margin-bottom: 8px;
+        }
+
+        .question-title {
+            font-size: 1.15rem;
+            font-weight: 700;
+            color: #2c3e50;
+            margin-bottom: 20px;
+            line-height: 1.4;
+        }
+
+        .options-list {
+            display: flex;
+            flex-direction: column;
+            gap: 12px;
+            margin-bottom: 20px;
+        }
+
+        .option-btn {
+            background: #fff;
+            border: 2px solid var(--border-color);
+            border-radius: 6px;
+            padding: 12px 16px;
+            text-align: left;
+            font-size: 0.95rem;
+            font-weight: 600;
+            color: #2c3e50;
+            cursor: pointer;
+            transition: all 0.2s ease;
+        }
+
+        .option-btn:hover:not(:disabled) {
+            background-color: #fcf3cf;
+            border-color: #7d6608;
+        }
+
+        .option-btn.correct {
+            background-color: #d4efdf !important;
+            color: #145a32 !important;
+            border-color: #145a32 !important;
+            box-shadow: 0 0 10px rgba(212, 239, 223, 0.9);
+        }
+
+        .option-btn.incorrect {
+            background-color: #f5b7b1 !important;
+            color: #641e16 !important;
+            border-color: #641e16 !important;
+            box-shadow: 0 0 10px rgba(245, 183, 177, 0.9);
+        }
+
+        .option-btn:disabled {
+            cursor: default;
+        }
+
+        .feedback-box {
+            margin-top: 15px;
+            padding: 14px;
+            border-radius: 6px;
+            font-size: 0.9rem;
+            font-weight: 600;
+            display: none;
+        }
+
+        .feedback-box.show {
+            display: block;
+        }
+
+        .feedback-box.correct-fb {
+            background-color: #d4efdf;
+            color: #145a32;
+            border: 1.5px solid #145a32;
+        }
+
+        .feedback-box.incorrect-fb {
+            background-color: #f9d5d2;
+            color: #641e16;
+            border: 1.5px solid #641e16;
+        }
+
+        .nav-actions {
+            display: flex;
+            justify-content: flex-end;
+            margin-top: 20px;
+        }
+
+        .btn-next {
+            background-color: #d4efdf;
+            color: #145a32;
+            border: 2px solid var(--border-color);
+            border-radius: 6px;
+            padding: 10px 24px;
+            font-size: 0.95rem;
+            font-weight: 700;
+            cursor: pointer;
+            box-shadow: 0 0 8px rgba(212, 239, 223, 0.8);
+            display: none;
+            transition: all 0.2s ease;
+        }
+
+        .btn-next:hover {
+            background-color: #a9dfbf;
+        }
+
+        .results-card {
+            background-color: var(--card-bg);
+            border: 2px solid var(--border-color);
+            border-radius: 10px;
+            padding: 40px;
+            text-align: center;
+            box-shadow: 0 4px 20px rgba(0,0,0,0.08);
+            display: none;
+        }
+
+        .results-card h3 {
+            font-size: 1.6rem;
+            color: #1a252f;
+            margin-bottom: 15px;
+        }
+
+        .results-card p {
+            font-size: 1.1rem;
+            color: #7d6608;
+            font-weight: 700;
+            margin-bottom: 25px;
+        }
+
+        .msg-status {
+            margin-top: 15px;
+            font-size: 0.95rem;
+            font-weight: 600;
+        }
+    </style>
+</head>
+<body>
+
+    <div class="container">
+        <header>
+            <button class="btn-volver" onclick="volverDashboard()">← Volver</button>
+            <h2>Test 8: La palabra ante el límite y la desarticulación del cuerpo</h2>
+            <p>Programa de Formación para Profesionales de la Salud Mental (2027)</p>
+        </header>
+
+        <!-- Contenedor del Cuestionario -->
+        <div id="questionsContainer"></div>
+
+        <!-- Tarjeta de Resultados Finales -->
+        <div id="resultsCard" class="results-card">
+            <h3>Evaluación Finalizada</h3>
+            <p id="scoreText"></p>
+            <div id="resultStatus" class="msg-status"></div>
+        </div>
+    </div>
+
+    <!-- Script conectado a Firebase Firestore -->
+    <script type="module">
+        import { initializeApp } from "https://www.gstatic.com/firebasejs/10.8.0/firebase-app.js";
+        import { getFirestore, setDoc, doc } from "https://www.gstatic.com/firebasejs/10.8.0/firebase-firestore.js";
+
+        const firebaseConfig = {
+          apiKey: "AIzaSyDLSIGdkd2y1l7zhMjoVd_bmCj8jjXpX4I",
+          authDomain: "aula-virtual-mas-alla-del-pris.firebaseapp.com",
+          projectId: "aula-virtual-mas-alla-del-pris",
+          storageBucket: "aula-virtual-mas-alla-del-pris.firebasestorage.app",
+          messagingSenderId: "711745866832",
+          appId: "1:711745866832:web:945e046cb0b61ac320d555"
+        };
+
+        const app = initializeApp(firebaseConfig);
+        const db = getFirestore(app);
+
+        // Definición de las preguntas basadas estrictamente en el Capítulo 8
+        const preguntas = [
+            {
+                id: 1,
+                pregunta: "¿Qué prejuicio mantuvo el psicoanálisis ortodoxo durante décadas respecto a la intervención en los servicios de oncología u hospitalización general[cite: 11]?",
+                opciones: [
+                    "Que la enfermedad orgánica facilitaba de inmediato la asociación libre.",
+                    "Que el aparato psíquico debilitado por una enfermedad orgánica grave no era apto para el trabajo asociativo o que la urgencia médica invalidaba la labor de la palabra[cite: 11].",
+                    "Que los médicos tratantes debían asumir por completo la tarea analítica.",
+                    "Que los pacientes terminales no experimentaban ningún tipo de conflicto narcisístico.",
+                    "Que la metapsicología clásica ya contemplaba el tratamiento paliativo."
+                ],
+                correcta: 1,
+                feedback: "Correcto. El psicoanálisis ortodoxo mantuvo reticencia bajo el prejuicio de que el aparato psíquico debilitado no era apto para asociar o que la urgencia médica invalidaba la palabra[cite: 11]."
+            },
+            {
+                id: 2,
+                pregunta: "¿Cómo impacta la irrupción de una enfermedad oncológica en la vida de un sujeto según el texto[cite: 11]?",
+                opciones: [
+                    "Desorganiza su anatomía y pulveriza las coordenadas de su existencia, convirtiendo al cuerpo en un territorio hostil, doloroso y amenazante[cite: 11].",
+                    "Modifica transitoriamente su rutina sin alterar las coordenadas de su existencia.",
+                    "Fortalece de manera automática las defensas neuróticas tradicionales.",
+                    "Constituye un desafío médico menor que se resuelve con adaptación cognitiva.",
+                    "Anula por completo la capacidad de registrar cualquier tipo de dolor físico."
+                ],
+                correcta: 0,
+                feedback: "Correcto. La enfermedad oncológica no solo desorganiza la anatomía, sino que pulveriza las coordenadas de la existencia y vuelve al cuerpo hostil y amenazante[cite: 11]."
+            },
+            {
+                id: 3,
+                pregunta: "En la irrupción de una patología orgánica grave, ¿qué concepto freudiano se moviliza cuando los estímulos desbordan la capacidad del aparato psíquico para ligarlos (Bindung)[cite: 11]?",
+                opciones: [
+                    "El trauma somático y el colapso del escudo antiestímulo (Reisschutz)[cite: 11].",
+                    "El Complejo de Edipo tardío.",
+                    "La represión primaria de las mociones pulsionales.",
+                    "La sublimación artística compensatoria.",
+                    "La fase de latencia narcisística."
+                ],
+                correcta: 0,
+                feedback: "Correcto. El dolor y la cercanía de la muerte actúan como un estallido que perfora violentamente el escudo antiestímulo, configurando el trauma somático[cite: 11]."
+            },
+            {
+                id: 4,
+                pregunta: "¿Qué condición experimenta el sujeto tras el estallido que perfora el escudo antiestímulo, volviendo insuficientes las defensas neuróticas habituales[cite: 11]?",
+                opciones: [
+                    "Un estado de desamparo estructural (Hilflosigkeit)[cite: 11].",
+                    "Una inmunidad psíquica total ante el sufrimiento.",
+                    "Un restablecimiento del equilibrio alostático ideal.",
+                    "Una fase de elaboración analítica espontánea.",
+                    "Una disociación psicótica de carácter defensivo."
+                ],
+                correcta: 0,
+                feedback: "Correcto. El sujeto queda sumergido en un estado de desamparo estructural (Hilflosigkeit) donde la represión y la intelectualización resultan insuficientes[cite: 11]."
+            },
+            {
+                id: 5,
+                pregunta: "¿Cómo opera el diagnóstico oncológico en relación con la economía narcisística del sujeto[cite: 11]?",
+                opciones: [
+                    "Como una confirmación de la inmortalidad del yo.",
+                    "Como una afrenta narcisística absoluta que desploma la ilusión de continuidad vital y la promesa de la propia inmortalidad[cite: 11].",
+                    "Como un estímulo menor que fortalece el narcisismo secundario.",
+                    "Como un factor que incrementa la investidura de los proyectos futuros.",
+                    "Como un mecanismo de defensa puramente adaptativo."
+                ],
+                correcta: 1,
+                feedback: "Correcto. El diagnóstico opera como una afrenta narcisística absoluta al desplomarse la ilusión de continuidad vital y la promesa de inmortalidad[cite: 11]."
+            },
+            {
+                id: 6,
+                pregunta: "¿Quién acuñó el concepto de 'dolor total' mencionado en el capítulo para describir la multidimensionalidad del sufrimiento en cuidados paliativos[cite: 11]?",
+                opciones: [
+                    "Sigmund Freud.",
+                    "Jacques Lacan.",
+                    "Cicely Saunders[cite: 11].",
+                    "John Bowlby.",
+                    "Hans Selye."
+                ],
+                correcta: 2,
+                feedback: "Correcto. El concepto de 'dolor total' fue acuñado por Cicely Saunders y cobra dimensión científica al analizar cómo el cerebro procesa el daño tisular y el sufrimiento[cite: 11]."
+            },
+            {
+                id: 7,
+                pregunta: "Desde las neurociencias afectivas, ¿qué estructuras cerebrales comparten la activación tanto en el dolor físico agudo como en la angustia del desamparo o la exclusión vincular[cite: 11]?",
+                opciones: [
+                    "La ínsula anterior y la corteza cingulada anterior (ACC)[cite: 11].",
+                    "El núcleo accumbens y el área tegmental ventral.",
+                    "El hipocampo y la corteza prefrontal dorsolateral.",
+                    "La amígdala basolateral y el cerebelo.",
+                    "El núcleo supraóptico y el hipotálamo lateral."
+                ],
+                correcta: 0,
+                feedback: "Correcto. La ínsula anterior y la corteza cingulada anterior (ACC) se activan tanto ante el daño físico como ante el rechazo o la pérdida de vínculo[cite: 11]."
+            },
+            {
+                id: 8,
+                pregunta: "¿Qué efectos produce en el organismo la sobrecarga alostática extrema ante una enfermedad orgánica grave y la inminencia de la finitud[cite: 11]?",
+                opciones: [
+                    "Restaura la plasticidad sináptica y optimiza el sistema inmunológico.",
+                    "Deteriora la función inmunológica, agota las reservas metabólicas, altera la plasticidad sináptica y compromete la corteza prefrontal[cite: 11].",
+                    "Garantiza un equilibrio homeostático permanente mediante la habituación subcortical.",
+                    "Inhibe de forma definitiva la secreción de cortisol y catecolaminas.",
+                    "Incrementa de manera exponencial el control inhibitorio de la amígdala."
+                ],
+                correcta: 1,
+                feedback: "Correcto. La sobrecarga alostática deteriora la función inmunológica, agota reservas metabólicas y compromete la corteza prefrontal provocando confusión o depresión[cite: 11]."
+            },
+            {
+                id: 9,
+                pregunta: "Según la Clínica de la Convergencia, ¿qué función cumple el psicofármaco y el analgésico de precisión frente al dolor total[cite: 11]?",
+                opciones: [
+                    "Sustituyen por completo la necesidad de intervención conversacional y analítica.",
+                    "Actúan como moduladores de base que desactivan el secuestro amigdalino y reducen el ruido tisular para recuperar la ventana de tolerancia afectiva[cite: 11].",
+                    "Aceleran el agotamiento alostático del eje HPA.",
+                    "Anulan la memoria episódica del paciente de forma irreversible.",
+                    "Inducen un estado psicótico permanente en el paciente."
+                ],
+                correcta: 1,
+                feedback: "Correcto. El fármaco y el analgésico actúan como moduladores de base que desactivan el secuestro amigdalino, permitiendo que el paciente recupere la ventana de tolerancia[cite: 11]."
+            },
+            {
+                id: 10,
+                pregunta: "¿Cuál es el papel fundamental del analista bajo el modelo de la Clínica de la Convergencia ante un diagnóstico orgánico grave[cite: 11]?",
+                opciones: [
+                    "Ofrecerse como un continente simbólico y real donde el horror, la rabia, la desesperanza y el duelo anticipado puedan ser nombrados[cite: 11].",
+                    "Exigir asociaciones libres rigurosas sin atender al estado físico del paciente.",
+                    "Derivar de inmediato al paciente sin involucrarse en el dolor total.",
+                    "Interpretar el origen infantil de la enfermedad somática.",
+                    "Sostener la ilusión de que la palabra puede curar el tumor orgánico."
+                ],
+                correcta: 0,
+                feedback: "Correcto. El rol del analista es ofrecerse como continente simbólico y real para que el horror, la rabia y el duelo anticipado puedan ser nombrados con dignidad[cite: 11]."
+            }
+        ];
+
+        let currentQuestion = 0;
+        let score = 0;
+        const totalQuestions = preguntas.length;
+
+        function renderQuiz() {
+            const container = document.getElementById("questionsContainer");
+            container.innerHTML = "";
+
+            preguntas.forEach((p, index) => {
+                const card = document.createElement("div");
+                card.className = `quiz-card ${index === 0 ? 'active' : ''}`;
+                card.id = `question-card-${index}`;
+
+                let opcionesHtml = "";
+                p.opciones.forEach((opcion, optIndex) => {
+                    opcionesHtml += `<button class="option-btn" onclick="verificarRespuesta(${index}, ${optIndex})">${opcion}</button>`;
+                });
+
+                card.innerHTML = `
+                    <div class="question-number">Pregunta ${index + 1} de ${totalQuestions}</div>
+                    <div class="question-title">${p.pregunta}</div>
+                    <div class="options-list" id="options-${index}">
+                        ${opcionesHtml}
+                    </div>
+                    <div class="feedback-box" id="feedback-${index}">${p.feedback}</div>
+                    <div class="nav-actions">
+                        <button class="btn-next" id="btn-next-${index}" onclick="siguientePregunta(${index})">
+                            ${index === totalQuestions - 1 ? 'Finalizar Protocolo' : 'Siguiente Pregunta'}
+                        </button>
+                    </div>
+                `;
+                container.appendChild(card);
+            });
+        }
+
+        window.verificarRespuesta = function(qIndex, selectedOpt) {
+            const p = preguntas[qIndex];
+            const optionsContainer = document.getElementById(`options-${qIndex}`);
+            const buttons = optionsContainer.getElementsByClassName("option-btn");
+            const feedbackBox = document.getElementById(`feedback-${qIndex}`);
+            const nextBtn = document.getElementById(`btn-next-${qIndex}`);
+
+            for (let i = 0; i < buttons.length; i++) {
+                buttons[i].disabled = true;
+                if (i === p.correcta) {
+                    buttons[i].classList.add("correct");
+                } else if (i === selectedOpt) {
+                    buttons[i].classList.add("incorrect");
+                }
+            }
+
+            if (selectedOpt === p.correcta) {
+                score += 1;
+                feedbackBox.className = "feedback-box show correct-fb";
+            } else {
+                feedbackBox.className = "feedback-box show incorrect-fb";
+            }
+
+            nextBtn.style.display = "block";
+        }
+
+        window.siguientePregunta = function(qIndex) {
+            document.getElementById(`question-card-${qIndex}`).classList.remove("active");
+
+            if (qIndex + 1 < totalQuestions) {
+                document.getElementById(`question-card-${qIndex + 1}`).classList.add("active");
+            } else {
+                guardarYMostrarResultados();
+            }
+        }
+
+        async function guardarYMostrarResultados() {
+            document.getElementById("questionsContainer").style.display = "none";
+            const resultsCard = document.getElementById("resultsCard");
+            const scoreText = document.getElementById("scoreText");
+            const resultStatus = document.getElementById("resultStatus");
+
+            resultsCard.style.display = "block";
+            scoreText.innerText = `Protocolo finalizado, Ud. ha obtenido ${score} puntos/10, se enviará a corrección definitiva`;
+
+            const sessionData = sessionStorage.getItem("current_session");
+            let userId = "Estudiante_Anonimo";
+            
+            if (sessionData) {
+                try {
+                    const userObj = JSON.parse(sessionData);
+                    userId = userObj.user || userObj.name || "Estudiante";
+                } catch (e) {
+                    console.error("Error al parsear sesión:", e);
+                }
+            }
+
+            const docId = `NOTA_TEST_8_${userId.replace(/[\.\s]/g, "_")}`;
+
+            try {
+                await setDoc(doc(db, "calificaciones_tests", docId), {
+                    usuario: userId,
+                    notaTest_8: score,
+                    fecha: new Date().toISOString()
+                });
+
+                resultStatus.style.color = "#145a32";
+                resultStatus.innerText = "¡Resultado guardado con éxito en la base de datos!";
+            } catch (error) {
+                console.error("Error al guardar en base de datos:", error);
+                resultStatus.style.color = "#641e16";
+                resultStatus.innerText = "Error al sincronizar el resultado con la base de datos.";
+            }
+        }
+
+        window.volverDashboard = function() {
+            if (window.parent && window.parent !== window) {
+                window.parent.location.reload();
+            } else {
+                window.location.href = "index.html";
+            }
+        }
+
+        window.onload = function() {
+            renderQuiz();
+        };
+    </script>
+</body>
+</html>
