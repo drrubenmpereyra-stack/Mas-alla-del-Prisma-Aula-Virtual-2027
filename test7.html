@@ -1,0 +1,524 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Test 7 - El ocaso del modelo unívoco y la mutación de los diques normativos</title>
+    <style>
+        :root {
+            --bg-color: #f4f5f7;
+            --neural-pattern: radial-gradient(circle, rgba(200,205,215,0.25) 1px, transparent 1px);
+            --card-bg: #ffffff;
+            --border-color: #000000;
+        }
+
+        * {
+            box-sizing: border-box;
+            margin: 0;
+            padding: 0;
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+        }
+
+        body {
+            background-color: var(--bg-color);
+            background-image: var(--neural-pattern);
+            background-size: 24px 24px;
+            color: #2c3e50;
+            padding: 20px;
+        }
+
+        .container {
+            max-width: 850px;
+            margin: 0 auto;
+        }
+
+        header {
+            text-align: center;
+            margin-bottom: 30px;
+            position: relative;
+        }
+
+        .btn-volver {
+            position: absolute;
+            top: 0;
+            left: 0;
+            background-color: #fadbd8;
+            color: #78281f;
+            border: 2px solid var(--border-color);
+            border-radius: 6px;
+            padding: 8px 14px;
+            font-size: 0.85rem;
+            font-weight: 700;
+            cursor: pointer;
+            box-shadow: 0 0 8px rgba(250, 219, 216, 0.8);
+            transition: all 0.2s ease;
+        }
+
+        .btn-volver:hover {
+            transform: translateY(-2px);
+            filter: brightness(0.95);
+        }
+
+        header h2 {
+            font-size: 1.5rem;
+            color: #1a252f;
+            border-bottom: 2px solid #bdc3c7;
+            padding-bottom: 10px;
+            margin-bottom: 8px;
+            margin-top: 40px;
+        }
+
+        header p {
+            font-size: 0.95rem;
+            color: #7d6608;
+            font-weight: 600;
+        }
+
+        .quiz-card {
+            background-color: var(--card-bg);
+            border: 2px solid var(--border-color);
+            border-radius: 10px;
+            padding: 30px;
+            box-shadow: 0 4px 20px rgba(0,0,0,0.08);
+            margin-bottom: 25px;
+            display: none;
+        }
+
+        .quiz-card.active {
+            display: block;
+        }
+
+        .question-number {
+            font-size: 0.85rem;
+            font-weight: 700;
+            color: #7d6608;
+            text-transform: uppercase;
+            letter-spacing: 1px;
+            margin-bottom: 8px;
+        }
+
+        .question-title {
+            font-size: 1.15rem;
+            font-weight: 700;
+            color: #2c3e50;
+            margin-bottom: 20px;
+            line-height: 1.4;
+        }
+
+        .options-list {
+            display: flex;
+            flex-direction: column;
+            gap: 12px;
+            margin-bottom: 20px;
+        }
+
+        .option-btn {
+            background: #fff;
+            border: 2px solid var(--border-color);
+            border-radius: 6px;
+            padding: 12px 16px;
+            text-align: left;
+            font-size: 0.95rem;
+            font-weight: 600;
+            color: #2c3e50;
+            cursor: pointer;
+            transition: all 0.2s ease;
+        }
+
+        .option-btn:hover:not(:disabled) {
+            background-color: #fcf3cf;
+            border-color: #7d6608;
+        }
+
+        .option-btn.correct {
+            background-color: #d4efdf !important;
+            color: #145a32 !important;
+            border-color: #145a32 !important;
+            box-shadow: 0 0 10px rgba(212, 239, 223, 0.9);
+        }
+
+        .option-btn.incorrect {
+            background-color: #f5b7b1 !important;
+            color: #641e16 !important;
+            border-color: #641e16 !important;
+            box-shadow: 0 0 10px rgba(245, 183, 177, 0.9);
+        }
+
+        .option-btn:disabled {
+            cursor: default;
+        }
+
+        .feedback-box {
+            margin-top: 15px;
+            padding: 14px;
+            border-radius: 6px;
+            font-size: 0.9rem;
+            font-weight: 600;
+            display: none;
+        }
+
+        .feedback-box.show {
+            display: block;
+        }
+
+        .feedback-box.correct-fb {
+            background-color: #d4efdf;
+            color: #145a32;
+            border: 1.5px solid #145a32;
+        }
+
+        .feedback-box.incorrect-fb {
+            background-color: #f9d5d2;
+            color: #641e16;
+            border: 1.5px solid #145a32;
+        }
+
+        .nav-actions {
+            display: flex;
+            justify-content: flex-end;
+            margin-top: 20px;
+        }
+
+        .btn-next {
+            background-color: #d4efdf;
+            color: #145a32;
+            border: 2px solid var(--border-color);
+            border-radius: 6px;
+            padding: 10px 24px;
+            font-size: 0.95rem;
+            font-weight: 700;
+            cursor: pointer;
+            box-shadow: 0 0 8px rgba(212, 239, 223, 0.8);
+            display: none;
+            transition: all 0.2s ease;
+        }
+
+        .btn-next:hover {
+            background-color: #a9dfbf;
+        }
+
+        .results-card {
+            background-color: var(--card-bg);
+            border: 2px solid var(--border-color);
+            border-radius: 10px;
+            padding: 40px;
+            text-align: center;
+            box-shadow: 0 4px 20px rgba(0,0,0,0.08);
+            display: none;
+        }
+
+        .results-card h3 {
+            font-size: 1.6rem;
+            color: #1a252f;
+            margin-bottom: 15px;
+        }
+
+        .results-card p {
+            font-size: 1.1rem;
+            color: #7d6608;
+            font-weight: 700;
+            margin-bottom: 25px;
+        }
+
+        .msg-status {
+            margin-top: 15px;
+            font-size: 0.95rem;
+            font-weight: 600;
+        }
+    </style>
+</head>
+<body>
+
+    <div class="container">
+        <header>
+            <button class="btn-volver" onclick="volverDashboard()">← Volver</button>
+            <h2>Test 7: El ocaso del modelo unívoco y la mutación de los diques normativos</h2>
+            <p>Programa de Formación para Profesionales de la Salud Mental (2027)</p>
+        </header>
+
+        <!-- Contenedor del Cuestionario -->
+        <div id="questionsContainer"></div>
+
+        <!-- Tarjeta de Resultados Finales -->
+        <div id="resultsCard" class="results-card">
+            <h3>Evaluación Finalizada</h3>
+            <p id="scoreText"></p>
+            <div id="resultStatus" class="msg-status"></div>
+        </div>
+    </div>
+
+    <!-- Script conectado a Firebase Firestore -->
+    <script type="module">
+        import { initializeApp } from "https://www.gstatic.com/firebasejs/10.8.0/firebase-app.js";
+        import { getFirestore, setDoc, doc } from "https://www.gstatic.com/firebasejs/10.8.0/firebase-firestore.js";
+
+        const firebaseConfig = {
+          apiKey: "AIzaSyDLSIGdkd2y1l7zhMjoVd_bmCj8jjXpX4I",
+          authDomain: "aula-virtual-mas-alla-del-pris.firebaseapp.com",
+          projectId: "aula-virtual-mas-alla-del-pris",
+          storageBucket: "aula-virtual-mas-alla-del-pris.firebasestorage.app",
+          messagingSenderId: "711745866832",
+          appId: "1:711745866832:web:945e046cb0b61ac320d555"
+        };
+
+        const app = initializeApp(firebaseConfig);
+        const db = getFirestore(app);
+
+        // Definición de las preguntas basadas estrictamente en el material adjunto del Capítulo 7
+        const preguntas = [
+            {
+                id: 1,
+                pregunta: "¿Qué territorio transita la práctica clínica contemporánea en relación con la filiación y el parentesco[cite: 9]?",
+                opciones: [
+                    "Un orden rígido e invariable sustentado exclusivamente en el modelo de la familia nuclear tradicional.",
+                    "Un territorio de profundas mutaciones antropológicas y jurídicas que despliega una polifonía de configuraciones familiares[cite: 9].",
+                    "Una ausencia total de diques normativos e institucionales a escala global.",
+                    "Un retorno exclusivo a los modelos patriarcales clásicos de la horda primitiva.",
+                    "Una patologización generalizada de cualquier estructura de parentesco monoparental."
+                ],
+                correcta: 1,
+                feedback: "Correcto. La clínica actual transita por profundas mutaciones que despliegan configuraciones plurales como familias ensambladas, monoparentales, homoparentales y poliamorosas[cite: 9]."
+            },
+            {
+                id: 2,
+                pregunta: "Según el modelo de la Clínica de la Convergencia, ¿de qué depende fundamentalmente la eficacia de la Ley en el ámbito familiar[cite: 9]?",
+                opciones: [
+                    "De la presencia anatómica y biológica exclusiva de un padre varón en el hogar.",
+                    "De la geometría visible de los cuerpos y de la rigidez de un formato familiar estandarizado.",
+                    "De la consistencia con que se sostienen las marcas de la alteridad, la asimetría y los límites que humanizan[cite: 9].",
+                    "De la ausencia absoluta de normas para garantizar la libertad irrestricta del infans.",
+                    "De la imitación simétrica de los roles parentales con los hijos."
+                ],
+                correcta: 2,
+                feedback: "Correcto. La Ley no depende de formatos rígidos ni de la geometría de los cuerpos, sino de la eficacia con que se sostienen la alteridad, la asimetría y los límites[cite: 9]."
+            },
+            {
+                id: 3,
+                pregunta: "¿Cómo se define la función paterna (el Nombre-del-Padre) en la metapsicología freudiana y su lectura por Jacques Lacan[cite: 9]?",
+                opciones: [
+                    "Como una persona anatómica ligada indefectiblemente al género masculino.",
+                    "Como una función simbólica de corte y separación destinada a romper la díada simbiótica madre-infans e introducir la alteridad[cite: 9].",
+                    "Como un mecanismo cognitivo de adaptación social puramente consciente.",
+                    "Como el equivalente directo a la violencia institucional y al autoritarismo doméstico.",
+                    "Como una etapa superada del desarrollo infantil sin vigencia en la adultez."
+                ],
+                correcta: 1,
+                feedback: "Correcto. La Ley es una función simbólica de corte y separación que rompe la díada simbiótica y prohíbe el incesto, introduciendo la alteridad[cite: 9]."
+            },
+            {
+                id: 4,
+                pregunta: "¿Cómo se ejerce la función simbólica en las nuevas configuraciones como las familias ensambladas o monoparentales[cite: 9]?",
+                opciones: [
+                    "Resulta imposible de ejercer debido a la ausencia del 'padre de la horda'.",
+                    "Se sostiene mediante cualquier adulto o red de adultos que ocupe una posición asimétrica, proteja al niño e introduzca los límites[cite: 9].",
+                    "Requiere obligatoriamente la simetrización generalizada para evitar traumas.",
+                    "Depende exclusivamente de los lazos genéticos y consanguíneos directos.",
+                    "Se fundamenta en la abdicaicón total de la autoridad por parte de los adultos."
+                ],
+                correcta: 1,
+                feedback: "Correcto. La ley en estas familias se sostiene por la consistencia de la terceridad a través de cualquier red adulta que garantice asimetría, palabra y límites[cite: 9]."
+            },
+            {
+                id: 5,
+                pregunta: "¿Entre qué dos extremos patológicos oscilan habitualmente las familias contemporáneas ante el declive institucional de la autoridad[cite: 9]?",
+                opciones: [
+                    "Entre el matriarcado absoluto y el patriarcado normativo tradicional.",
+                    "Entre el autoritarismo rígido e ineficaz y la simetrización generalizada (padres 'colegas')[cite: 9].",
+                    "Entre la hiperestimulación dopaminérgica y el aislamiento digital autárquico.",
+                    "Entre la hipercortisolemia crónica y el aplanamiento afectivo severo.",
+                    "Entre la sobreprotección simbiótica y el abandono material absoluto."
+                ],
+                correcta: 1,
+                feedback: "Correcto. Las familias oscilan entre el autoritarismo rígido y la simetrización generalizada de padres 'colegas' que abandonan la asimetría[cite: 9]."
+            },
+            {
+                id: 6,
+                pregunta: "Qué consecuencia provoca en el aparato psíquico infantil la simetrización generalizada donde los adultos abdican de su asimetría para ser 'amigos' de sus hijos[cite: 9]?",
+                opciones: [
+                    "Un desarrollo armónico de la autonomía y la libertad creativa.",
+                    "Una intemperie psíquica insoportable, desorganizando al niño al investirlo prematuramente de decisiones que no puede metabolizar[cite: 9].",
+                    "La consolidación inmediata de un apego seguro y resiliente.",
+                    "La activación óptima de la corteza prefrontal y la empatía.",
+                    "La eliminación total de los niveles de cortisol y adrenalina."
+                ],
+                correcta: 1,
+                feedback: "Correcto. Sin la brújula de la asimetría, el psiquismo infantil se desorganiza al quedar prematuramente expuesto a decisiones que no está capacitado para metabolizar[cite: 9]."
+            },
+            {
+                id: 7,
+                pregunta: "Según las neurociencias del desarrollo y la teoría del apego contemporánea, ¿qué requiere fundamentalmente el cerebro en desarrollo del niño para estructurarse armónicamente[cite: 9]?",
+                opciones: [
+                    "Un formato familiar biológico tradicional e inalterable.",
+                    "La presencia de figuras de apego estables, sensibles y reguladas emocionalmente, más allá del formato formal[cite: 9].",
+                    "La ausencia absoluta de normas y límites durante la primera infancia.",
+                    "Lazos genéticos puros y exclusivos entre los cuidadores.",
+                    "Un entorno digital que garantice gratificación inmediata y sin fricción."
+                ],
+                correcta: 1,
+                feedback: "Correcto. El cerebro del niño no requiere un formato biológico estandarizado, sino figuras de apego estables, sensibles y sintonizadas emocionalmente[cite: 9]."
+            },
+            {
+                id: 8,
+                pregunta: "¿Cómo se calibran las redes neuronales encargadas de procesar la seguridad, la empatía y la regulación del estrés (sistema de apego y oxitocina)[cite: 9]?",
+                opciones: [
+                    "A través de la carga genética heredada de los progenitores biológicos.",
+                    "A través de la contingencia interactiva cotidiana: la sintonización de los adultos con los estados afectivos del niño[cite: 9].",
+                    "Mediante la exposición temprana a tecnologías y pantallas interactivas.",
+                    "Por medio de la rigidez formal y el autoritarismo institucional.",
+                    "Mediante la ausencia de contacto físico durante las crisis emocionales."
+                ],
+                correcta: 1,
+                feedback: "Correcto. Las redes de apego se calibran mediante la contingencia interactiva cotidiana y la sintonización afectiva de los cuidadores[cite: 9]."
+            },
+            {
+                id: 9,
+                pregunta: "¿Qué impacto neurobiológico genera en los menores la exposición crónica a litigios judiciales prolongados y conflictividad parental (lealtades cruzadas)[cite: 9]?",
+                opciones: [
+                    "La desactivación de la amígdala y el desarrollo de una resiliencia permanente.",
+                    "La activación permanente del Eje HPA, inundando el cerebro de cortisol y adrenalina, deteriorando el hipocampo y secuestrando la prefrontal[cite: 9].",
+                    "El fortalecimiento exponencial de la plasticidad sináptica en la corteza prefrontal.",
+                    "La sincronía perfecta de los ritmos biológicos y la habituación subcortical.",
+                    "La cura espontánea de cualquier trastorno de conducta previo."
+                ],
+                correcta: 1,
+                feedback: "Correcto. La conflictividad crónica mantiene activo el Eje HPA con exceso de cortisol y adrenalina, dañando el hipocampo y secuestrando la corteza prefrontal[cite: 9]."
+            },
+            {
+                id: 10,
+                pregunta: "Desde la síntesis entre la clínica de la convergencia y la neurobiología, ¿dónde radica verdaderamente el origen del sufrimiento infantil en los nuevos escenarios familiares[cite: 9]?",
+                opciones: [
+                    "En la multiplicidad de formas jurídicas y externas que adopta el parentesco moderno.",
+                    "En la quiebra de los acuerdos de cuidado y en la exposición a la violencia institucional y vincular de los adultos[cite: 9].",
+                    "En la presencia de familias monoparentales o ensambladas.",
+                    "En la ausencia de consanguinidad biológica directa entre los miembros.",
+                    "En la aplicación rigurosa de diques normativos flexibles."
+                ],
+                correcta: 1,
+                feedback: "Correcto. El sufrimiento infantil no surge de la diversidad de formas del parentesco, sino de la quiebra de los cuidados y la exposición a la violencia de los adultos[cite: 9]."
+            }
+        ];
+
+        let currentQuestion = 0;
+        let score = 0;
+        const totalQuestions = preguntas.length;
+
+        function renderQuiz() {
+            const container = document.getElementById("questionsContainer");
+            container.innerHTML = "";
+
+            preguntas.forEach((p, index) => {
+                const card = document.createElement("div");
+                card.className = `quiz-card ${index === 0 ? 'active' : ''}`;
+                card.id = `question-card-${index}`;
+
+                let opcionesHtml = "";
+                p.opciones.forEach((opcion, optIndex) => {
+                    opcionesHtml += `<button class="option-btn" onclick="verificarRespuesta(${index}, ${optIndex})">${opcion}</button>`;
+                });
+
+                card.innerHTML = `
+                    <div class="question-number">Pregunta ${index + 1} de ${totalQuestions}</div>
+                    <div class="question-title">${p.pregunta}</div>
+                    <div class="options-list" id="options-${index}">
+                        ${opcionesHtml}
+                    </div>
+                    <div class="feedback-box" id="feedback-${index}">${p.feedback}</div>
+                    <div class="nav-actions">
+                        <button class="btn-next" id="btn-next-${index}" onclick="siguientePregunta(${index})">
+                            ${index === totalQuestions - 1 ? 'Finalizar Protocolo' : 'Siguiente Pregunta'}
+                        </button>
+                    </div>
+                `;
+                container.appendChild(card);
+            });
+        }
+
+        window.verificarRespuesta = function(qIndex, selectedOpt) {
+            const p = preguntas[qIndex];
+            const optionsContainer = document.getElementById(`options-${qIndex}`);
+            const buttons = optionsContainer.getElementsByClassName("option-btn");
+            const feedbackBox = document.getElementById(`feedback-${qIndex}`);
+            const nextBtn = document.getElementById(`btn-next-${qIndex}`);
+
+            for (let i = 0; i < buttons.length; i++) {
+                buttons[i].disabled = true;
+                if (i === p.correcta) {
+                    buttons[i].classList.add("correct");
+                } else if (i === selectedOpt) {
+                    buttons[i].classList.add("incorrect");
+                }
+            }
+
+            if (selectedOpt === p.correcta) {
+                score += 1;
+                feedbackBox.className = "feedback-box show correct-fb";
+            } else {
+                feedbackBox.className = "feedback-box show incorrect-fb";
+            }
+
+            nextBtn.style.display = "block";
+        }
+
+        window.siguientePregunta = function(qIndex) {
+            document.getElementById(`question-card-${qIndex}`).classList.remove("active");
+
+            if (qIndex + 1 < totalQuestions) {
+                document.getElementById(`question-card-${qIndex + 1}`).classList.add("active");
+            } else {
+                guardarYMostrarResultados();
+            }
+        }
+
+        async function guardarYMostrarResultados() {
+            document.getElementById("questionsContainer").style.display = "none";
+            const resultsCard = document.getElementById("resultsCard");
+            const scoreText = document.getElementById("scoreText");
+            const resultStatus = document.getElementById("resultStatus");
+
+            resultsCard.style.display = "block";
+            scoreText.innerText = `Protocolo finalizado, Ud. ha obtenido ${score} puntos/10, se enviará a corrección definitiva`;
+
+            const sessionData = sessionStorage.getItem("current_session");
+            let userId = "Estudiante_Anonimo";
+            
+            if (sessionData) {
+                try {
+                    const userObj = JSON.parse(sessionData);
+                    userId = userObj.user || userObj.name || "Estudiante";
+                } catch (e) {
+                    console.error("Error al parsear sesión:", e);
+                }
+            }
+
+            const docId = `NOTA_TEST_7_${userId.replace(/[\.\s]/g, "_")}`;
+
+            try {
+                await setDoc(doc(db, "calificaciones_tests", docId), {
+                    usuario: userId,
+                    notaTest_7: score,
+                    fecha: new Date().toISOString()
+                });
+
+                resultStatus.style.color = "#145a32";
+                resultStatus.innerText = "¡Resultado guardado con éxito en la base de datos!";
+            } catch (error) {
+                console.error("Error al guardar en base de datos:", error);
+                resultStatus.style.color = "#641e16";
+                resultStatus.innerText = "Error al sincronizar el resultado con la base de datos.";
+            }
+        }
+
+        window.volverDashboard = function() {
+            if (window.parent && window.parent !== window) {
+                window.parent.location.reload();
+            } else {
+                window.location.href = "index.html";
+            }
+        }
+
+        window.onload = function() {
+            renderQuiz();
+        };
+    </script>
+</body>
+</html>
