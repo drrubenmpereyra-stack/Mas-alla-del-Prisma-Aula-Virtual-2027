@@ -1,0 +1,524 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Test 9 - El goce autista y la tiranía de la inmediatez</title>
+    <style>
+        :root {
+            --bg-color: #f4f5f7;
+            --neural-pattern: radial-gradient(circle, rgba(200,205,215,0.25) 1px, transparent 1px);
+            --card-bg: #ffffff;
+            --border-color: #000000;
+        }
+
+        * {
+            box-sizing: border-box;
+            margin: 0;
+            padding: 0;
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+        }
+
+        body {
+            background-color: var(--bg-color);
+            background-image: var(--neural-pattern);
+            background-size: 24px 24px;
+            color: #2c3e50;
+            padding: 20px;
+        }
+
+        .container {
+            max-width: 850px;
+            margin: 0 auto;
+        }
+
+        header {
+            text-align: center;
+            margin-bottom: 30px;
+            position: relative;
+        }
+
+        .btn-volver {
+            position: absolute;
+            top: 0;
+            left: 0;
+            background-color: #fadbd8;
+            color: #78281f;
+            border: 2px solid var(--border-color);
+            border-radius: 6px;
+            padding: 8px 14px;
+            font-size: 0.85rem;
+            font-weight: 700;
+            cursor: pointer;
+            box-shadow: 0 0 8px rgba(250, 219, 216, 0.8);
+            transition: all 0.2s ease;
+        }
+
+        .btn-volver:hover {
+            transform: translateY(-2px);
+            filter: brightness(0.95);
+        }
+
+        header h2 {
+            font-size: 1.5rem;
+            color: #1a252f;
+            border-bottom: 2px solid #bdc3c7;
+            padding-bottom: 10px;
+            margin-bottom: 8px;
+            margin-top: 40px;
+        }
+
+        header p {
+            font-size: 0.95rem;
+            color: #7d6608;
+            font-weight: 600;
+        }
+
+        .quiz-card {
+            background-color: var(--card-bg);
+            border: 2px solid var(--border-color);
+            border-radius: 10px;
+            padding: 30px;
+            box-shadow: 0 4px 20px rgba(0,0,0,0.08);
+            margin-bottom: 25px;
+            display: none;
+        }
+
+        .quiz-card.active {
+            display: block;
+        }
+
+        .question-number {
+            font-size: 0.85rem;
+            font-weight: 700;
+            color: #7d6608;
+            text-transform: uppercase;
+            letter-spacing: 1px;
+            margin-bottom: 8px;
+        }
+
+        .question-title {
+            font-size: 1.15rem;
+            font-weight: 700;
+            color: #2c3e50;
+            margin-bottom: 20px;
+            line-height: 1.4;
+        }
+
+        .options-list {
+            display: flex;
+            flex-direction: column;
+            gap: 12px;
+            margin-bottom: 20px;
+        }
+
+        .option-btn {
+            background: #fff;
+            border: 2px solid var(--border-color);
+            border-radius: 6px;
+            padding: 12px 16px;
+            text-align: left;
+            font-size: 0.95rem;
+            font-weight: 600;
+            color: #2c3e50;
+            cursor: pointer;
+            transition: all 0.2s ease;
+        }
+
+        .option-btn:hover:not(:disabled) {
+            background-color: #fcf3cf;
+            border-color: #7d6608;
+        }
+
+        .option-btn.correct {
+            background-color: #d4efdf !important;
+            color: #145a32 !important;
+            border-color: #145a32 !important;
+            box-shadow: 0 0 10px rgba(212, 239, 223, 0.9);
+        }
+
+        .option-btn.incorrect {
+            background-color: #f5b7b1 !important;
+            color: #641e16 !important;
+            border-color: #641e16 !important;
+            box-shadow: 0 0 10px rgba(245, 183, 177, 0.9);
+        }
+
+        .option-btn:disabled {
+            cursor: default;
+        }
+
+        .feedback-box {
+            margin-top: 15px;
+            padding: 14px;
+            border-radius: 6px;
+            font-size: 0.9rem;
+            font-weight: 600;
+            display: none;
+        }
+
+        .feedback-box.show {
+            display: block;
+        }
+
+        .feedback-box.correct-fb {
+            background-color: #d4efdf;
+            color: #145a32;
+            border: 1.5px solid #145a32;
+        }
+
+        .feedback-box.incorrect-fb {
+            background-color: #f9d5d2;
+            color: #641e16;
+            border: 1.5px solid #641e16;
+        }
+
+        .nav-actions {
+            display: flex;
+            justify-content: flex-end;
+            margin-top: 20px;
+        }
+
+        .btn-next {
+            background-color: #d4efdf;
+            color: #145a32;
+            border: 2px solid var(--border-color);
+            border-radius: 6px;
+            padding: 10px 24px;
+            font-size: 0.95rem;
+            font-weight: 700;
+            cursor: pointer;
+            box-shadow: 0 0 8px rgba(212, 239, 223, 0.8);
+            display: none;
+            transition: all 0.2s ease;
+        }
+
+        .btn-next:hover {
+            background-color: #a9dfbf;
+        }
+
+        .results-card {
+            background-color: var(--card-bg);
+            border: 2px solid var(--border-color);
+            border-radius: 10px;
+            padding: 40px;
+            text-align: center;
+            box-shadow: 0 4px 20px rgba(0,0,0,0.08);
+            display: none;
+        }
+
+        .results-card h3 {
+            font-size: 1.6rem;
+            color: #1a252f;
+            margin-bottom: 15px;
+        }
+
+        .results-card p {
+            font-size: 1.1rem;
+            color: #7d6608;
+            font-weight: 700;
+            margin-bottom: 25px;
+        }
+
+        .msg-status {
+            margin-top: 15px;
+            font-size: 0.95rem;
+            font-weight: 600;
+        }
+    </style>
+</head>
+<body>
+
+    <div class="container">
+        <header>
+            <button class="btn-volver" onclick="volverDashboard()">← Volver</button>
+            <h2>Test 9: El goce autista y la tiranía de la inmediatez</h2>
+            <p>Programa de Formación para Profesionales de la Salud Mental (2027)</p>
+        </header>
+
+        <!-- Contenedor del Cuestionario -->
+        <div id="questionsContainer"></div>
+
+        <!-- Tarjeta de Resultados Finales -->
+        <div id="resultsCard" class="results-card">
+            <h3>Evaluación Finalizada</h3>
+            <p id="scoreText"></p>
+            <div id="resultStatus" class="msg-status"></div>
+        </div>
+    </div>
+
+    <!-- Script conectado a Firebase Firestore -->
+    <script type="module">
+        import { initializeApp } from "https://www.gstatic.com/firebasejs/10.8.0/firebase-app.js";
+        import { getFirestore, setDoc, doc } from "https://www.gstatic.com/firebasejs/10.8.0/firebase-firestore.js";
+
+        const firebaseConfig = {
+          apiKey: "AIzaSyDLSIGdkd2y1l7zhMjoVd_bmCj8jjXpX4I",
+          authDomain: "aula-virtual-mas-alla-del-pris.firebaseapp.com",
+          projectId: "aula-virtual-mas-alla-del-pris",
+          storageBucket: "aula-virtual-mas-alla-del-pris.firebasestorage.app",
+          messagingSenderId: "711745866832",
+          appId: "1:711745866832:web:945e046cb0b61ac320d555"
+        };
+
+        const app = initializeApp(firebaseConfig);
+        const db = getFirestore(app);
+
+        // Definición de las preguntas basadas estrictamente en el Capítulo 9
+        const preguntas = [
+            {
+                id: 1,
+                pregunta: "¿Cómo se ha modificado la cartografía de las adicciones en la clínica contemporánea según el texto[cite: 13]?",
+                opciones: [
+                    "El eje del padecimiento sigue anclado casi exclusivamente en la ingestión de sustancias químicas.",
+                    "Se ha consagrado la era de las adicciones conductuales (juego online, apuestas virtuales, hiperconectividad, pornografía y compras patológicas)[cite: 13].",
+                    "Han desaparecido por completo los trastornos adictivos relacionados con sustancias.",
+                    "Las adicciones se han trasladado de manera exclusiva hacia las estructuras melancólicas graves.",
+                    "Se reducen estrictamente al ámbito de la neurosis obsesiva infantil."
+                ],
+                correcta: 1,
+                feedback: "Correcto. La clínica contemporánea ha consagrado la era de las adicciones conductuales, abarcando apuestas virtuales, hiperconectividad y consumo de pornografía en red[cite: 13]."
+            },
+            {
+                id: 2,
+                pregunta: "¿Cómo interpretaba la metapsicología clásica fundamentalmente a las adicciones[cite: 13]?",
+                opciones: [
+                    "Como un secuestro masivo de los receptores dopaminérgicos D2 en el núcleo accumbens.",
+                    "Como una tentativa de satisfacción onanista o un sustituto masturbatorio para obturar la falta y calmar el dolor de existir mediante el autoerotismo[cite: 13].",
+                    "Como una estructura psicótica pura caracterizada por la certeza delirante.",
+                    "Como una falla exclusivamente vinculada al Eje HPA y al agotamiento alostático.",
+                    "Como un mecanismo de defensa idéntico a la proyección paranoica."
+                ],
+                correcta: 1,
+                feedback: "Correcto. La metapsicología clásica las interpretó como una tentativa de satisfacción onanista o sustituto masturbatorio destinado a obturar la falta y calmar el dolor[cite: 13]."
+            },
+            {
+                id: 3,
+                pregunta: "Desde el modelo de la Clínica de la Convergencia, ¿qué fenómeno produce el secuestro neurobiológico de la recompensa en las adicciones conductuales[cite: 13]?",
+                opciones: [
+                    "Una forma específica de aislamiento subjetivo denominada goce autista[cite: 13].",
+                    "La consolidación de un deseo metonímico expansivo y socializado.",
+                    "Una sincronía perfecta entre los ritmos biológicos de los partenaires.",
+                    "La restauración del escudo antiestímulo (Reisschutz) frente al trauma.",
+                    "Una apertura radical hacia la alteridad y el intercambio simbólico."
+                ],
+                correcta: 0,
+                feedback: "Correcto. Las adicciones conductuales producen un secuestro de la recompensa que genera una forma específica de aislamiento subjetivo denominada goce autista[cite: 13]."
+            },
+            {
+                id: 4,
+                pregunta: "En la metapsicología del goce autista frente al deseo metonímico, ¿qué papel cumple la falta constitutiva en el aparato psíquico humano[cite: 13]?",
+                opciones: [
+                    "Representa una desgracia patológica que el sujeto debe eliminar de inmediato.",
+                    "Es el vacío estructural dejado por la pérdida originaria del objeto mítico, que actúa como motor dinámico del deseo metonímico[cite: 13].",
+                    "Equivale exactamente al concepto de goce autómata e incesante.",
+                    "Constituye un obstáculo que impide el funcionamiento del circuito mesolímbico.",
+                    "Es un mecanismo de defensa puramente cognitivo contra la angustia."
+                ],
+                correcta: 1,
+                feedback: "Correcto. Lejos de ser una desgracia, la falta constitutiva es el motor dinámico del deseo metonímico que impulsa al sujeto hacia la cultura, la palabra y el vínculo[cite: 13]."
+            },
+            {
+                id: 5,
+                pregunta: "¿Cómo opera el sujeto en la adicción conductual al intentar abolir la falta constitutiva[cite: 13]?",
+                opciones: [
+                    "Mediante la construcción de lazos solidarios y demandas dirigidas a un Otro social.",
+                    "A través de una vía rápida, directa y autárquica de carácter rigurosamente autista, rompiendo todo lazo con la alteridad[cite: 13].",
+                    "Mediante la simbolización secundaria y la elaboración metódica del duelo.",
+                    "Activando los circuitos de la corteza prefrontal dorsolateral y el control inhibitorio.",
+                    "Aceptando la legalidad simbólica del intercambio con el prójimo."
+                ],
+                correcta: 1,
+                feedback: "Correcto. El adicto conductual busca abolir la falta mediante una vía rápida, directa y autárquica, rompiendo todo lazo con la alteridad sin mediación simbólica[cite: 13]."
+            },
+            {
+                id: 6,
+                pregunta: "¿A qué instancias metapsicológicas responde el funcionamiento del goce autista en las adicciones conductuales según el texto[cite: 13]?",
+                opciones: [
+                    "Al principio del placer y a la sublimación artística.",
+                    "Al imperio de la compulsión de repetición (Wiederholungszwang) al servicio de la pulsión de muerte (Todestrieb)[cite: 13].",
+                    "A la estructuración equilibrada del complejo de Edipo.",
+                    "A la modulación neuroendocrina de la oxitocina y la vasopresina.",
+                    "A las defensas neuróticas exitosas contra la angustia de castración."
+                ],
+                correcta: 1,
+                feedback: "Correcto. Responde al imperio de la compulsión de repetición al servicio de la pulsión de muerte, buscando un goce mudo, automático e incesante que vacía la subjetividad[cite: 13]."
+            },
+            {
+                id: 7,
+                pregunta: "¿Qué tipo de inundaciones químicas generan las adicciones conductuales en el circuito mesolímbico de la recompensa[cite: 13]?",
+                opciones: [
+                    "Picos artificiales de dopamina de una magnitud exponencial, inaccesibles para las recompensas naturales de la vida cotidiana[cite: 13].",
+                    "Una disminución drástica y permanente en la secreción basal de adrenalina y cortisol.",
+                    "Un incremento equilibrado de serotonina que estabiliza el humor de forma permanente.",
+                    "Una inhibición total del núcleo accumbens y el área tegmental ventral.",
+                    "Una regulación homeostática óptima mediada por la corteza prefrontal ventromedial."
+                ],
+                correcta: 0,
+                feedback: "Correcto. Generan inundaciones dopaminérgicas de magnitud exponencial, completamente inaccesibles para las recompensas ordinarias de la vida real[cite: 13]."
+            },
+            {
+                id: 8,
+                pregunta: "¿Cómo se defiende el cerebro ante el baño crónico y masivo de dopamina provocado por las adicciones conductuales (Down-regulation)[cite: 13]?",
+                opciones: [
+                    "Multiplicando exponencialmente los receptores D2 para optimizar el placer.",
+                    "Disminuyendo drásticamente la cantidad de receptores dopaminérgicos disponibles (en particular, los receptores D2)[cite: 13].",
+                    "Incrementando la sensibilidad de la corteza prefrontal hacia los estímulos cotidianos.",
+                    "Bloqueando por completo la actividad de la ínsula anterior y el ACC.",
+                    "Restaurando de manera automática la habituación subcortical."
+                ],
+                correcta: 1,
+                feedback: "Correcto. El cerebro se defiende disminuyendo drásticamente la cantidad de receptores dopaminérgicos disponibles, generando fatiga sináptica y anhedonia[cite: 13]."
+            },
+            {
+                id: 9,
+                pregunta: "¿Qué consecuencia clínica experimenta el sujeto como resultado de la fatiga sináptica y la desensibilización receptora (anhedonia cotidiana)[cite: 13]?",
+                opciones: [
+                    "Una capacidad infinita para disfrutar de las actividades ordinarias de la vida real.",
+                    "Una profunda incapacidad para disfrutar de la vida real, volviéndose todo gris e insípido, exigiendo una nueva dosis solo para alcanzar una línea de base normal[cite: 13].",
+                    "Un restablecimiento inmediato de la función ejecutiva prefrontal.",
+                    "La disolución espontánea de la compulsión de repetición.",
+                    "Un fortalecimiento del deseo metonímico y lazos sociales más sólidos."
+                ],
+                correcta: 1,
+                feedback: "Correcto. El sujeto sufre anhedonia cotidiana donde todo se vuelve gris, empujándolo a consumir una nueva dosis solo para intentar alcanzar una línea de base normal de bienestar[cite: 13]."
+            },
+            {
+                id: 10,
+                pregunta: "¿Qué alteración sufre la corteza prefrontal en el cerebro del adicto conductual a causa del secuestro dopaminérgico crónico[cite: 13]?",
+                opciones: [
+                    "Se hiperactiva maximizando el control inhibitorio y la demora de la gratificación.",
+                    "El 'freno ejecutivo' queda funcionalmente desconectado, operando el sistema bajo el dominio tiránico e imperativo del impulso subcortical[cite: 13].",
+                    "Sincroniza perfectamente las respuestas de lucha y huida con el pensamiento abstracto.",
+                    "Incrementa su capacidad para evaluar consecuencias a largo plazo.",
+                    "Se blinda contra cualquier tipo de estímulo adictivo virtual."
+                ],
+                correcta: 1,
+                feedback: "Correcto. El 'freno ejecutivo' de la corteza prefrontal queda funcionalmente desconectado, haciendo que el sistema opere bajo el dominio tiránico del impulso subcortical[cite: 13]."
+            }
+        ];
+
+        let currentQuestion = 0;
+        let score = 0;
+        const totalQuestions = preguntas.length;
+
+        function renderQuiz() {
+            const container = document.getElementById("questionsContainer");
+            container.innerHTML = "";
+
+            preguntas.forEach((p, index) => {
+                const card = document.createElement("div");
+                card.className = `quiz-card ${index === 0 ? 'active' : ''}`;
+                card.id = `question-card-${index}`;
+
+                let opcionesHtml = "";
+                p.opciones.forEach((opcion, optIndex) => {
+                    opcionesHtml += `<button class="option-btn" onclick="verificarRespuesta(${index}, ${optIndex})">${opcion}</button>`;
+                });
+
+                card.innerHTML = `
+                    <div class="question-number">Pregunta ${index + 1} de ${totalQuestions}</div>
+                    <div class="question-title">${p.pregunta}</div>
+                    <div class="options-list" id="options-${index}">
+                        ${opcionesHtml}
+                    </div>
+                    <div class="feedback-box" id="feedback-${index}">${p.feedback}</div>
+                    <div class="nav-actions">
+                        <button class="btn-next" id="btn-next-${index}" onclick="siguientePregunta(${index})">
+                            ${index === totalQuestions - 1 ? 'Finalizar Protocolo' : 'Siguiente Pregunta'}
+                        </button>
+                    </div>
+                `;
+                container.appendChild(card);
+            });
+        }
+
+        window.verificarRespuesta = function(qIndex, selectedOpt) {
+            const p = preguntas[qIndex];
+            const optionsContainer = document.getElementById(`options-${qIndex}`);
+            const buttons = optionsContainer.getElementsByClassName("option-btn");
+            const feedbackBox = document.getElementById(`feedback-${qIndex}`);
+            const nextBtn = document.getElementById(`btn-next-${qIndex}`);
+
+            for (let i = 0; i < buttons.length; i++) {
+                buttons[i].disabled = true;
+                if (i === p.correcta) {
+                    buttons[i].classList.add("correct");
+                } else if (i === selectedOpt) {
+                    buttons[i].classList.add("incorrect");
+                }
+            }
+
+            if (selectedOpt === p.correcta) {
+                score += 1;
+                feedbackBox.className = "feedback-box show correct-fb";
+            } else {
+                feedbackBox.className = "feedback-box show incorrect-fb";
+            }
+
+            nextBtn.style.display = "block";
+        }
+
+        window.siguientePregunta = function(qIndex) {
+            document.getElementById(`question-card-${qIndex}`).classList.remove("active");
+
+            if (qIndex + 1 < totalQuestions) {
+                document.getElementById(`question-card-${qIndex + 1}`).classList.add("active");
+            } else {
+                guardarYMostrarResultados();
+            }
+        }
+
+        async function guardarYMostrarResultados() {
+            document.getElementById("questionsContainer").style.display = "none";
+            const resultsCard = document.getElementById("resultsCard");
+            const scoreText = document.getElementById("scoreText");
+            const resultStatus = document.getElementById("resultStatus");
+
+            resultsCard.style.display = "block";
+            scoreText.innerText = `Protocolo finalizado, Ud. ha obtenido ${score} puntos/10, se enviará a corrección definitiva`;
+
+            const sessionData = sessionStorage.getItem("current_session");
+            let userId = "Estudiante_Anonimo";
+            
+            if (sessionData) {
+                try {
+                    const userObj = JSON.parse(sessionData);
+                    userId = userObj.user || userObj.name || "Estudiante";
+                } catch (e) {
+                    console.error("Error al parsear sesión:", e);
+                }
+            }
+
+            const docId = `NOTA_TEST_9_${userId.replace(/[\.\s]/g, "_")}`;
+
+            try {
+                await setDoc(doc(db, "calificaciones_tests", docId), {
+                    usuario: userId,
+                    notaTest_9: score,
+                    fecha: new Date().toISOString()
+                });
+
+                resultStatus.style.color = "#145a32";
+                resultStatus.innerText = "¡Resultado guardado con éxito en la base de datos!";
+            } catch (error) {
+                console.error("Error al guardar en base de datos:", error);
+                resultStatus.style.color = "#641e16";
+                resultStatus.innerText = "Error al sincronizar el resultado con la base de datos.";
+            }
+        }
+
+        window.volverDashboard = function() {
+            if (window.parent && window.parent !== window) {
+                window.parent.location.reload();
+            } else {
+                window.location.href = "index.html";
+            }
+        }
+
+        window.onload = function() {
+            renderQuiz();
+        };
+    </script>
+</body>
+</html>
