@@ -1,0 +1,524 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Test 10 - El fin de los binarismos normativos y la urgencia de una escucha despatologizada</title>
+    <style>
+        :root {
+            --bg-color: #f4f5f7;
+            --neural-pattern: radial-gradient(circle, rgba(200,205,215,0.25) 1px, transparent 1px);
+            --card-bg: #ffffff;
+            --border-color: #000000;
+        }
+
+        * {
+            box-sizing: border-box;
+            margin: 0;
+            padding: 0;
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+        }
+
+        body {
+            background-color: var(--bg-color);
+            background-image: var(--neural-pattern);
+            background-size: 24px 24px;
+            color: #2c3e50;
+            padding: 20px;
+        }
+
+        .container {
+            max-width: 850px;
+            margin: 0 auto;
+        }
+
+        header {
+            text-align: center;
+            margin-bottom: 30px;
+            position: relative;
+        }
+
+        .btn-volver {
+            position: absolute;
+            top: 0;
+            left: 0;
+            background-color: #fadbd8;
+            color: #78281f;
+            border: 2px solid var(--border-color);
+            border-radius: 6px;
+            padding: 8px 14px;
+            font-size: 0.85rem;
+            font-weight: 700;
+            cursor: pointer;
+            box-shadow: 0 0 8px rgba(250, 219, 216, 0.8);
+            transition: all 0.2s ease;
+        }
+
+        .btn-volver:hover {
+            transform: translateY(-2px);
+            filter: brightness(0.95);
+        }
+
+        header h2 {
+            font-size: 1.5rem;
+            color: #1a252f;
+            border-bottom: 2px solid #bdc3c7;
+            padding-bottom: 10px;
+            margin-bottom: 8px;
+            margin-top: 40px;
+        }
+
+        header p {
+            font-size: 0.95rem;
+            color: #7d6608;
+            font-weight: 600;
+        }
+
+        .quiz-card {
+            background-color: var(--card-bg);
+            border: 2px solid var(--border-color);
+            border-radius: 10px;
+            padding: 30px;
+            box-shadow: 0 4px 20px rgba(0,0,0,0.08);
+            margin-bottom: 25px;
+            display: none;
+        }
+
+        .quiz-card.active {
+            display: block;
+        }
+
+        .question-number {
+            font-size: 0.85rem;
+            font-weight: 700;
+            color: #7d6608;
+            text-transform: uppercase;
+            letter-spacing: 1px;
+            margin-bottom: 8px;
+        }
+
+        .question-title {
+            font-size: 1.15rem;
+            font-weight: 700;
+            color: #2c3e50;
+            margin-bottom: 20px;
+            line-height: 1.4;
+        }
+
+        .options-list {
+            display: flex;
+            flex-direction: column;
+            gap: 12px;
+            margin-bottom: 20px;
+        }
+
+        .option-btn {
+            background: #fff;
+            border: 2px solid var(--border-color);
+            border-radius: 6px;
+            padding: 12px 16px;
+            text-align: left;
+            font-size: 0.95rem;
+            font-weight: 600;
+            color: #2c3e50;
+            cursor: pointer;
+            transition: all 0.2s ease;
+        }
+
+        .option-btn:hover:not(:disabled) {
+            background-color: #fcf3cf;
+            border-color: #7d6608;
+        }
+
+        .option-btn.correct {
+            background-color: #d4efdf !important;
+            color: #145a32 !important;
+            border-color: #145a32 !important;
+            box-shadow: 0 0 10px rgba(212, 239, 223, 0.9);
+        }
+
+        .option-btn.incorrect {
+            background-color: #f5b7b1 !important;
+            color: #641e16 !important;
+            border-color: #641e16 !important;
+            box-shadow: 0 0 10px rgba(245, 183, 177, 0.9);
+        }
+
+        .option-btn:disabled {
+            cursor: default;
+        }
+
+        .feedback-box {
+            margin-top: 15px;
+            padding: 14px;
+            border-radius: 6px;
+            font-size: 0.9rem;
+            font-weight: 600;
+            display: none;
+        }
+
+        .feedback-box.show {
+            display: block;
+        }
+
+        .feedback-box.correct-fb {
+            background-color: #d4efdf;
+            color: #145a32;
+            border: 1.5px solid #145a32;
+        }
+
+        .feedback-box.incorrect-fb {
+            background-color: #f9d5d2;
+            color: #641e16;
+            border: 1.5px solid #641e16;
+        }
+
+        .nav-actions {
+            display: flex;
+            justify-content: flex-end;
+            margin-top: 20px;
+        }
+
+        .btn-next {
+            background-color: #d4efdf;
+            color: #145a32;
+            border: 2px solid var(--border-color);
+            border-radius: 6px;
+            padding: 10px 24px;
+            font-size: 0.95rem;
+            font-weight: 700;
+            cursor: pointer;
+            box-shadow: 0 0 8px rgba(212, 239, 223, 0.8);
+            display: none;
+            transition: all 0.2s ease;
+        }
+
+        .btn-next:hover {
+            background-color: #a9dfbf;
+        }
+
+        .results-card {
+            background-color: var(--card-bg);
+            border: 2px solid var(--border-color);
+            border-radius: 10px;
+            padding: 40px;
+            text-align: center;
+            box-shadow: 0 4px 20px rgba(0,0,0,0.08);
+            display: none;
+        }
+
+        .results-card h3 {
+            font-size: 1.6rem;
+            color: #1a252f;
+            margin-bottom: 15px;
+        }
+
+        .results-card p {
+            font-size: 1.1rem;
+            color: #7d6608;
+            font-weight: 700;
+            margin-bottom: 25px;
+        }
+
+        .msg-status {
+            margin-top: 15px;
+            font-size: 0.95rem;
+            font-weight: 600;
+        }
+    </style>
+</head>
+<body>
+
+    <div class="container">
+        <header>
+            <button class="btn-volver" onclick="volverDashboard()">← Volver</button>
+            <h2>Test 10: El fin de los binarismos normativos y la escucha despatologizada</h2>
+            <p>Programa de Formación para Profesionales de la Salud Mental (2027)</p>
+        </header>
+
+        <!-- Contenedor del Cuestionario -->
+        <div id="questionsContainer"></div>
+
+        <!-- Tarjeta de Resultados Finales -->
+        <div id="resultsCard" class="results-card">
+            <h3>Evaluación Finalizada</h3>
+            <p id="scoreText"></p>
+            <div id="resultStatus" class="msg-status"></div>
+        </div>
+    </div>
+
+    <!-- Script conectado a Firebase Firestore -->
+    <script type="module">
+        import { initializeApp } from "https://www.gstatic.com/firebasejs/10.8.0/firebase-app.js";
+        import { getFirestore, setDoc, doc } from "https://www.gstatic.com/firebasejs/10.8.0/firebase-firestore.js";
+
+        const firebaseConfig = {
+          apiKey: "AIzaSyDLSIGdkd2y1l7zhMjoVd_bmCj8jjXpX4I",
+          authDomain: "aula-virtual-mas-alla-del-pris.firebaseapp.com",
+          projectId: "aula-virtual-mas-alla-del-pris",
+          storageBucket: "aula-virtual-mas-alla-del-pris.firebasestorage.app",
+          messagingSenderId: "711745866832",
+          appId: "1:711745866832:web:945e046cb0b61ac320d555"
+        };
+
+        const app = initializeApp(firebaseConfig);
+        const db = getFirestore(app);
+
+        // Definición de las preguntas basadas estrictamente en el Capítulo 10
+        const preguntas = [
+            {
+                id: 1,
+                pregunta: "¿Cómo operaba el psicoanálisis ortodoxo durante décadas respecto al género y la sexuación según el texto[cite: 15]?",
+                opciones: [
+                    "Bajo el mandato de un binarismo estricto donde la anatomía determinaba linealmente el psiquismo y las disidencias eran rotuladas mecánicamente como patologías[cite: 15].",
+                    "Aceptando plenamente la plasticidad subjetiva y la multiplicidad de identidades no binarias.",
+                    "Mediante la despatologización absoluta de las vivencias corporales disidentes.",
+                    "Sustituyendo la metapsicología por estudios sociológicos de género.",
+                    "Considerando que el dimorfismo sexual era una construcción cultural variable."
+                ],
+                correcta: 0,
+                feedback: "Correcto. El psicoanálisis ortodoxo operaba bajo un binarismo estricto donde la anatomía determinaba el psiquismo y cualquier disidencia era rotulada como patología o perversión[cite: 15]."
+            },
+            {
+                id: 2,
+                pregunta: "Desde el modelo de la Clínica de la Convergencia, ¿cómo se deben abordar las identidades de género y las disidencias en la práctica analítica[cite: 15]?",
+                opciones: [
+                    "Mediante un eclecticismo acrítico que abandona por completo la metapsicología freudiana.",
+                    "Articulando la rigurosidad de la teoría del sujeto con los aportes contemporáneos de la neurobiología del esquema corporal, la endocrinología y los estudios de género despatologizadores[cite: 15].",
+                    "Rotulando mecánicamente la disidencia como una detención en el desarrollo psicosexual.",
+                    "Imponiendo los cánones de la naturaleza instituida por sobre la vivencia subjetiva del paciente.",
+                    "Derivando sistemáticamente todos los casos hacia tratamientos endocrinológicos sin intervención analítica."
+                ],
+                correcta: 1,
+                feedback: "Correcto. La Convergencia articula la teoría del sujeto con la neurobiología del esquema corporal, la endocrinología y los estudios de género despatologizadores[cite: 15]."
+            },
+            {
+                id: 3,
+                pregunta: "En la metapsicología del esquema corporal, ¿cómo conceptualizaba Freud originariamente al yo en relación con el cuerpo[cite: 15]?",
+                opciones: [
+                    "Como una entidad puramente incorpórea e independiente de la superficie somática.",
+                    "Como una entidad corporal, siendo en su raíz la proyección de una superficie corporal[cite: 15].",
+                    "Como el equivalente exacto a la corteza somatosensorial y la ínsula.",
+                    "Como un constructo social determinado exclusivamente por el Superyó cultural.",
+                    "Como una estructura psicótica desvinculada de la imago especular."
+                ],
+                correcta: 1,
+                feedback: "Correcto. Freud advirtió tempranamente que el yo es, ante todo, una entidad corporal: la proyección de una superficie corporal[cite: 15]."
+            },
+            {
+                id: 4,
+                pregunta: "¿Qué formalizó Jacques Lacan a través del concepto de estadio del espejo en la constitución del cuerpo[cite: 15]?",
+                opciones: [
+                    "La determinación biológica lineal de los caracteres sexuales secundarios.",
+                    "Cómo el cachorro humano, inmerso en el desamparo motor originario, unifica su vivencia corporal fragmentada mediante la asunción de la imago especular mediada por la mirada del Otro[cite: 15].",
+                    "La disociación permanente entre el soma biológico y la imagen mental.",
+                    "El origen puramente genético de la disforia de género.",
+                    "La abolición definitiva de los mandatos identificatorios del Superyó."
+                ],
+                correcta: 1,
+                feedback: "Correcto. Lacan formalizó cómo el infans unifica su vivencia corporal fragmentada a través de la imago especular mediada por el deseo del Otro parental[cite: 15]."
+            },
+            {
+                id: 5,
+                pregunta: "¿Cómo se experimenta en el aparato psíquico la discordancia radical entre el soma biológico y la imagen yoica en las vivencias trans y disidentes[cite: 15]?",
+                opciones: [
+                    "Como una alucinación transitoria o un delirio psicótico clásico.",
+                    "Como una verdad subjetiva ineludible donde el cuerpo biológico se vive como un error o traje ajeno que asfixia al yo, generando un sufrimiento comparable al estrangulamiento psíquico[cite: 15].",
+                    "Como una adaptación armónica a los mandatos identificatorios del Superyó cultural.",
+                    "Como un conflicto edípico infantil fácilmente resoluble mediante la represión.",
+                    "Como un error de diagnóstico médico sin correlato metapsicológico."
+                ],
+                correcta: 1,
+                feedback: "Correcto. No es un delirio ni una alucinación; el cuerpo biológico se experimenta como un traje ajeno que asfixia al yo con un sufrimiento comparable al estrangulamiento psíquico[cite: 15]."
+            },
+            {
+                id: 6,
+                pregunta: "Según el texto, ¿cuál es la tarea metapsicológica de la clínica frente a las identificaciones alienantes impuestas por el Superyó cultural[cite: 15]?",
+                opciones: [
+                    "Someter al paciente al Procrustes de la norma estadística y del dimorfismo obligatorio.",
+                    "Analizar cómo operan esas identificaciones para permitir que el sujeto rompa con el mandato superyoico culpabilizador y construya una autoría propia sobre su cuerpo, su nombre y su deseo[cite: 15].",
+                    "Reforzar los mandatos tradicionales de género para restablecer el orden familiar.",
+                    "Ignorar por completo el impacto del nombre y de la cultura en la subjetividad.",
+                    "Aconsejar la renuncia definitiva a cualquier proceso de afirmación corporal."
+                ],
+                correcta: 1,
+                feedback: "Correcto. La tarea es analizar las identificaciones alienantes para que el sujeto rompa con el mandato culpabilizador y construya una autoría propia sobre su cuerpo y su deseo[cite: 15]."
+            },
+            {
+                id: 7,
+                pregunta: "¿Cómo construye el cerebro humano el mapa dinámico y multisensorial de la corporalidad según las neurociencias afectivas[cite: 15]?",
+                opciones: [
+                    "Mediante una representación genética estática e invariable desde el nacimiento.",
+                    "A través de redes albergadas en la corteza somatosensorial, la ínsula y el lóbulo parietal que integran información propioceptiva, táctil, visual y vestibular[cite: 15].",
+                    "Exclusivamente mediante la influencia de los mandatos socioculturales del entorno.",
+                    "A través de la activación aislada del Eje HPA sin intervención de la ínsula.",
+                    "Mediante el control directo de la corteza prefrontal dorsolateral sin registro visceral."
+                ],
+                correcta: 1,
+                feedback: "Correcto. El cerebro construye un mapa dinámico albergado en la corteza somatosensorial, la ínsula y el lóbulo parietal integrando información propioceptiva, táctil, visual y vestibular[cite: 15]."
+            },
+            {
+                id: 8,
+                pregunta: "¿Qué sugiere la investigación en neuroimagen funcional respecto a las personas con incongruencia de género o disforia[cite: 15]?",
+                opciones: [
+                    "Que existe un desacople persistente entre la autoimagen neurológica innata y los caracteres sexuales secundarios del soma biológico, generando activación en la ínsula anterior y estrés alostático[cite: 15].",
+                    "Que sus circuitos dopaminérgicos del núcleo accumbens se encuentran hiperactivos por adicción conductual.",
+                    "Que sus mecanismos de habituación subcortical funcionan de manera idéntica a los de un paciente paranoico.",
+                    "Que carecen por completo de representación somatosensorial en el lóbulo parietal.",
+                    "Que su Eje HPA se encuentra permanentemente bloqueado sin secreción de cortisol."
+                ],
+                correcta: 0,
+                feedback: "Correcto. Se registra un desacople entre la autoimagen neurológica innata y el soma, activando la ínsula anterior (dolor visceral) y sumergiendo al sistema en estrés alostático[cite: 15]."
+            },
+            {
+                id: 9,
+                pregunta: "¿Qué fenómeno neurobiológico documenta la ciencia cuando un sujeto accede a procesos de afirmación de género (hormonas o cirugías)[cite: 15]?",
+                opciones: [
+                    "Un incremento masivo de la disociación psíquica y del agotamiento alostático.",
+                    "Un notable proceso de plasticidad y reconfiguración sináptica: disminuye la hiperactivación amigdalina y el estrés del Eje HPA al alinear soma e imagen corporal[cite: 15].",
+                    "La desconexión irreversible de la corteza prefrontal y la pérdida de la imagen yoica.",
+                    "La anulación de los receptores dopaminérgicos D2 en el circuito mesolímbico.",
+                    "Un aumento crónico de la inflamación sistémica y del dolor corporal."
+                ],
+                correcta: 1,
+                feedback: "Correcto. Al alinear el soma con la imagen interna, se documenta plasticidad sináptica, disminuyendo la amígdala y el Eje HPA, permitiendo calma somática e integración[cite: 15]."
+            },
+            {
+                id: 10,
+                pregunta: "Desde el marco conceptual del capítulo, ¿qué deja de hacer el cerebro una vez que se logra la integración identitaria mediante la afirmación de género[cite: 15]?",
+                opciones: [
+                    "Deja de gastar una enorme cantidad de energía metabólica en el esfuerzo defensivo de sostener una disociación insoportable, permitiendo a la prefrontal recuperar su optimización[cite: 15].",
+                    "Deja de procesar información propioceptiva y táctil en el lóbulo parietal.",
+                    "Deja de liberar oxitocina y vasopresina en los núcleos paraventriculares.",
+                    "Deja de experimentar cualquier tipo de emoción o dolor físico.",
+                    "Deja de activar los circuitos de la ínsula anterior de manera definitiva."
+                ],
+                correcta: 0,
+                feedback: "Correcto. El cerebro deja de malgastar energía metabólica en el esfuerzo defensivo de sostener la disociación, optimizando la corteza prefrontal y logrando calma somática[cite: 15]."
+            }
+        ];
+
+        let currentQuestion = 0;
+        let score = 0;
+        const totalQuestions = preguntas.length;
+
+        function renderQuiz() {
+            const container = document.getElementById("questionsContainer");
+            container.innerHTML = "";
+
+            preguntas.forEach((p, index) => {
+                const card = document.createElement("div");
+                card.className = `quiz-card ${index === 0 ? 'active' : ''}`;
+                card.id = `question-card-${index}`;
+
+                let opcionesHtml = "";
+                p.opciones.forEach((opcion, optIndex) => {
+                    opcionesHtml += `<button class="option-btn" onclick="verificarRespuesta(${index}, ${optIndex})">${opcion}</button>`;
+                });
+
+                card.innerHTML = `
+                    <div class="question-number">Pregunta ${index + 1} de ${totalQuestions}</div>
+                    <div class="question-title">${p.pregunta}</div>
+                    <div class="options-list" id="options-${index}">
+                        ${opcionesHtml}
+                    </div>
+                    <div class="feedback-box" id="feedback-${index}">${p.feedback}</div>
+                    <div class="nav-actions">
+                        <button class="btn-next" id="btn-next-${index}" onclick="siguientePregunta(${index})">
+                            ${index === totalQuestions - 1 ? 'Finalizar Protocolo' : 'Siguiente Pregunta'}
+                        </button>
+                    </div>
+                `;
+                container.appendChild(card);
+            });
+        }
+
+        window.verificarRespuesta = function(qIndex, selectedOpt) {
+            const p = preguntas[qIndex];
+            const optionsContainer = document.getElementById(`options-${qIndex}`);
+            const buttons = optionsContainer.getElementsByClassName("option-btn");
+            const feedbackBox = document.getElementById(`feedback-${qIndex}`);
+            const nextBtn = document.getElementById(`btn-next-${qIndex}`);
+
+            for (let i = 0; i < buttons.length; i++) {
+                buttons[i].disabled = true;
+                if (i === p.correcta) {
+                    buttons[i].classList.add("correct");
+                } else if (i === selectedOpt) {
+                    buttons[i].classList.add("incorrect");
+                }
+            }
+
+            if (selectedOpt === p.correcta) {
+                score += 1;
+                feedbackBox.className = "feedback-box show correct-fb";
+            } else {
+                feedbackBox.className = "feedback-box show incorrect-fb";
+            }
+
+            nextBtn.style.display = "block";
+        }
+
+        window.siguientePregunta = function(qIndex) {
+            document.getElementById(`question-card-${qIndex}`).classList.remove("active");
+
+            if (qIndex + 1 < totalQuestions) {
+                document.getElementById(`question-card-${qIndex + 1}`).classList.add("active");
+            } else {
+                guardarYMostrarResultados();
+            }
+        }
+
+        async function guardarYMostrarResultados() {
+            document.getElementById("questionsContainer").style.display = "none";
+            const resultsCard = document.getElementById("resultsCard");
+            const scoreText = document.getElementById("scoreText");
+            const resultStatus = document.getElementById("resultStatus");
+
+            resultsCard.style.display = "block";
+            scoreText.innerText = `Protocolo finalizado, Ud. ha obtenido ${score} puntos/10, se enviará a corrección definitiva`;
+
+            const sessionData = sessionStorage.getItem("current_session");
+            let userId = "Estudiante_Anonimo";
+            
+            if (sessionData) {
+                try {
+                    const userObj = JSON.parse(sessionData);
+                    userId = userObj.user || userObj.name || "Estudiante";
+                } catch (e) {
+                    console.error("Error al parsear sesión:", e);
+                }
+            }
+
+            const docId = `NOTA_TEST_10_${userId.replace(/[\.\s]/g, "_")}`;
+
+            try {
+                await setDoc(doc(db, "calificaciones_tests", docId), {
+                    usuario: userId,
+                    notaTest_10: score,
+                    fecha: new Date().toISOString()
+                });
+
+                resultStatus.style.color = "#145a32";
+                resultStatus.innerText = "¡Resultado guardado con éxito en la base de datos!";
+            } catch (error) {
+                console.error("Error al guardar en base de datos:", error);
+                resultStatus.style.color = "#641e16";
+                resultStatus.innerText = "Error al sincronizar el resultado con la base de datos.";
+            }
+        }
+
+        window.volverDashboard = function() {
+            if (window.parent && window.parent !== window) {
+                window.parent.location.reload();
+            } else {
+                window.location.href = "index.html";
+            }
+        }
+
+        window.onload = function() {
+            renderQuiz();
+        };
+    </script>
+</body>
+</html>
