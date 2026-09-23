@@ -1,0 +1,524 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Test 11 - El crepúsculo de las redes y la dignidad de la trama subjetiva</title>
+    <style>
+        :root {
+            --bg-color: #f4f5f7;
+            --neural-pattern: radial-gradient(circle, rgba(200,205,215,0.25) 1px, transparent 1px);
+            --card-bg: #ffffff;
+            --border-color: #000000;
+        }
+
+        * {
+            box-sizing: border-box;
+            margin: 0;
+            padding: 0;
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+        }
+
+        body {
+            background-color: var(--bg-color);
+            background-image: var(--neural-pattern);
+            background-size: 24px 24px;
+            color: #2c3e50;
+            padding: 20px;
+        }
+
+        .container {
+            max-width: 850px;
+            margin: 0 auto;
+        }
+
+        header {
+            text-align: center;
+            margin-bottom: 30px;
+            position: relative;
+        }
+
+        .btn-volver {
+            position: absolute;
+            top: 0;
+            left: 0;
+            background-color: #fadbd8;
+            color: #78281f;
+            border: 2px solid var(--border-color);
+            border-radius: 6px;
+            padding: 8px 14px;
+            font-size: 0.85rem;
+            font-weight: 700;
+            cursor: pointer;
+            box-shadow: 0 0 8px rgba(250, 219, 216, 0.8);
+            transition: all 0.2s ease;
+        }
+
+        .btn-volver:hover {
+            transform: translateY(-2px);
+            filter: brightness(0.95);
+        }
+
+        header h2 {
+            font-size: 1.5rem;
+            color: #1a252f;
+            border-bottom: 2px solid #bdc3c7;
+            padding-bottom: 10px;
+            margin-bottom: 8px;
+            margin-top: 40px;
+        }
+
+        header p {
+            font-size: 0.95rem;
+            color: #7d6608;
+            font-weight: 600;
+        }
+
+        .quiz-card {
+            background-color: var(--card-bg);
+            border: 2px solid var(--border-color);
+            border-radius: 10px;
+            padding: 30px;
+            box-shadow: 0 4px 20px rgba(0,0,0,0.08);
+            margin-bottom: 25px;
+            display: none;
+        }
+
+        .quiz-card.active {
+            display: block;
+        }
+
+        .question-number {
+            font-size: 0.85rem;
+            font-weight: 700;
+            color: #7d6608;
+            text-transform: uppercase;
+            letter-spacing: 1px;
+            margin-bottom: 8px;
+        }
+
+        .question-title {
+            font-size: 1.15rem;
+            font-weight: 700;
+            color: #2c3e50;
+            margin-bottom: 20px;
+            line-height: 1.4;
+        }
+
+        .options-list {
+            display: flex;
+            flex-direction: column;
+            gap: 12px;
+            margin-bottom: 20px;
+        }
+
+        .option-btn {
+            background: #fff;
+            border: 2px solid var(--border-color);
+            border-radius: 6px;
+            padding: 12px 16px;
+            text-align: left;
+            font-size: 0.95rem;
+            font-weight: 600;
+            color: #2c3e50;
+            cursor: pointer;
+            transition: all 0.2s ease;
+        }
+
+        .option-btn:hover:not(:disabled) {
+            background-color: #fcf3cf;
+            border-color: #7d6608;
+        }
+
+        .option-btn.correct {
+            background-color: #d4efdf !important;
+            color: #145a32 !important;
+            border-color: #145a32 !important;
+            box-shadow: 0 0 10px rgba(212, 239, 223, 0.9);
+        }
+
+        .option-btn.incorrect {
+            background-color: #f5b7b1 !important;
+            color: #641e16 !important;
+            border-color: #641e16 !important;
+            box-shadow: 0 0 10px rgba(245, 183, 177, 0.9);
+        }
+
+        .option-btn:disabled {
+            cursor: default;
+        }
+
+        .feedback-box {
+            margin-top: 15px;
+            padding: 14px;
+            border-radius: 6px;
+            font-size: 0.9rem;
+            font-weight: 600;
+            display: none;
+        }
+
+        .feedback-box.show {
+            display: block;
+        }
+
+        .feedback-box.correct-fb {
+            background-color: #d4efdf;
+            color: #145a32;
+            border: 1.5px solid #145a32;
+        }
+
+        .feedback-box.incorrect-fb {
+            background-color: #f9d5d2;
+            color: #641e16;
+            border: 1.5px solid #641e16;
+        }
+
+        .nav-actions {
+            display: flex;
+            justify-content: flex-end;
+            margin-top: 20px;
+        }
+
+        .btn-next {
+            background-color: #d4efdf;
+            color: #145a32;
+            border: 2px solid var(--border-color);
+            border-radius: 6px;
+            padding: 10px 24px;
+            font-size: 0.95rem;
+            font-weight: 700;
+            cursor: pointer;
+            box-shadow: 0 0 8px rgba(212, 239, 223, 0.8);
+            display: none;
+            transition: all 0.2s ease;
+        }
+
+        .btn-next:hover {
+            background-color: #a9dfbf;
+        }
+
+        .results-card {
+            background-color: var(--card-bg);
+            border: 2px solid var(--border-color);
+            border-radius: 10px;
+            padding: 40px;
+            text-align: center;
+            box-shadow: 0 4px 20px rgba(0,0,0,0.08);
+            display: none;
+        }
+
+        .results-card h3 {
+            font-size: 1.6rem;
+            color: #1a252f;
+            margin-bottom: 15px;
+        }
+
+        .results-card p {
+            font-size: 1.1rem;
+            color: #7d6608;
+            font-weight: 700;
+            margin-bottom: 25px;
+        }
+
+        .msg-status {
+            margin-top: 15px;
+            font-size: 0.95rem;
+            font-weight: 600;
+        }
+    </style>
+</head>
+<body>
+
+    <div class="container">
+        <header>
+            <button class="btn-volver" onclick="volverDashboard()">← Volver</button>
+            <h2>Test 11: El crepúsculo de las redes y la dignidad de la trama subjetiva</h2>
+            <p>Programa de Formación para Profesionales de la Salud Mental (2027)</p>
+        </header>
+
+        <!-- Contenedor del Cuestionario -->
+        <div id="questionsContainer"></div>
+
+        <!-- Tarjeta de Resultados Finales -->
+        <div id="resultsCard" class="results-card">
+            <h3>Evaluación Finalizada</h3>
+            <p id="scoreText"></p>
+            <div id="resultStatus" class="msg-status"></div>
+        </div>
+    </div>
+
+    <!-- Script conectado a Firebase Firestore -->
+    <script type="module">
+        import { initializeApp } from "https://www.gstatic.com/firebasejs/10.8.0/firebase-app.js";
+        import { getFirestore, setDoc, doc } from "https://www.gstatic.com/firebasejs/10.8.0/firebase-firestore.js";
+
+        const firebaseConfig = {
+          apiKey: "AIzaSyDLSIGdkd2y1l7zhMjoVd_bmCj8jjXpX4I",
+          authDomain: "aula-virtual-mas-alla-del-pris.firebaseapp.com",
+          projectId: "aula-virtual-mas-alla-del-pris",
+          storageBucket: "aula-virtual-mas-alla-del-pris.firebasestorage.app",
+          messagingSenderId: "711745866832",
+          appId: "1:711745866832:web:945e046cb0b61ac320d555"
+        };
+
+        const app = initializeApp(firebaseConfig);
+        const db = getFirestore(app);
+
+        // Definición de las preguntas basadas estrictamente en el Capítulo 11
+        const preguntas = [
+            {
+                id: 1,
+                pregunta: "¿Qué prejuicio teórico mantuvo el psicoanálisis clásico respecto a la intervención analítica en la vejez avanzada según el texto[cite: 17]?",
+                opciones: [
+                    "Que la vejez facilitaba de inmediato el acceso a la asociación libre y la resolución del Edipo.",
+                    "Que la líbido era inflexible, lo que marginaba a los adultos mayores de la cura analítica[cite: 17].",
+                    "Que las demencias debían tratarse exclusivamente mediante psicofármacos individuales.",
+                    "Que el aparato psíquico envejecido carecía de cualquier rastro de conflictiva inconsciente.",
+                    "Que la neurodegeneración fortalecía la reserva cognitiva del sujeto."
+                ],
+                correcta: 1,
+                feedback: "Correcto. El psicoanálisis clásico mantuvo el prejuicio de la supuesta 'inflexibilidad de la líbido' en la vejez, marginando a los adultos mayores de la cura analítica[cite: 17]."
+            },
+            {
+                id: 2,
+                pregunta: "Desde el modelo de la Clínica de la Convergencia, ¿qué implica el declive de las facultades cognitivas en los estadios avanzados de demencia[cite: 17]?",
+                opciones: [
+                    "La anulación total e inmediata de la subjetividad y del psiquismo humano.",
+                    "Que el sujeto sigue estando habitado por el dolor, el miedo al desamparo, la necesidad de reconocimiento y la huella de su historia vincular[cite: 17].",
+                    "La desaparición absoluta de la memoria implícita y emocional.",
+                    "Un retorno normativo a las fases del desarrollo infantil temprano.",
+                    "La imposibilidad biológica de procesar cualquier estímulo exterior."
+                ],
+                correcta: 1,
+                feedback: "Correcto. El declive cognitivo no implica la anulación de la subjetividad; el sujeto sigue habitado por el dolor, el miedo al desamparo y la necesidad de reconocimiento[cite: 17]."
+            },
+            {
+                id: 3,
+                pregunta: "En la metapsicología del declive, ¿cómo se edifica originariamente el yo según las formulaciones freudianas sobre el narcisismo[cite: 17]?",
+                opciones: [
+                    "Como una superestructura puramente espiritual desvinculada del soma.",
+                    "Como un yo corporal, edificándose como superestructura sobre las sensaciones, huellas y estímulos del soma[cite: 17].",
+                    "Como el equivalente estricto a la Red de Modo por Defecto (DMN).",
+                    "Como una instancia inmune al deterioro de las funciones sintéticas.",
+                    "Como un constructo social determinado por el lenguaje sin base somática."
+                ],
+                correcta: 1,
+                feedback: "Correcto. Freud estableció que el yo es fundamentalmente un yo corporal, una superestructura edificada sobre las sensaciones y estímulos provenientes del soma[cite: 17]."
+            },
+            {
+                id: 4,
+                pregunta: "¿Qué consecuencia produce en el aparato psíquico la quiebra del apuntalamiento somático (Anlehnung) en las demencias[cite: 17]?",
+                opciones: [
+                    "Un restablecimiento óptimo del equilibrio alostático y la habituación.",
+                    "Un estado de desamparo estructural (Hilflosigkeit) donde el mundo interno y externo se vuelve incomprensible y amenazante[cite: 17].",
+                    "Una disociación selectiva que protege al yo de cualquier angustia.",
+                    "El fortalecimiento inmediato de la memoria declarativa y episódica.",
+                    "La activación coordinada de la corteza prefrontal dorsolateral."
+                ],
+                correcta: 1,
+                feedback: "Correcto. La quiebra del apuntalamiento expone al sujeto a un estado de desamparo estructural (Hilflosigkeit) donde el mundo se vuelve incomprensible y amenazante[cite: 17]."
+            },
+            {
+                id: 5,
+                pregunta: "En la vejez avanzada, ¿qué ocurre metapsicológicamente entre la representación ideativa y el monto de afecto (memoria vs. emoción)[cite: 17]?",
+                opciones: [
+                    "Ambas instancias desaparecen simultáneamente sin dejar rastros.",
+                    "Se opera una disociación radical: la memoria episódica se erosiona, pero la memoria implícita y los circuitos del afecto permanecen intactos[cite: 17].",
+                    "El afecto se extingue por completo, persistiendo únicamente los recuerdos abstractos.",
+                    "La representación ideativa se hipertrofia compensando la pérdida afectiva.",
+                    "No existe ninguna diferencia en la evolución temporal de ambas instancias."
+                ],
+                correcta: 1,
+                feedback: "Correcto. Se produce una disociación donde la memoria episódica desaparece, pero la memoria implícita y los circuitos del afecto sobreviven al naufragio de las representaciones[cite: 17]."
+            },
+            {
+                id: 6,
+                pregunta: "¿Por qué la pérdida de la lucidez intelectual no inmuniza al sujeto con demencia frente al sufrimiento vincular[cite: 17]?",
+                opciones: [
+                    "Porque el sujeto conserva intacta la capacidad de razonar lógicamente sobre sus pérdidas.",
+                    "Porque el afecto sobrevive a la representación y el paciente conserva una sensibilidad hiperaguda para registrar el tono de voz, la mirada y la calidez del entorno[cite: 17].",
+                    "Porque la corteza prefrontal sigue regulando el control inhibitorio de forma óptima.",
+                    "Porque las placas amiloides estimulan directamente la secreción de oxitocina.",
+                    "Porque el Eje HPA bloquea la percepción de cualquier estímulo hostil."
+                ],
+                correcta: 1,
+                feedback: "Correcto. El afecto sobrevive a la representación; el paciente conserva una sensibilidad hiperaguda ante el tono de voz, la mirada y la calidez de quien lo circunda[cite: 17]."
+            },
+            {
+                id: 7,
+                pregunta: "¿Qué estructura neurofuncional correlaciona con la autoconciencia, la narrativa autobiográfica y la continuidad del 'sí mismo' cuya destrucción explica la fragmentación identitaria[cite: 17]?",
+                opciones: [
+                    "El área tegmental ventral y el núcleo accumbens.",
+                    "La Red de Modo por Defecto (Default Mode Network - DMN)[cite: 17].",
+                    "La ínsula anterior y la corteza cingulada anterior.",
+                    "El complejo amigdalino basal.",
+                    "El sistema nervioso simpático periférico."
+                ],
+                correcta: 1,
+                feedback: "Correcto. La Red de Modo por Defecto (DMN) es el correlato neurofuncional de la autoconciencia y la continuidad del 'sí mismo'[cite: 17]."
+            },
+            {
+                id: 8,
+                pregunta: "¿Qué desencadena reacciones de agitación crepuscular (sundowning) o terror paranoico en el cerebro demenciado cuando colapsan los umbrales de habituación[cite: 17]?",
+                opciones: [
+                    "La incapacidad del cerebro para integrar información en tiempo real, haciendo que la amígdala procese cualquier estímulo ambiguo como un peligro letal[cite: 17].",
+                    "Un exceso crónico de dopamina en el circuito mesolímbico.",
+                    "La activación voluntaria y consciente de la corteza prefrontal.",
+                    "Una descarga masiva de vasopresina orientada a proteger el territorio vincular.",
+                    "La habituación subcortical óptima frente a estímulos repetidos."
+                ],
+                correcta: 1,
+                feedback: "Correcto. Al no poder integrar la información, el cerebro colapsa en su habituación y la amígdala procesa los cambios como un peligro letal, generando agitación[cite: 17]."
+            },
+            {
+                id: 9,
+                pregunta: "Desde la neurobiología contemporánea, ¿qué función cumple la denominada 'reserva vincular' frente al tejido cerebral dañado[cite: 17]?",
+                opciones: [
+                    "Repara físicamente las placas amiloides y los ovillos neurofibrilares en el hipocampo.",
+                    "Actúa como prótesis externa para el sistema ejecutivo dañado: el contacto cálido y la voz serena estimulan sistemas oxitocinérgicos que frenan la amígdala y calman la angustia[cite: 17].",
+                    "Incrementa de forma masiva los niveles de cortisol segregados por el Eje HPA.",
+                    "Sustituye por completo la necesidad de cuidados físicos en el paciente.",
+                    "Acelera la degradación de la Red de Modo por Defecto (DMN)."
+                ],
+                correcta: 1,
+                feedback: "Correcto. El vínculo cálido y previsible actúa como prótesis externa para el sistema ejecutivo, estimulando oxitocina, frenando la amígdala y calmando la angustia[cite: 17]."
+            },
+            {
+                id: 10,
+                pregunta: "¿Cuál es el objetivo ético y clínico fundamental de la intervención analítica frente al declive del yo en la vejez avanzada según la Convergencia[cite: 17]?",
+                opciones: [
+                    "Restaurar por completo las redes sinápticas dañadas de la memoria episódica.",
+                    "Sostener el lazo vincular y ofrecer un continente simbólico que preserve la dignidad del paciente hasta el último tramo de su existencia[cite: 17].",
+                    "Exigir coherencia lógica y recuerdos autobiográficos rigurosos al paciente.",
+                    "Someter al sujeto a internación geriátrica definitiva para evitar el sufrimiento.",
+                    "Demostrar la ineficacia de la palabra frente a la neurodegeneración."
+                ],
+                correcta: 1,
+                feedback: "Correcto. El objetivo no es restaurar lo dañado, sino sostener el lazo vincular y ofrecer un continente simbólico que preserve la dignidad del paciente hasta el final[cite: 17]."
+            }
+        ];
+
+        let currentQuestion = 0;
+        let score = 0;
+        const totalQuestions = preguntas.length;
+
+        function renderQuiz() {
+            const container = document.getElementById("questionsContainer");
+            container.innerHTML = "";
+
+            preguntas.forEach((p, index) => {
+                const card = document.createElement("div");
+                card.className = `quiz-card ${index === 0 ? 'active' : ''}`;
+                card.id = `question-card-${index}`;
+
+                let opcionesHtml = "";
+                p.opciones.forEach((opcion, optIndex) => {
+                    opcionesHtml += `<button class="option-btn" onclick="verificarRespuesta(${index}, ${optIndex})">${opcion}</button>`;
+                });
+
+                card.innerHTML = `
+                    <div class="question-number">Pregunta ${index + 1} de ${totalQuestions}</div>
+                    <div class="question-title">${p.pregunta}</div>
+                    <div class="options-list" id="options-${index}">
+                        ${opcionesHtml}
+                    </div>
+                    <div class="feedback-box" id="feedback-${index}">${p.feedback}</div>
+                    <div class="nav-actions">
+                        <button class="btn-next" id="btn-next-${index}" onclick="siguientePregunta(${index})">
+                            ${index === totalQuestions - 1 ? 'Finalizar Protocolo' : 'Siguiente Pregunta'}
+                        </button>
+                    </div>
+                `;
+                container.appendChild(card);
+            });
+        }
+
+        window.verificarRespuesta = function(qIndex, selectedOpt) {
+            const p = preguntas[qIndex];
+            const optionsContainer = document.getElementById(`options-${qIndex}`);
+            const buttons = optionsContainer.getElementsByClassName("option-btn");
+            const feedbackBox = document.getElementById(`feedback-${qIndex}`);
+            const nextBtn = document.getElementById(`btn-next-${qIndex}`);
+
+            for (let i = 0; i < buttons.length; i++) {
+                buttons[i].disabled = true;
+                if (i === p.correcta) {
+                    buttons[i].classList.add("correct");
+                } else if (i === selectedOpt) {
+                    buttons[i].classList.add("incorrect");
+                }
+            }
+
+            if (selectedOpt === p.correcta) {
+                score += 1;
+                feedbackBox.className = "feedback-box show correct-fb";
+            } else {
+                feedbackBox.className = "feedback-box show incorrect-fb";
+            }
+
+            nextBtn.style.display = "block";
+        }
+
+        window.siguientePregunta = function(qIndex) {
+            document.getElementById(`question-card-${qIndex}`).classList.remove("active");
+
+            if (qIndex + 1 < totalQuestions) {
+                document.getElementById(`question-card-${qIndex + 1}`).classList.add("active");
+            } else {
+                guardarYMostrarResultados();
+            }
+        }
+
+        async function guardarYMostrarResultados() {
+            document.getElementById("questionsContainer").style.display = "none";
+            const resultsCard = document.getElementById("resultsCard");
+            const scoreText = document.getElementById("scoreText");
+            const resultStatus = document.getElementById("resultStatus");
+
+            resultsCard.style.display = "block";
+            scoreText.innerText = `Protocolo finalizado, Ud. ha obtenido ${score} puntos/10, se enviará a corrección definitiva`;
+
+            const sessionData = sessionStorage.getItem("current_session");
+            let userId = "Estudiante_Anonimo";
+            
+            if (sessionData) {
+                try {
+                    const userObj = JSON.parse(sessionData);
+                    userId = userObj.user || userObj.name || "Estudiante";
+                } catch (e) {
+                    console.error("Error al parsear sesión:", e);
+                }
+            }
+
+            const docId = `NOTA_TEST_11_${userId.replace(/[\.\s]/g, "_")}`;
+
+            try {
+                await setDoc(doc(db, "calificaciones_tests", docId), {
+                    usuario: userId,
+                    notaTest_11: score,
+                    fecha: new Date().toISOString()
+                });
+
+                resultStatus.style.color = "#145a32";
+                resultStatus.innerText = "¡Resultado guardado con éxito en la base de datos!";
+            } catch (error) {
+                console.error("Error al guardar en base de datos:", error);
+                resultStatus.style.color = "#641e16";
+                resultStatus.innerText = "Error al sincronizar el resultado con la base de datos.";
+            }
+        }
+
+        window.volverDashboard = function() {
+            if (window.parent && window.parent !== window) {
+                window.parent.location.reload();
+            } else {
+                window.location.href = "index.html";
+            }
+        }
+
+        window.onload = function() {
+            renderQuiz();
+        };
+    </script>
+</body>
+</html>
