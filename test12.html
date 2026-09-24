@@ -1,0 +1,524 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Test 12 - El consultorio como trinchera y el refugio de la palabra viva</title>
+    <style>
+        :root {
+            --bg-color: #f4f5f7;
+            --neural-pattern: radial-gradient(circle, rgba(200,205,215,0.25) 1px, transparent 1px);
+            --card-bg: #ffffff;
+            --border-color: #000000;
+        }
+
+        * {
+            box-sizing: border-box;
+            margin: 0;
+            padding: 0;
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+        }
+
+        body {
+            background-color: var(--bg-color);
+            background-image: var(--neural-pattern);
+            background-size: 24px 24px;
+            color: #2c3e50;
+            padding: 20px;
+        }
+
+        .container {
+            max-width: 850px;
+            margin: 0 auto;
+        }
+
+        header {
+            text-align: center;
+            margin-bottom: 30px;
+            position: relative;
+        }
+
+        .btn-volver {
+            position: absolute;
+            top: 0;
+            left: 0;
+            background-color: #fadbd8;
+            color: #78281f;
+            border: 2px solid var(--border-color);
+            border-radius: 6px;
+            padding: 8px 14px;
+            font-size: 0.85rem;
+            font-weight: 700;
+            cursor: pointer;
+            box-shadow: 0 0 8px rgba(250, 219, 216, 0.8);
+            transition: all 0.2s ease;
+        }
+
+        .btn-volver:hover {
+            transform: translateY(-2px);
+            filter: brightness(0.95);
+        }
+
+        header h2 {
+            font-size: 1.5rem;
+            color: #1a252f;
+            border-bottom: 2px solid #bdc3c7;
+            padding-bottom: 10px;
+            margin-bottom: 8px;
+            margin-top: 40px;
+        }
+
+        header p {
+            font-size: 0.95rem;
+            color: #7d6608;
+            font-weight: 600;
+        }
+
+        .quiz-card {
+            background-color: var(--card-bg);
+            border: 2px solid var(--border-color);
+            border-radius: 10px;
+            padding: 30px;
+            box-shadow: 0 4px 20px rgba(0,0,0,0.08);
+            margin-bottom: 25px;
+            display: none;
+        }
+
+        .quiz-card.active {
+            display: block;
+        }
+
+        .question-number {
+            font-size: 0.85rem;
+            font-weight: 700;
+            color: #7d6608;
+            text-transform: uppercase;
+            letter-spacing: 1px;
+            margin-bottom: 8px;
+        }
+
+        .question-title {
+            font-size: 1.15rem;
+            font-weight: 700;
+            color: #2c3e50;
+            margin-bottom: 20px;
+            line-height: 1.4;
+        }
+
+        .options-list {
+            display: flex;
+            flex-direction: column;
+            gap: 12px;
+            margin-bottom: 20px;
+        }
+
+        .option-btn {
+            background: #fff;
+            border: 2px solid var(--border-color);
+            border-radius: 6px;
+            padding: 12px 16px;
+            text-align: left;
+            font-size: 0.95rem;
+            font-weight: 600;
+            color: #2c3e50;
+            cursor: pointer;
+            transition: all 0.2s ease;
+        }
+
+        .option-btn:hover:not(:disabled) {
+            background-color: #fcf3cf;
+            border-color: #7d6608;
+        }
+
+        .option-btn.correct {
+            background-color: #d4efdf !important;
+            color: #145a32 !important;
+            border-color: #145a32 !important;
+            box-shadow: 0 0 10px rgba(212, 239, 223, 0.9);
+        }
+
+        .option-btn.incorrect {
+            background-color: #f5b7b1 !important;
+            color: #641e16 !important;
+            border-color: #641e16 !important;
+            box-shadow: 0 0 10px rgba(245, 183, 177, 0.9);
+        }
+
+        .option-btn:disabled {
+            cursor: default;
+        }
+
+        .feedback-box {
+            margin-top: 15px;
+            padding: 14px;
+            border-radius: 6px;
+            font-size: 0.9rem;
+            font-weight: 600;
+            display: none;
+        }
+
+        .feedback-box.show {
+            display: block;
+        }
+
+        .feedback-box.correct-fb {
+            background-color: #d4efdf;
+            color: #145a32;
+            border: 1.5px solid #145a32;
+        }
+
+        .feedback-box.incorrect-fb {
+            background-color: #f9d5d2;
+            color: #641e16;
+            border: 1.5px solid #641e16;
+        }
+
+        .nav-actions {
+            display: flex;
+            justify-content: flex-end;
+            margin-top: 20px;
+        }
+
+        .btn-next {
+            background-color: #d4efdf;
+            color: #145a32;
+            border: 2px solid var(--border-color);
+            border-radius: 6px;
+            padding: 10px 24px;
+            font-size: 0.95rem;
+            font-weight: 700;
+            cursor: pointer;
+            box-shadow: 0 0 8px rgba(212, 239, 223, 0.8);
+            display: none;
+            transition: all 0.2s ease;
+        }
+
+        .btn-next:hover {
+            background-color: #a9dfbf;
+        }
+
+        .results-card {
+            background-color: var(--card-bg);
+            border: 2px solid var(--border-color);
+            border-radius: 10px;
+            padding: 40px;
+            text-align: center;
+            box-shadow: 0 4px 20px rgba(0,0,0,0.08);
+            display: none;
+        }
+
+        .results-card h3 {
+            font-size: 1.6rem;
+            color: #1a252f;
+            margin-bottom: 15px;
+        }
+
+        .results-card p {
+            font-size: 1.1rem;
+            color: #7d6608;
+            font-weight: 700;
+            margin-bottom: 25px;
+        }
+
+        .msg-status {
+            margin-top: 15px;
+            font-size: 0.95rem;
+            font-weight: 600;
+        }
+    </style>
+</head>
+<body>
+
+    <div class="container">
+        <header>
+            <button class="btn-volver" onclick="volverDashboard()">← Volver</button>
+            <h2>Test 12: El consultorio como trinchera y el refugio de la palabra viva</h2>
+            <p>Programa de Formación para Profesionales de la Salud Mental (2027)</p>
+        </header>
+
+        <!-- Contenedor del Cuestionario -->
+        <div id="questionsContainer"></div>
+
+        <!-- Tarjeta de Resultados Finales -->
+        <div id="resultsCard" class="results-card">
+            <h3>Evaluación Finalizada</h3>
+            <p id="scoreText"></p>
+            <div id="resultStatus" class="msg-status"></div>
+        </div>
+    </div>
+
+    <!-- Script conectado a Firebase Firestore -->
+    <script type="module">
+        import { initializeApp } from "https://www.gstatic.com/firebasejs/10.8.0/firebase-app.js";
+        import { getFirestore, setDoc, doc } from "https://www.gstatic.com/firebasejs/10.8.0/firebase-firestore.js";
+
+        const firebaseConfig = {
+          apiKey: "AIzaSyDLSIGdkd2y1l7zhMjoVd_bmCj8jjXpX4I",
+          authDomain: "aula-virtual-mas-alla-del-pris.firebaseapp.com",
+          projectId: "aula-virtual-mas-alla-del-pris",
+          storageBucket: "aula-virtual-mas-alla-del-pris.firebasestorage.app",
+          messagingSenderId: "711745866832",
+          appId: "1:711745866832:web:945e046cb0b61ac320d555"
+        };
+
+        const app = initializeApp(firebaseConfig);
+        const db = getFirestore(app);
+
+        // Definición de las preguntas basadas estrictamente en el Capítulo 12
+        const preguntas = [
+            {
+                id: 1,
+                pregunta: "¿Cuál es el desafío más radical que la época contemporánea le impone a la práctica analítica según la introducción del capítulo?",
+                opciones: [
+                    "La masificación algorítmica, el avance de la inteligencia artificial y la pretensión tecnocientífica de reducir el sufrimiento a métricas estandarizadas.",
+                    "La escasez absoluta de marcos teóricos metapsicológicos en las instituciones de salud.",
+                    "El predominio exclusivo de los tratamientos farmacológicos individuales en la psiquiatría clásica.",
+                    "La desaparición de los vínculos familiares tradicionales en la cultura moderna.",
+                    "La ausencia de plataformas digitales de autogestión emocional."
+                ],
+                correcta: 0,
+                feedback: "Correcto. El desafío más radical es la masificación algorítmica, el avance de la IA y la reducción del sufrimiento a métricas y soluciones automatizadas."
+            },
+            {
+                id: 2,
+                pregunta: "Frente a la cultura que promete la erradicación de la angustia mediante algoritmos predictivos y chatbots terapéuticos, ¿cómo define el modelo de la Clínica de la Convergencia al consultorio analítico?",
+                opciones: [
+                    "Como un centro avanzado de procesamiento de macrodatos y optimización algorítmica.",
+                    "Como una trinchera de la singularidad, un espacio sagrado donde la palabra viva, la transferencia y la escucha resisten a la serialización masiva.",
+                    "Como un laboratorio biológico enfocado exclusivamente en la neurobiología de la recompensa.",
+                    "Como una institución neutral dedicada a la estandarización de protocolos sanitarios.",
+                    "Como un dispositivo transitorio destinado a ser reemplazado por aplicaciones móviles."
+                ],
+                correcta: 1,
+                feedback: "Correcto. El consultorio se erige como una trinchera de la singularidad, un espacio donde la palabra viva y la escucha resisten a la serialización."
+            },
+            {
+                id: 3,
+                pregunta: "En la operatoria estructural del algoritmo frente al aparato psíquico, ¿cómo procesa la información el sistema de inteligencia artificial predictiva?",
+                opciones: [
+                    "Valorando e interpretando los lapsus, el síntoma y el equívoco como la verdad del sujeto.",
+                    "Eliminando el ruido, el lapsus, el síntoma y el equívoco, considerándolos 'errores' o ineficiencias operativas que deben corregirse.",
+                    "Fomentando la división subjetiva y la confrontación con la castración simbólica.",
+                    "Sustituyendo el goce autista por lazos sociales mediados por la alteridad real.",
+                    "Estimulando la creación de nuevos significantes en el discurso del paciente."
+                ],
+                correcta: 1,
+                feedback: "Correcto. El algoritmo procesa información eliminando el ruido, el lapsus y el equívoco, considerándolos errores operativos que deben ser corregidos."
+            },
+            {
+                id: 4,
+                pregunta: "¿Qué fantasía refuerza la inteligencia artificial al ofrecer respuestas estandarizadas y predecibles para cada demanda humana?",
+                opciones: [
+                    "La aceptación radical de la falta constitutiva y de la castración simbólica.",
+                    "Que existe un objeto exacto capaz de colmar el vacío originario, suturando la falta e impulsando al sujeto hacia el goce autista.",
+                    "La necesidad ineludible de sostener un vínculo real con sus inevitables crisis.",
+                    "La importancia de la alteridad radical y la fricción con los límites del otro.",
+                    "El desarrollo de un deseo metonímico expansivo y socializado."
+                ],
+                correcta: 1,
+                feedback: "Correcto. Al ofrecer respuestas estandarizadas, refuerza la fantasía de un objeto capaz de colmar el vacío, suturando la falta y empujando al goce autista."
+            },
+            {
+                id: 5,
+                pregunta: "Bajo el modelo de la Clínica de la Convergencia, ¿cómo se posiciona éticamente el analista frente a la burocratización estadística de la subjetividad?",
+                opciones: [
+                    "Operando desde el saber universal del amo, de la norma o de la grilla algorítmica.",
+                    "Renunciando al saber universal, situándose como objeto a y vaciándose de poder omnipotente para que el paciente construya su propia verdad.",
+                    "Exigiendo rendimientos medibles y eficiencia estandarizada en las sesiones.",
+                    "Utilizando protocolos automatizados para acelerar los tiempos lógicos de la cura.",
+                    "Imponiendo un modelo normativo de salud mental validado por macrodatos."
+                ],
+                correcta: 1,
+                feedback: "Correcto. El analista renuncia al saber universal y al poder omnipotente, situándose como objeto a para que el paciente construya su verdad."
+            },
+            {
+                id: 6,
+                pregunta: "¿Qué busca fundamentalmente la palabra en el consultorio analítico frente a los protocolos masificadores de la época?",
+                opciones: [
+                    "La eficiencia productiva y el rendimiento medible en planes estadísticos.",
+                    "La restitución de la autoría subjetiva y la dignidad del deseo frente a la serialización masiva.",
+                    "La validación algorítmica de los síntomas mediante métricas de bienestar.",
+                    "La adaptación rápida del sujeto a las exigencias del Superyó cultural.",
+                    "La supresión absoluta del equívoco y del inconsciente."
+                ],
+                correcta: 1,
+                feedback: "Correcto. La palabra busca la restitución de la autoría subjetiva y la dignidad del deseo frente a la serialización masiva."
+            },
+            {
+                id: 7,
+                pregunta: "Desde las neurociencias afectivas y la biología evolutiva del cerebro social, ¿cómo está configurado el sistema nervioso humano para autorregularse?",
+                opciones: [
+                    "En el aislamiento digital mediante aplicaciones de autogestión emocional.",
+                    "En la sintonía física y presencial con otro sistema nervioso vivo, y no en el aislamiento digital.",
+                    "Mediante la simulación sintáctica de lenguajes provistos por interfaces artificiales.",
+                    "A través de la desconexión total de las redes de neuronas espejo y la ínsula.",
+                    "Mediante el consumo autónomo de refuerzos de razón variable en pantallas."
+                ],
+                correcta: 1,
+                feedback: "Correcto. El sistema nervioso no está configurado para autorregularse en el aislamiento digital, sino en la sintonía física y presencial con otro sistema vivo."
+            },
+            {
+                id: 8,
+                pregunta: "¿Qué elementos activan directamente los circuitos de las neuronas espejo, la ínsula y los sistemas oxitocinérgicos en el espacio analítico?",
+                opciones: [
+                    "La modulación sintáctica de textos generados por algoritmos predictivos.",
+                    "La modulación de la voz, el registro de la respiración, la microexpresión facial y el acople de los ritmos corporales.",
+                    "La supresión de toda presencia física y el intercambio exclusivo a través de chats.",
+                    "La administración estandarizada de psicofármacos bloqueadores dopaminérgicos.",
+                    "La visualización de métricas estadísticas de rendimiento emocional."
+                ],
+                correcta: 1,
+                feedback: "Correcto. La modulación de la voz, la respiración, la microexpresión y el acople de ritmos activan neuronas espejo, ínsula y oxitocina."
+            },
+            {
+                id: 9,
+                pregunta: "¿Por qué un chatbot o un sistema de terapia automatizada son radicalmente incapaces de sostener una resonancia somática real?",
+                opciones: [
+                    "Porque carecen de velocidad de procesamiento de datos en los macrodatos.",
+                    "Porque carecen de cuerpo, de inconsciente y de finitud, siendo incapaces de experimentar alteridad.",
+                    "Porque poseen demasiados receptores dopaminérgicos D2 activos.",
+                    "Porque sus algoritmos integran información propioceptiva de manera imperfecta.",
+                    "Porque imponen demasiada fricción y resistencia a la omnipotencia del usuario."
+                ],
+                correcta: 1,
+                feedback: "Correcto. Las interfaces artificiales carecen de cuerpo, de inconsciente y de finitud, siendo incapaces de experimentar alteridad o resonancia somática."
+            },
+            {
+                id: 10,
+                pregunta: "Según la neurobiología y el modelo convergente, ¿qué requiere inexorablemente la transformación psíquica y la flexibilización de defensas rígidas?",
+                opciones: [
+                    "La delegación absoluta del sufrimiento en aplicaciones de autogestión emocional.",
+                    "La presencia de una alteridad real: un testigo ético de carne y hueso que valide el dolor, tolere el silencio y acompañe en la historia.",
+                    "La supresión de la palabra hablada en favor de respuestas sintácticas estandarizadas.",
+                    "El uso exclusivo de algoritmos de refuerzo variable para modular la amígdala.",
+                    "La erradicación total de la angustia mediante planes estadísticos de bienestar."
+                ],
+                correcta: 1,
+                feedback: "Correcto. La transformación psíquica requiere de una alteridad real, un testigo ético de carne y hueso que valide el dolor y acompañe al sujeto."
+            }
+        ];
+
+        let currentQuestion = 0;
+        let score = 0;
+        const totalQuestions = preguntas.length;
+
+        function renderQuiz() {
+            const container = document.getElementById("questionsContainer");
+            container.innerHTML = "";
+
+            preguntas.forEach((p, index) => {
+                const card = document.createElement("div");
+                card.className = `quiz-card ${index === 0 ? 'active' : ''}`;
+                card.id = `question-card-${index}`;
+
+                let opcionesHtml = "";
+                p.opciones.forEach((opcion, optIndex) => {
+                    opcionesHtml += `<button class="option-btn" onclick="verificarRespuesta(${index}, ${optIndex})">${opcion}</button>`;
+                });
+
+                card.innerHTML = `
+                    <div class="question-number">Pregunta ${index + 1} de ${totalQuestions}</div>
+                    <div class="question-title">${p.pregunta}</div>
+                    <div class="options-list" id="options-${index}">
+                        ${opcionesHtml}
+                    </div>
+                    <div class="feedback-box" id="feedback-${index}">${p.feedback}</div>
+                    <div class="nav-actions">
+                        <button class="btn-next" id="btn-next-${index}" onclick="siguientePregunta(${index})">
+                            ${index === totalQuestions - 1 ? 'Finalizar Protocolo' : 'Siguiente Pregunta'}
+                        </button>
+                    </div>
+                `;
+                container.appendChild(card);
+            });
+        }
+
+        window.verificarRespuesta = function(qIndex, selectedOpt) {
+            const p = preguntas[qIndex];
+            const optionsContainer = document.getElementById(`options-${qIndex}`);
+            const buttons = optionsContainer.getElementsByClassName("option-btn");
+            const feedbackBox = document.getElementById(`feedback-${qIndex}`);
+            const nextBtn = document.getElementById(`btn-next-${qIndex}`);
+
+            for (let i = 0; i < buttons.length; i++) {
+                buttons[i].disabled = true;
+                if (i === p.correcta) {
+                    buttons[i].classList.add("correct");
+                } else if (i === selectedOpt) {
+                    buttons[i].classList.add("incorrect");
+                }
+            }
+
+            if (selectedOpt === p.correcta) {
+                score += 1;
+                feedbackBox.className = "feedback-box show correct-fb";
+            } else {
+                feedbackBox.className = "feedback-box show incorrect-fb";
+            }
+
+            nextBtn.style.display = "block";
+        }
+
+        window.siguientePregunta = function(qIndex) {
+            document.getElementById(`question-card-${qIndex}`).classList.remove("active");
+
+            if (qIndex + 1 < totalQuestions) {
+                document.getElementById(`question-card-${qIndex + 1}`).classList.add("active");
+            } else {
+                guardarYMostrarResultados();
+            }
+        }
+
+        async function guardarYMostrarResultados() {
+            document.getElementById("questionsContainer").style.display = "none";
+            const resultsCard = document.getElementById("resultsCard");
+            const scoreText = document.getElementById("scoreText");
+            const resultStatus = document.getElementById("resultStatus");
+
+            resultsCard.style.display = "block";
+            scoreText.innerText = `Protocolo finalizado, Ud. ha obtenido ${score} puntos/10, se enviará a corrección definitiva`;
+
+            const sessionData = sessionStorage.getItem("current_session");
+            let userId = "Estudiante_Anonimo";
+            
+            if (sessionData) {
+                try {
+                    const userObj = JSON.parse(sessionData);
+                    userId = userObj.user || userObj.name || "Estudiante";
+                } catch (e) {
+                    console.error("Error al parsear sesión:", e);
+                }
+            }
+
+            const docId = `NOTA_TEST_12_${userId.replace(/[\.\s]/g, "_")}`;
+
+            try {
+                await setDoc(doc(db, "calificaciones_tests", docId), {
+                    usuario: userId,
+                    notaTest_12: score,
+                    fecha: new Date().toISOString()
+                });
+
+                resultStatus.style.color = "#145a32";
+                resultStatus.innerText = "¡Resultado guardado con éxito en la base de datos!";
+            } catch (error) {
+                console.error("Error al guardar en base de datos:", error);
+                resultStatus.style.color = "#641e16";
+                resultStatus.innerText = "Error al sincronizar el resultado con la base de datos.";
+            }
+        }
+
+        window.volverDashboard = function() {
+            if (window.parent && window.parent !== window) {
+                window.parent.location.reload();
+            } else {
+                window.location.href = "index.html";
+            }
+        }
+
+        window.onload = function() {
+            renderQuiz();
+        };
+    </script>
+</body>
+</html>
